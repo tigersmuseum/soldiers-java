@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class SoldiersModel {
 
-	public  static final String XML_NAMESPACE = "http://royalhampshireregiment.org/tigers";
+	public  static final String XML_NAMESPACE = "http://royalhampshireregiment.org/soldiers";
 
 	public static long getTigerIdForSourceItem(Connection connection, String source, int sid) {
 		
