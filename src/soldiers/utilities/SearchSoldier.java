@@ -1,4 +1,4 @@
-package soldiers.format;
+package soldiers.utilities;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

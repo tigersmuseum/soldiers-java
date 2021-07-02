@@ -1,4 +1,4 @@
-package soldiers.format;
+package soldiers.utilities;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
