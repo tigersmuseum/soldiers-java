@@ -36,7 +36,7 @@ public class Person {
 
 
 	
-	private long tigerId = -1;
+	private long soldierId = -1;
 
 	public String getSurname() {
 		return surname;
@@ -82,12 +82,12 @@ public class Person {
 		this.title = title;
 	}
 
-	public long getTigerId() {
-		return tigerId;
+	public long getSoldierId() {
+		return soldierId;
 	}
 
-	public void setTigerId(long tigerId) {
-		this.tigerId = tigerId;
+	public void setSoldierId(long soldierId) {
+		this.soldierId = soldierId;
 	}
 
 	public Date getBirth() {
@@ -154,7 +154,7 @@ public class Person {
 	@Override
 	public String toString() {
 
-		String person = String.format("%d: surname=%s, initials=%s, forenames=%s, suffix=%s", tigerId, surname, initials, forenames, suffix);
+		String person = String.format("%d: surname=%s, initials=%s, forenames=%s, suffix=%s", soldierId, surname, initials, forenames, suffix);
 		return person;
 	}
 	
@@ -163,7 +163,7 @@ public class Person {
 		ch.startPrefixMapping("", SoldiersModel.XML_NAMESPACE);
 
 		AttributesImpl attr = new AttributesImpl();
-		if ( tigerId > 0 ) attr.addAttribute("", "tid",  "tid", "Integer", String.valueOf(tigerId));
+		if ( soldierId > 0 ) attr.addAttribute("", "sid",  "sid", "Integer", String.valueOf(soldierId));
 
 		ch.startElement(SoldiersModel.XML_NAMESPACE, "person", "person", attr);
 
@@ -257,14 +257,14 @@ public class Person {
 	public boolean equals(Object obj) {
 
 		Person other = (Person) obj;
-		if (tigerId > 0 && other.getTigerId() == tigerId) return true;
+		if (soldierId > 0 && other.getSoldierId() == soldierId) return true;
 		else return false;
 	}
 
 	@Override
 	public int hashCode() {
 		
-		if (tigerId > 0) return Long.valueOf(tigerId).hashCode();
+		if (soldierId > 0) return Long.valueOf(soldierId).hashCode();
 		else return super.hashCode();
 	}
 

@@ -129,7 +129,7 @@ public class SoldiersModel {
 				Person candidate = new Person();
 				Service ss = new Service();
 
-				candidate.setTigerId(results.getLong("SID"));
+				candidate.setSoldierId(results.getLong("SID"));
 				ss.setNumber(results.getString("NUM"));
 				ss.setRank(results.getString("RANK_ABBREV"));
 				candidate.setSurname(results.getString("SURNAME"));
@@ -172,7 +172,7 @@ public class SoldiersModel {
 				Person candidate = new Person();
 				Service svc = new Service();
 
-				candidate.setTigerId(results.getLong("SID"));
+				candidate.setSoldierId(results.getLong("SID"));
 				svc.setNumber(results.getString("NUM"));
 				svc.setRank(results.getString("RANK_ABBREV"));
 				candidate.setSurname(results.getString("SURNAME"));
@@ -214,7 +214,7 @@ public class SoldiersModel {
 				Person candidate = new Person();
 				Service ss = new Service();
 
-				candidate.setTigerId(results.getLong("SID"));
+				candidate.setSoldierId(results.getLong("SID"));
 				ss.setNumber(results.getString("NUM"));
 				ss.setRank(results.getString("RANK_ABBREV"));
 				candidate.setSurname(results.getString("SURNAME"));
@@ -257,7 +257,7 @@ public class SoldiersModel {
 				Person candidate = new Person();
 				Service ss = new Service();
 
-				candidate.setTigerId(results.getLong("LID"));
+				candidate.setSoldierId(results.getLong("LID"));
 				ss.setNumber(results.getString("NUM"));
 				ss.setRank(results.getString("RANK"));
 				candidate.setSurname(results.getString("SURNAME"));
@@ -296,7 +296,7 @@ public class SoldiersModel {
 			
 			if ( results.next() ) {
 				
-				person.setTigerId(results.getLong("SID"));
+				person.setSoldierId(results.getLong("SID"));
 				person.setSurname(results.getString("SURNAME"));
 				person.setInitials(results.getString("INITIALS"));
 				person.setForenames(results.getString("FORENAMES"));
@@ -358,7 +358,7 @@ public class SoldiersModel {
 				
 				Service svc = new Service();
 				
-				person.setTigerId(results.getLong("SID"));
+				person.setSoldierId(results.getLong("SID"));
 				svc.setNumber(results.getString("NUM"));
 				svc.setRank(results.getString("RANK_ABBREV"));
 				person.setSurname(results.getString("SURNAME"));
@@ -430,14 +430,14 @@ public class SoldiersModel {
 				Set<Service> service = person.getService();
 				Service svc = service.iterator().next();
 				
-				personStmt.setLong(1, person.getTigerId());
+				personStmt.setLong(1, person.getSoldierId());
 				personStmt.setString(2, person.getSurname());
 				personStmt.setString(3, person.getForenames());
 				personStmt.setString(4, person.getInitials());
 				
 				personStmt.executeUpdate();
 				
-				serviceStmt.setLong(1, person.getTigerId());
+				serviceStmt.setLong(1, person.getSoldierId());
 				serviceStmt.setString(2, svc.getRank());
 				serviceStmt.setString(3, "Hampshire Regiment");
 				serviceStmt.setDate(4, after);
@@ -474,14 +474,14 @@ public class SoldiersModel {
 			PreparedStatement personStmt  = connection.prepareStatement(personSql);
 			PreparedStatement serviceStmt = connection.prepareStatement(serviceSql);
 			
-			personStmt.setLong(1, person.getTigerId());
+			personStmt.setLong(1, person.getSoldierId());
 			personStmt.setString(2, person.getSurname());
 			personStmt.setString(3, person.getForenames());
 			personStmt.setString(4, person.getInitials());
 			
 			personStmt.executeUpdate();
 			
-			serviceStmt.setLong(1, person.getTigerId());
+			serviceStmt.setLong(1, person.getSoldierId());
 			serviceStmt.setString(2, svc.getRank());
 			serviceStmt.setString(3, "Hampshire Regiment");
 			serviceStmt.setDate(4, after);
@@ -516,7 +516,7 @@ public class SoldiersModel {
 			
 			if ( results.next() ) {
 				
-				person.setTigerId(results.getLong("SID"));
+				person.setSoldierId(results.getLong("SID"));
 				svc.setNumber(results.getString("NUM"));
 				svc.setRank(results.getString("RANK"));
 				person.setSurname(results.getString("SURNAME"));

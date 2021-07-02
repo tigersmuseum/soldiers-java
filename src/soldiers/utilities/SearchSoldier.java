@@ -62,7 +62,7 @@ public class SearchSoldier {
 
 		while ( x.hasNext() ) {
 			
-			Person r = SoldiersModel.getPerson(DerbyConnect.getConnection(), x.next().getTigerId());
+			Person r = SoldiersModel.getPerson(DerbyConnect.getConnection(), x.next().getSoldierId());
 			System.out.println("db: " + r);
 			r.serializePerson(serializer);
 		}
