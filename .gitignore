@@ -2,3 +2,4 @@
 /target/
 output/results.xml
 /output/
+*.log
