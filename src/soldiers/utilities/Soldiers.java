@@ -36,7 +36,6 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import soldiers.database.Person;
 import soldiers.database.Service;
-import soldiers.database.SoldiersModel;
 import soldiers.database.SoldiersNamespaceContext;
 
 public class Soldiers {
@@ -46,49 +45,34 @@ public class Soldiers {
 
     public static void main(String[] args) throws TransformerException, XPathExpressionException, SAXException, IOException, ParserConfigurationException {
 
-    	casldgr();
-	}
-        
-    public static void casldgr() throws TransformerException, XPathExpressionException, SAXException, ParserConfigurationException, IOException {
+    	if ( args.length < 1 ) {
+    		
+    		System.err.println("Usage: Soldiers <filename> [database]");
+    		System.exit(1);
+    	}
     	
-    	String filenameIn = "/H:/Archive/Admin/Database/WOCL/wocl.xml";
-
-		Document doc = readDocument(new FileInputStream(filenameIn));			 
+    	String inputfile = args[0];
+    	
+    	String database = "access";
+    	if ( args.length >= 2 ) database = args[1];
+    	
+		Document doc = readDocument(new FileInputStream(inputfile));			 
 		doc.normalizeDocument();
 		
-		identifyPersonMentionsInPlaceXML(doc);
+		Connection connection = null;
+		
+		if ( database.equals("derby") ) connection = ConnectionManager.getDerbyConnection();
+		else connection = ConnectionManager.getAccessConnection();
+		
+		identifyPersonMentionsInPlaceXML(doc, connection);
 		
 		TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(new FileOutputStream("output/out.xml"));	
 		transformer.transform(source, result);	
-    }
-
-    
-    public static void addTigerID(Document doc) throws FileNotFoundException, TransformerException, XPathExpressionException {
-    	
-    	//Connection connection = DerbyConnect.getDerbyConnection();
-    	Connection connection = DerbyConnect.getConnection();
-    	
-		XPathExpression people = xpath.compile("//person");			
-		XPathExpression index = xpath.compile("./index");	
-		
-		NodeList list = (NodeList) people.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
-    	
-		for ( int i = 0; i < list.getLength(); i++ ) {
-			
-			Element e = (Element) list.item(i);
-			int sid = Integer.valueOf((String) index.evaluate(e, XPathConstants.STRING));
-			long tid = SoldiersModel.getTigerIdForSourceItem(connection, "CHARLIE", sid);
-			
-			if ( tid > 0 ) e.setAttribute("tid", String.valueOf(tid));
-		}
-		
-		writeDocument(doc, new FileOutputStream("delete.xml"));
-    }
-
-    
+	}
+        
 	public static Document readDocument(InputStream input) throws ParserConfigurationException, SAXException, IOException {
 		
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -109,7 +93,7 @@ public class Soldiers {
 		transformer.transform(source, result);	
 	}
 
-	public static void identifyPersonMentionsInPlaceXML(Document doc) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException {
+	public static void identifyPersonMentionsInPlaceXML(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException {
 		
 		xpath.setNamespaceContext(new SoldiersNamespaceContext());
 		XPathExpression expr = xpath.compile(".//soldiers:person");
@@ -146,7 +130,7 @@ public class Soldiers {
 			person.setSuffix(suffix);
 			
 			System.out.println(person.getContent());
-			Set<Person> candidates = SearchSoldier.checkIdentity(person);
+			Set<Person> candidates = SearchSoldier.checkIdentity(person, connection);
 			
 			AttributesImpl attr= new AttributesImpl();
 			attr.addAttribute("", "hits",  "hits", "Integer", String.valueOf(candidates.size()));
@@ -158,7 +142,7 @@ public class Soldiers {
 
 				//p.serializePerson(ch);
 				Element candidate = doc.createElement("candidate");
-				candidate.setAttribute("tid", String.format("%d", p.getSoldierId()));
+				candidate.setAttribute("sid", String.format("%d", p.getSoldierId()));
 				candidate.setAttribute("content", p.getContent());
 				candidate.setAttribute("sort", p.getSort());
 				candidate.setAttribute("number", svc.getNumber());

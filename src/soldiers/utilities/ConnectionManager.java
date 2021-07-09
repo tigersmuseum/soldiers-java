@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DerbyConnect {
+public class ConnectionManager {
 
     public static Connection getDerbyConnection() {
 		
@@ -22,7 +22,7 @@ public class DerbyConnect {
  		return connection;
 	}
 
-    public static Connection getConnection() {
+    public static Connection getAccessConnection() {
 		
 		Connection connection = null;
 		

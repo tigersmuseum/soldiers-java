@@ -2,6 +2,7 @@ package soldiers.utilities;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,10 +41,10 @@ public class SearchSoldier {
 		
 		p.addService(svc);
 		
-		Set<Person> results = SoldiersModel.getCandidatesForNumberName(DerbyConnect.getConnection(), p);
+		Set<Person> results = SoldiersModel.getCandidatesForNumberName(ConnectionManager.getAccessConnection(), p);
 		
-		if (svc.getNumber() != null) results.addAll(SoldiersModel.getCandidatesForExactNumber(DerbyConnect.getConnection(), p));
-		results.addAll(SoldiersModel.getCandidatesForNameInitials(DerbyConnect.getConnection(), p));
+		if (svc.getNumber() != null) results.addAll(SoldiersModel.getCandidatesForExactNumber(ConnectionManager.getAccessConnection(), p));
+		results.addAll(SoldiersModel.getCandidatesForNameInitials(ConnectionManager.getAccessConnection(), p));
 
 		System.out.println("......" + results.size());
 		
@@ -62,7 +63,7 @@ public class SearchSoldier {
 
 		while ( x.hasNext() ) {
 			
-			Person r = SoldiersModel.getPerson(DerbyConnect.getConnection(), x.next().getSoldierId());
+			Person r = SoldiersModel.getPerson(ConnectionManager.getAccessConnection(), x.next().getSoldierId());
 			System.out.println("db: " + r);
 			r.serializePerson(serializer);
 		}
@@ -72,19 +73,19 @@ public class SearchSoldier {
 	}
 
 
-	public static Set<Person> checkIdentity(Person p) {
+	public static Set<Person> checkIdentity(Person p, Connection connection) {
 
-		Set<Person> results = SoldiersModel.getCandidatesForNumberName(DerbyConnect.getConnection(), p);
+		Set<Person> results = SoldiersModel.getCandidatesForNumberName(connection, p);
 		
 		Set<Service> service = p.getService();
 		
 		if ( service.size() > 0 ) {
 			
 			Service svc = service.iterator().next();
-			if (svc.getNumber() != null) results.addAll(SoldiersModel.getCandidatesForExactNumber(DerbyConnect.getConnection(), p));
+			if (svc.getNumber() != null) results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
 		}
 		
-		results.addAll(SoldiersModel.getCandidatesForNameInitials(DerbyConnect.getConnection(), p));
+		results.addAll(SoldiersModel.getCandidatesForNameInitials(connection, p));
 
 		System.out.println("......" + results.size());
 		
