@@ -140,7 +140,6 @@ public class Soldiers {
 				Set<Service> service = p.getService();
 				Service svc = service.iterator().next();
 
-				//p.serializePerson(ch);
 				Element candidate = doc.createElement("candidate");
 				candidate.setAttribute("sid", String.format("%d", p.getSoldierId()));
 				candidate.setAttribute("content", p.getContent());
@@ -195,7 +194,6 @@ public class Soldiers {
 	
 	public static void writeXml(Collection<Person> people) throws TransformerConfigurationException, SAXException, IllegalArgumentException, FileNotFoundException {
 		
-
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler serializer;
         serializer = tf.newTransformerHandler();
