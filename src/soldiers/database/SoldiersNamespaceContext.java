@@ -5,7 +5,7 @@ import java.util.Iterator;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 
-public class TigersNamespaceContext implements NamespaceContext {
+public class SoldiersNamespaceContext implements NamespaceContext {
 
 	@Override
 	public String getNamespaceURI(String prefix) {
