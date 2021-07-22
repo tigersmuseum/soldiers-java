@@ -117,7 +117,7 @@ public class Soldiers {
 				Element svc = (Element) serviceList.item(s);
 				
 				Service ss = new Service();
-				ss.setNumber(svc.getAttribute("number"));
+				if ( svc.getAttribute("number").length() > 0 ) ss.setNumber(svc.getAttribute("number"));
 				ss.setRank(svc.getAttribute("rank"));
 				ss.setRegiment(svc.getAttribute("regiment"));
 				ss.setUnit(svc.getAttribute("unit"));
