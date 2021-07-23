@@ -179,9 +179,6 @@ public class Person {
 		if ( forenames != null ) ch.characters(forenames.toCharArray(), 0, forenames.length());	
 		ch.endElement(SoldiersModel.XML_NAMESPACE, "forenames", "forenames");
 		
-		Set<Service> service = getService();
-		for ( Service svc: service)  svc.serializeService(ch);
-					
 		attr = new AttributesImpl();
 		if (birth != null)  attr.addAttribute("", "date",  "date", "String",  formatter.format(birth));
 		if (bornafter != null)  attr.addAttribute("", "after",  "after", "String",  formatter.format(bornafter));
@@ -208,11 +205,15 @@ public class Person {
 			ch.endElement(SoldiersModel.XML_NAMESPACE, "text", "text");
 		}
 		
-		for ( Service svc: service ) {
+		Set<Service> service = getService();
+					
+		if ( service.size() > 0 ) {
 			
-			svc.serializeService(ch);
+			ch.startElement(SoldiersModel.XML_NAMESPACE, "service", "service", new AttributesImpl());		
+			for ( Service svc: service)  svc.serializeService(ch);
+			ch.endElement(SoldiersModel.XML_NAMESPACE, "service", "service");
 		}
-		
+				
 		ch.endElement(SoldiersModel.XML_NAMESPACE, "person", "person");	
 	}
 

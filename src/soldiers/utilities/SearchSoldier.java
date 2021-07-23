@@ -58,7 +58,7 @@ public class SearchSoldier {
         serializer.setResult(new StreamResult(new FileOutputStream("output/results.xml")));
 
 		serializer.startDocument();
-		serializer.startElement("", "results", "results", new AttributesImpl());
+		serializer.startElement(SoldiersModel.XML_NAMESPACE, "list", "list", new AttributesImpl());
 
 
 		while ( x.hasNext() ) {
@@ -68,7 +68,7 @@ public class SearchSoldier {
 			r.serializePerson(serializer);
 		}
 		
-		serializer.endElement("", "results", "results");
+		serializer.endElement(SoldiersModel.XML_NAMESPACE, "list", "list");
 		serializer.endDocument();
 	}
 

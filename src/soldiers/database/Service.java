@@ -106,8 +106,8 @@ public class Service {
 		if ( after != null )  attr.addAttribute("", "after",  "after", "String", formatter.format(after));
 		if ( before != null )  attr.addAttribute("", "before",  "before", "String", formatter.format(before));
 
-		ch.startElement(SoldiersModel.XML_NAMESPACE, "service", "service", attr);
-		ch.endElement(SoldiersModel.XML_NAMESPACE, "service", "service");	
+		ch.startElement(SoldiersModel.XML_NAMESPACE, "record", "record", attr);
+		ch.endElement(SoldiersModel.XML_NAMESPACE, "record", "record");	
 	}
 
 	@Override
