@@ -41,10 +41,10 @@ public class SearchSoldier {
 		
 		p.addService(svc);
 		
-		Set<Person> results = SoldiersModel.getCandidatesForNumberName(ConnectionManager.getAccessConnection(), p);
+		Set<Person> results = SoldiersModel.getCandidatesForNumberName(ConnectionManager.getConnection(), p);
 		
-		if (svc.getNumber() != null) results.addAll(SoldiersModel.getCandidatesForExactNumber(ConnectionManager.getAccessConnection(), p));
-		results.addAll(SoldiersModel.getCandidatesForNameInitials(ConnectionManager.getAccessConnection(), p));
+		if (svc.getNumber() != null) results.addAll(SoldiersModel.getCandidatesForExactNumber(ConnectionManager.getConnection(), p));
+		results.addAll(SoldiersModel.getCandidatesForNameInitials(ConnectionManager.getConnection(), p));
 
 		System.out.println("......" + results.size());
 		
@@ -63,7 +63,7 @@ public class SearchSoldier {
 
 		while ( x.hasNext() ) {
 			
-			Person r = SoldiersModel.getPerson(ConnectionManager.getAccessConnection(), x.next().getSoldierId());
+			Person r = SoldiersModel.getPerson(ConnectionManager.getConnection(), x.next().getSoldierId());
 			System.out.println("db: " + r);
 			r.serializePerson(serializer);
 		}

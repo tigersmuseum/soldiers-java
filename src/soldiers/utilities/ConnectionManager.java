@@ -6,12 +6,41 @@ import java.sql.SQLException;
 
 public class ConnectionManager {
 
-    public static Connection getDerbyConnection() {
+    public static Connection getConnection() {
+		
+    	// String dburl = "jdbc:derby:J:/Soldiers/TIGERS";
+    	// jdbc:ucanaccess://H:/Archive/Admin/Database/TIGERS.accdb
+    	
+		Connection connection = null;
+		
+		String dburl = System.getProperty("soldiers.database.url");
+		
+		if ( dburl == null ) {
+			
+			System.err.println("Set the JDBC URL using system property: soldiers.database.url");		
+		}
+		else if ( dburl.startsWith("jdbc:ucanaccess:") ) {
+			
+			connection = getAccessConnection(dburl);
+		}
+		else if ( dburl.startsWith("jdbc:derby:") ) {
+			
+			connection = getDerbyConnection(dburl);
+		}
+		else {
+			
+			System.err.println("JDBC URL: " + dburl);					
+			System.err.println("Expecting URL to start \"jdbc:ucanaccess:\" or \"jdbc:derby:\"");					
+		}
+		
+ 		return connection;
+	}
+
+    public static Connection getDerbyConnection(String dburl) {
 		
 		Connection connection = null;
 		
  		try {
-			String dburl = "jdbc:derby:J:/Soldiers/TIGERS";
 			connection = DriverManager.getConnection(dburl, "user", "password");
 		}
  		catch (SQLException e) {
@@ -22,7 +51,7 @@ public class ConnectionManager {
  		return connection;
 	}
 
-    public static Connection getAccessConnection() {
+    public static Connection getAccessConnection(String dburl) {
 		
 		Connection connection = null;
 		

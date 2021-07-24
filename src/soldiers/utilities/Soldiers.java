@@ -47,22 +47,16 @@ public class Soldiers {
 
     	if ( args.length < 1 ) {
     		
-    		System.err.println("Usage: Soldiers <filename> [database]");
+    		System.err.println("Usage: Soldiers <filename>");
     		System.exit(1);
     	}
     	
     	String inputfile = args[0];
     	
-    	String database = "access";
-    	if ( args.length >= 2 ) database = args[1];
-    	
 		Document doc = readDocument(new FileInputStream(inputfile));			 
 		doc.normalizeDocument();
 		
-		Connection connection = null;
-		
-		if ( database.equals("derby") ) connection = ConnectionManager.getDerbyConnection();
-		else connection = ConnectionManager.getAccessConnection();
+		Connection connection = ConnectionManager.getConnection();
 		
 		identifyPersonMentionsInPlaceXML(doc, connection);
 		
