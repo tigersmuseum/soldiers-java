@@ -66,5 +66,10 @@
   		<artifactId>derbyclient</artifactId>
   		<version>10.14.2.0</version>
   	</dependency>
+  	<dependency>
+  		<groupId>net.sourceforge.htmlcleaner</groupId>
+  		<artifactId>htmlcleaner</artifactId>
+  		<version>2.24</version>
+  	</dependency>
   </dependencies>
 </project>
