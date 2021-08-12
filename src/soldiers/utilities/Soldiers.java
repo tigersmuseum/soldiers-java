@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
+import java.sql.Date;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.Set;
 
@@ -149,42 +151,84 @@ public class Soldiers {
 		
 	}
 
-	public static Person parsePerson(Element element) {
+	public static Person parsePerson(Element element) throws ParseException {
 		
 		Person person = new Person();
 		
-		String tidattr = element.getAttribute("tid");
-		if ( tidattr != null && tidattr.length() > 0 ) person.setSoldierId(Long.valueOf(tidattr));
+		String sid = element.getAttribute("sid");
+		if ( sid != null && sid.length() > 0 ) person.setSoldierId(Long.valueOf(sid));
 		
-		String surname = element.getElementsByTagName("surname").getLength() == 0 ? null : element.getElementsByTagName("surname").item(0).getTextContent();
+		String surname   = element.getElementsByTagName("surname").getLength()   == 0 ? null : element.getElementsByTagName("surname").item(0).getTextContent();
 		String forenames = element.getElementsByTagName("forenames").getLength() == 0 ? null : element.getElementsByTagName("forenames").item(0).getTextContent();
-		String initials = element.getElementsByTagName("initials").getLength() == 0 ? null : element.getElementsByTagName("initials").item(0).getTextContent();
-		String suffix = element.getElementsByTagName("suffix").getLength() == 0 ? null : element.getElementsByTagName("suffix").item(0).getTextContent();
+		String initials  = element.getElementsByTagName("initials").getLength()  == 0 ? null : element.getElementsByTagName("initials").item(0).getTextContent();
+		String suffix    = element.getElementsByTagName("suffix").getLength()    == 0 ? null : element.getElementsByTagName("suffix").item(0).getTextContent();
 
-		String number = null;
-		String rank = element.getElementsByTagName("rank").getLength() == 0 ? null : element.getElementsByTagName("rank").item(0).getTextContent();
-		
-		Element service = (Element) element.getElementsByTagName("service").item(0);
-		
-		if ( service != null ) {
-			
-			number = service.getAttribute("number");
-			String rankattr = service.getAttribute("rank");
-			if ( rankattr != null && rankattr.length() > 0 )  rank = rankattr; 
-		}
-		
-		Service svc = new Service();
-
-		svc.setNumber(number);
-		svc.setRank(rank);
 		person.setSurname(surname);
 		person.setInitials(initials);
 		person.setForenames(forenames);
 		person.setSuffix(suffix);
-		person.addService(svc);
 		
+		NodeList nl = element.getElementsByTagName("death");
+		
+		if ( nl.getLength() > 0 ) {
+			
+			Element e = (Element) nl.item(0);
+			String dd = e.getAttribute("date");
+			String da = e.getAttribute("after");
+			String db = e.getAttribute("before");
+			
+			if ( dd.length() > 0 )  person.setDeath(Date.valueOf(dd));
+			if ( da.length() > 0 )  person.setDiedafter(Date.valueOf(da));
+			if ( db.length() > 0 )  person.setDiedbefore(Date.valueOf(db));
+		}
+		
+		
+		nl = element.getElementsByTagName("birth");
+		
+		if ( nl.getLength() > 0 ) {
+			
+			Element e = (Element) nl.item(0);
+			String bd = e.getAttribute("date");
+			String ba = e.getAttribute("after");
+			String bb = e.getAttribute("before");
+			
+			if ( bd.length() > 0 )  person.setBirth(Date.valueOf(bd));
+			if ( ba.length() > 0 )  person.setBornafter(Date.valueOf(ba));
+			if ( bb.length() > 0 )  person.setBornbefore(Date.valueOf(bb));
+		}
+		
+ 		Element service = (Element) element.getElementsByTagName("service").item(0);
+		
+		if ( service != null ) {
+			
+			NodeList records = service.getElementsByTagName("record");
+			
+			for ( int i = 0; i < records.getLength(); i++ ) {
+				
+				Element record = (Element) records.item(i);
+				String number = record.getAttribute("number");
+				String rank   = record.getAttribute("rank");
+				String regmt  = record.getAttribute("regiment");
+				String unit   = record.getAttribute("unit");
+				String after  = record.getAttribute("after");
+				String before = record.getAttribute("before");
+
+				Service serviceRecord = new Service();
+				if ( number.length() > 0 )  serviceRecord.setNumber(number);
+				if ( rank.length() > 0 )    serviceRecord.setRank(rank);
+				if ( regmt.length() > 0 )   serviceRecord.setRegiment(regmt);
+				if ( unit.length() > 0 )    serviceRecord.setUnit(unit);
+				if ( after.length() > 0 )   serviceRecord.setAfter(Date.valueOf(after));
+				if ( before.length() > 0 )  serviceRecord.setBefore(Date.valueOf(before));
+
+				serviceRecord.setSoldierId(person.getSoldierId());
+				person.addService(serviceRecord);
+			}
+		}
+
 		return person;
 	}
+
 	
 	public static void writeXml(Collection<Person> people) throws TransformerConfigurationException, SAXException, IllegalArgumentException, FileNotFoundException {
 		

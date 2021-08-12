@@ -1,13 +1,10 @@
 package soldiers.database;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -15,7 +12,7 @@ public class SoldiersModel {
 
 	public  static final String XML_NAMESPACE = "http://royalhampshireregiment.org/soldiers";
 
-	public static long getTigerIdForSourceItem(Connection connection, String source, int sid) {
+	public static long getSoldierIdForSourceItem(Connection connection, String source, int sid) {
 		
 		long tid = -1;
 		
@@ -44,7 +41,7 @@ public class SoldiersModel {
 	}
 
 	
-	public static Set<Integer> getTigerIdsForNameInitials(Connection connection, Person person) {
+	public static Set<Integer> getSoldierIdsForNameInitials(Connection connection, Person person) {
 		
 		Set<Integer> candidates = new HashSet<Integer>();
 		
@@ -73,7 +70,7 @@ public class SoldiersModel {
 	}
 
 	
-	public static Set<Integer> getTigerIdsForNumberName(Connection connection, Person person) {
+	public static Set<Integer> getSoldierIdsForNumberName(Connection connection, Person person) {
 		
 		Set<Integer> candidates = new HashSet<Integer>();
 		
@@ -235,52 +232,7 @@ public class SoldiersModel {
 	}
 
 	
-	public static Set<Person> getCandidatesForNumberNameLonglist(Connection connection, Person person) {
-		
-		Set<Person> candidates = new HashSet<Person>();
-		
-		String sql = "select LID, SURNAME, INITIALS, FORENAMES, NUM, RANK from LONGLIST where SURNAME = ? and NUM like ?";
-
-		try {
-				
-			Set<Service> service = person.getService();
-			Service svc = service.iterator().next();
-			
-			PreparedStatement stmt = connection.prepareStatement(sql);
-			stmt.setString(1, person.getSurname());
-			stmt.setString(2, "%" + svc.getNumber());
-			
-			ResultSet results = stmt.executeQuery();
-			
-			while ( results.next() ) {
-				
-				Person candidate = new Person();
-				Service ss = new Service();
-
-				candidate.setSoldierId(results.getLong("LID"));
-				ss.setNumber(results.getString("NUM"));
-				ss.setRank(results.getString("RANK"));
-				candidate.setSurname(results.getString("SURNAME"));
-				candidate.setInitials(results.getString("INITIALS"));
-				candidate.setForenames(results.getString("FORENAMES"));
-				
-				person.addService(ss);
-
-				candidates.add(candidate);
-			}
-			
-			stmt.close();
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-				
-		return candidates;
-	}
-
-	
-	
-	public static Person getPerson(Connection connection, long tid) {
+	public static Person getPerson(Connection connection, long sid) {
 		
 		Person person = new Person();
 		
@@ -290,7 +242,7 @@ public class SoldiersModel {
 		try {
 				
 			PreparedStatement stmtp = connection.prepareStatement(sqlp);
-			stmtp.setLong(1, tid);
+			stmtp.setLong(1, sid);
 			
 			ResultSet results = stmtp.executeQuery();
 			
@@ -308,7 +260,7 @@ public class SoldiersModel {
 				person.setDiedbefore(results.getDate("DIEDBEFORE"));
 				
 				PreparedStatement stmts = connection.prepareStatement(sqls);
-				stmts.setLong(1, tid);
+				stmts.setLong(1, sid);
 				ResultSet svcresults = stmts.executeQuery();
 				
 				HashSet<Service> service = new HashSet<Service>();
@@ -324,6 +276,7 @@ public class SoldiersModel {
 					svc.setAfter(svcresults.getDate("AFTER"));
 					svc.setBefore(svcresults.getDate("BEFORE"));
 					
+					svc.setSoldierId(sid);
 					service.add(svc);
 				}
 				
@@ -331,50 +284,6 @@ public class SoldiersModel {
 			}
 			
 			stmtp.close();
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return person;
-	}
-	
-
-	public static Person getPersonX(Connection connection, long tid) {
-		
-		Person person = new Person();
-		
-		String sql = "select P.SID, S.NUM, S.RANK_ABBREV, P.SURNAME, P.INITIALS, P.FORENAMES, P.BIRTH, P.DEATH, P.BORNAFTER, P.BORNBEFORE, P.DIEDAFTER, P.DIEDBEFORE from PERSON P, SERVICE S where P.SID = ? and P.SID = S.SID";
-
-
-		try {
-				
-			PreparedStatement stmt = connection.prepareStatement(sql);
-			stmt.setLong(1, tid);
-			
-			ResultSet results = stmt.executeQuery();
-			
-			if ( results.next() ) {
-				
-				Service svc = new Service();
-				
-				person.setSoldierId(results.getLong("SID"));
-				svc.setNumber(results.getString("NUM"));
-				svc.setRank(results.getString("RANK_ABBREV"));
-				person.setSurname(results.getString("SURNAME"));
-				person.setInitials(results.getString("INITIALS"));
-				person.setForenames(results.getString("FORENAMES"));
-				person.setBirth(results.getDate("BIRTH"));
-				person.setDeath(results.getDate("DEATH"));
-				person.setBornafter(results.getDate("BORNAFTER"));
-				person.setBornbefore(results.getDate("BORNBEFORE"));
-				person.setDiedafter(results.getDate("DIEDAFTER"));
-				person.setDiedbefore(results.getDate("DIEDBEFORE"));
-				
-				person.addService(svc);
-			}
-			
-			stmt.close();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -413,83 +322,70 @@ public class SoldiersModel {
 
 	public static void insertPeople(Connection connection, List<Person> people) {
 		
-		String personSql  = "insert into PERSON (SID, SURNAME, FORENAMES, INITIALS) values(?, ?, ?, ?)";
-		String serviceSql = "insert into SERVICE (SID, RANK_ABBREV, REGIMENT, AFTER, NUMBER) values(?, ?, ?, ?, ?)";
-		
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(1900, 1, 1);
-		Date after = new Date(calendar.getTimeInMillis());
-
-		try {
+		for (Person person: people) {
 			
-			PreparedStatement personStmt  = connection.prepareStatement(personSql);
-			PreparedStatement serviceStmt = connection.prepareStatement(serviceSql);
-			
-			for (Person person: people) {
-				
-				Set<Service> service = person.getService();
-				Service svc = service.iterator().next();
-				
-				personStmt.setLong(1, person.getSoldierId());
-				personStmt.setString(2, person.getSurname());
-				personStmt.setString(3, person.getForenames());
-				personStmt.setString(4, person.getInitials());
-				
-				personStmt.executeUpdate();
-				
-				serviceStmt.setLong(1, person.getSoldierId());
-				serviceStmt.setString(2, svc.getRank());
-				serviceStmt.setString(3, "Hampshire Regiment");
-				serviceStmt.setDate(4, after);
-				serviceStmt.setString(5, svc.getNumber());
-				
-				serviceStmt.executeUpdate();
-
-			}
-			
-			personStmt.close();
-			serviceStmt.close();
-		}
-		catch (SQLException e) {
-			
-			System.err.println("message: " + e.getMessage());
+			insertPerson(connection, person);
 		}
 	}
 	
 
 	public static void insertPerson(Connection connection, Person person) {
 		
-		String personSql  = "insert into PERSON (SID, SURNAME, FORENAMES, INITIALS) values(?, ?, ?, ?)";
-		String serviceSql = "insert into SERVICE (SID, RANK_ABBREV, REGIMENT, AFTER, NUMBER) values(?, ?, ?, ?, ?)";
+		String personSql  = "insert into PERSON (SID, SURNAME, FORENAMES, INITIALS, BIRTH, DEATH, BORNAFTER, BORNBEFORE, DIEDAFTER, DIEDBEFORE) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(1900, 1, 1);
-		Date after = new Date(calendar.getTimeInMillis());
-
+		if ( person.getSoldierId() < 0 ) {
+			
+			System.err.println("Attempting to insert a person without a Soldier ID");
+			return;
+		}
+		
 		try {
 			
-			Set<Service> service = person.getService();
-			Service svc = service.iterator().next();
-			
 			PreparedStatement personStmt  = connection.prepareStatement(personSql);
-			PreparedStatement serviceStmt = connection.prepareStatement(serviceSql);
 			
 			personStmt.setLong(1, person.getSoldierId());
 			personStmt.setString(2, person.getSurname());
 			personStmt.setString(3, person.getForenames());
 			personStmt.setString(4, person.getInitials());
+			personStmt.setDate(5, person.getBirth());
+			personStmt.setDate(6, person.getDeath());
+			personStmt.setDate(7, person.getBornafter());
+			personStmt.setDate(8, person.getBornbefore());
+			personStmt.setDate(9, person.getDiedafter());
+			personStmt.setDate(10, person.getDiedbefore());
 			
 			personStmt.executeUpdate();
+			personStmt.close();
 			
-			serviceStmt.setLong(1, person.getSoldierId());
-			serviceStmt.setString(2, svc.getRank());
-			serviceStmt.setString(3, "Hampshire Regiment");
-			serviceStmt.setDate(4, after);
-			serviceStmt.setString(5, svc.getNumber());
+			for ( Service service: person.getService() ) {
+				
+				insertService(connection, service);				
+			}
+		}
+		catch (SQLException e) {
+			
+			System.err.println("message: " + e.getMessage());
+		}
+	}
+	
+
+	public static void insertService(Connection connection, Service service) {
+		
+		String serviceSql = "insert into SERVICE (SID, RANK_ABBREV, NUM, REGIMENT, AFTER, BEFORE) values(?, ?, ?, ?, ?, ?)";
+		
+		try {
+			
+			PreparedStatement serviceStmt = connection.prepareStatement(serviceSql);
+
+			serviceStmt.setLong(1, service.getSoldierId());
+			serviceStmt.setString(2, service.getRank());
+			serviceStmt.setString(3, service.getNumber());
+			serviceStmt.setString(4, service.getRegiment());
+			serviceStmt.setDate(5, service.getAfter());
+			serviceStmt.setDate(6, service.getBefore());
 			
 			serviceStmt.executeUpdate();
 			
-			personStmt.close();
 			serviceStmt.close();
 		}
 		catch (SQLException e) {
@@ -498,42 +394,6 @@ public class SoldiersModel {
 		}
 	}
 
-	
-	public static Person getPersonFromLonglist(Connection connection, long lid) {
-		
-		Person person = new Person();
-		Service svc = new Service();
-		
-		String sql = "select M.SID, L.NUM, L.RANK, L.SURNAME, L.INITIALS,  L.FORENAMES, L.BIRTH, L.DEATH from LONGLIST L LEFT OUTER JOIN MAPPING M ON L.LID = M.LID where L.LID = ?";
-
-
-		try {
-				
-			PreparedStatement stmt = connection.prepareStatement(sql);
-			stmt.setLong(1, lid);
-			
-			ResultSet results = stmt.executeQuery();
-			
-			if ( results.next() ) {
-				
-				person.setSoldierId(results.getLong("SID"));
-				svc.setNumber(results.getString("NUM"));
-				svc.setRank(results.getString("RANK"));
-				person.setSurname(results.getString("SURNAME"));
-				person.setInitials(results.getString("INITIALS"));
-				person.setForenames(results.getString("FORENAMES"));
-				
-				person.addService(svc);
-			}
-			
-			stmt.close();
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return person;
-	}
 	
 	public static Set<Person> checkIdentity(Connection connection, Person person) {
 		
@@ -549,7 +409,7 @@ public class SoldiersModel {
 		}
 		else if ( person.getSurname() != null && person.getInitials() != null ) {
 				
-			tids.addAll(SoldiersModel.getTigerIdsForNameInitials(connection, person));
+			tids.addAll(SoldiersModel.getSoldierIdsForNameInitials(connection, person));
 		}
 		else {
 			System.out.println("can't do that yet...");
@@ -563,42 +423,79 @@ public class SoldiersModel {
 		return results;
 	}
 		
-	public static Set<Person> checkIdentityLong(Connection connection, Person person) {
-		
-		Set<Person> results = new HashSet<Person>();
-		Set<Integer> tids = new HashSet<Integer>();
 
-		Set<Service> service = person.getService();
-		Service svc = service.iterator().next();
+	public static int updateDiedAfter(Connection connection, Person person) {
 		
-		if ( svc.getNumber() != null && svc.getNumber().length() > 0 && person.getSurname() != null ) {
+		String sql = "update PERSON set DIEDAFTER = ? where SID = ?";
+
+		int rows = 0;
+		
+		try {
 			
-			results.addAll(SoldiersModel.getCandidatesForNumberNameLonglist(connection, person));
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setDate(1, new  java.sql.Date(person.getDiedafter().getTime()));
+			updateStmt.setFloat(2, person.getSoldierId());
+
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
 		}
-		else if ( person.getSurname() != null && person.getInitials() != null ) {
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
 				
-			tids.addAll(SoldiersModel.getTigerIdsForNameInitials(connection, person));
-		}
-		else {
-			System.out.println("can't do that yet...");
-		}
-		
-		for ( long tid: tids ) {
-			
-			results.add(SoldiersModel.getPerson(connection, tid));		
-		}
-		
-		System.out.println("......" + results.size());
-		
-		Iterator<Person> x = results.iterator();
-		
-		while ( x.hasNext() ) {
-			
-			System.out.println("db: " + x.next());
-		}
-		
-		return results;
+		return rows;
 	}
+	
+	
+	public static int updateDiedBefore(Connection connection, Person person) {
 		
+		String sql = "update PERSON set DIEDBEFORE = ? where SID = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setDate(1, new  java.sql.Date(person.getDiedbefore().getTime()));
+			updateStmt.setFloat(2, person.getSoldierId());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
+	
+	
+	public static int updateUnit(Connection connection, Service service) {
+		
+		String sql = "update SERVICE set UNIT = ? where SID = ? and NUM = ? and RANK_ABBREV = ? and REGIMENT = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setString(1, service.getUnit());
+			updateStmt.setFloat(2, service.getSoldierId());
+			updateStmt.setString(3, service.getNumber());
+			updateStmt.setString(4, service.getRank());
+			updateStmt.setString(5, service.getRegiment());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
 
 }

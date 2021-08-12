@@ -9,9 +9,9 @@ import org.xml.sax.helpers.AttributesImpl;
 
 public class Service {
 
-	private String rank, number, regiment, unit, rankqualifier;
+	private String rank, number = "", regiment, unit, rankqualifier;
 	private Date before, after;
-	private long tigerId;
+	private long soldierId;
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); 
 	
 
@@ -75,13 +75,13 @@ public class Service {
 	}
 
 
-	public long getTigerId() {
-		return tigerId;
+	public long getSoldierId() {
+		return soldierId;
 	}
 
 
-	public void setTigerId(long tigerId) {
-		this.tigerId = tigerId;
+	public void setSoldierId(long tigerId) {
+		this.soldierId = tigerId;
 	}
 
 	public String getRankqualifier() {
@@ -115,7 +115,7 @@ public class Service {
 
 		String beforeDate = before == null ? "unknown" : formatter.format(before);
 		String afterDate  = after  == null ? "unknown" : formatter.format(after);
-		String service = String.format("%d: number=%s, rank=%s, regiment=%s, unit=%s, after=%s, before=%s", tigerId, number, rank, regiment, unit, afterDate, beforeDate);
+		String service = String.format("%d: number=%s, rank=%s, regiment=%s, unit=%s, after=%s, before=%s", soldierId, number, rank, regiment, unit, afterDate, beforeDate);
 		return service;
 	}
 	
