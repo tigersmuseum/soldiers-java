@@ -12,23 +12,20 @@ public class SoldiersModel {
 
 	public  static final String XML_NAMESPACE = "http://royalhampshireregiment.org/soldiers";
 
-	public static long getSoldierIdForSourceItem(Connection connection, String source, int sid) {
+	public static long getNextAvailableSoldierId(Connection connection) {
 		
-		long tid = -1;
+		long sid = -1;
 		
-		String sql = "select X.SID from MAPPING as X, LONGLIST as L where L.SOURCE = ? and L.SID = ? and X.LID = L.LID";
+		String sql = "select max(SID) as NEXT from PERSON";
 
 		try {
 				
 			PreparedStatement stmt = connection.prepareStatement(sql);
-			stmt.setString(1, source);
-			stmt.setInt(2, sid);
-			
 			ResultSet results = stmt.executeQuery();
 			
 			while ( results.next() ) {
 				
-				tid = results.getInt("SID");
+				sid = results.getInt("NEXT");
 			}
 			
 			stmt.close();
@@ -37,7 +34,8 @@ public class SoldiersModel {
 			e.printStackTrace();
 		}
 				
-		return tid;
+		if ( sid > 0 ) sid++;
+		return sid;
 	}
 
 	
