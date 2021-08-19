@@ -16,7 +16,7 @@ public class SoldiersModel {
 		
 		long sid = -1;
 		
-		String sql = "select max(SID) as NEXT from PERSON";
+		String sql = "select max(SID) as NXT from PERSON";
 
 		try {
 				
@@ -25,7 +25,7 @@ public class SoldiersModel {
 			
 			while ( results.next() ) {
 				
-				sid = results.getInt("NEXT");
+				sid = results.getInt("NXT");
 			}
 			
 			stmt.close();
@@ -106,7 +106,7 @@ public class SoldiersModel {
 		
 		if ( person.getService().size() == 0 ) return candidates;
 		
-		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID and S.NUM like ?";
+		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID and S.NUM != '' and S.NUM like ?";
 
 		try {
 				
@@ -369,7 +369,7 @@ public class SoldiersModel {
 
 	public static void insertService(Connection connection, Service service) {
 		
-		String serviceSql = "insert into SERVICE (SID, RANK_ABBREV, NUM, REGIMENT, AFTER, BEFORE) values(?, ?, ?, ?, ?, ?)";
+		String serviceSql = "insert into SERVICE (SID, RANK_ABBREV, NUM, REGIMENT, AFTER, BEFORE, UNIT) values(?, ?, ?, ?, ?, ?,?)";
 		
 		try {
 			
@@ -381,6 +381,7 @@ public class SoldiersModel {
 			serviceStmt.setString(4, service.getRegiment());
 			serviceStmt.setDate(5, service.getAfter());
 			serviceStmt.setDate(6, service.getBefore());
+			serviceStmt.setString(7, service.getUnit());
 			
 			serviceStmt.executeUpdate();
 			
@@ -422,9 +423,9 @@ public class SoldiersModel {
 	}
 		
 
-	public static int updateDiedAfter(Connection connection, Person person) {
+	public static int updateBornAfter(Connection connection, Person person) {
 		
-		String sql = "update PERSON set DIEDAFTER = ? where SID = ?";
+		String sql = "update PERSON set BORNAFTER = ? where SID = ?";
 
 		int rows = 0;
 		
@@ -432,7 +433,7 @@ public class SoldiersModel {
 			
 			PreparedStatement updateStmt = connection.prepareStatement(sql);
 			
-			updateStmt.setDate(1, new  java.sql.Date(person.getDiedafter().getTime()));
+			updateStmt.setDate(1, new  java.sql.Date(person.getBornafter().getTime()));
 			updateStmt.setFloat(2, person.getSoldierId());
 
 			rows = updateStmt.executeUpdate();
@@ -445,7 +446,151 @@ public class SoldiersModel {
 		return rows;
 	}
 	
+
+	public static int updateDiedAfter(Connection connection, Person person) {
+		
+		String sql = "update PERSON set DIEDAFTER = ? where SID = ?";
 	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setDate(1, new  java.sql.Date(person.getDiedafter().getTime()));
+			updateStmt.setFloat(2, person.getSoldierId());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
+	
+	
+	public static int updateSurname(Connection connection, Person person) {
+		
+		String sql = "update PERSON set SURNAME = ? where SID = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setString(1, person.getSurname());
+			updateStmt.setFloat(2, person.getSoldierId());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
+	
+
+	public static int updateForenames(Connection connection, Person person) {
+		
+		String sql = "update PERSON set FORENAMES = ? where SID = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setString(1, person.getForenames());
+			updateStmt.setFloat(2, person.getSoldierId());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
+	
+
+	public static int updateBirth(Connection connection, Person person) {
+		
+		String sql = "update PERSON set BIRTH = ? where SID = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setDate(1, new  java.sql.Date(person.getBirth().getTime()));
+			updateStmt.setFloat(2, person.getSoldierId());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
+	
+
+	public static int updateDeath(Connection connection, Person person) {
+		
+		String sql = "update PERSON set DEATH = ? where SID = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setDate(1, new  java.sql.Date(person.getDeath().getTime()));
+			updateStmt.setFloat(2, person.getSoldierId());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
+
+
+	public static int updateBornBefore(Connection connection, Person person) {
+		
+		String sql = "update PERSON set BORNBEFORE = ? where SID = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setDate(1, new  java.sql.Date(person.getBornbefore().getTime()));
+			updateStmt.setFloat(2, person.getSoldierId());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
+
+
 	public static int updateDiedBefore(Connection connection, Person person) {
 		
 		String sql = "update PERSON set DIEDBEFORE = ? where SID = ?";
@@ -496,4 +641,59 @@ public class SoldiersModel {
 		return rows;
 	}
 
+	
+	public static int updateServiceBefore(Connection connection, Service service, Service prior) {
+		
+		String sql = "update SERVICE set BEFORE = ? where SID = ? and NUM = ? and RANK_ABBREV = ? and REGIMENT = ? and BEFORE = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setDate(1, service.getBefore());
+			updateStmt.setFloat(2, service.getSoldierId());
+			updateStmt.setString(3, service.getNumber());
+			updateStmt.setString(4, service.getRank());
+			updateStmt.setString(5, service.getRegiment());
+			updateStmt.setDate(6, prior.getBefore());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
+
+	
+	public static int updateServiceAfter(Connection connection, Service service, Service prior) {
+		
+		String sql = "update SERVICE set AFTER = ? where SID = ? and NUM = ? and RANK_ABBREV = ? and REGIMENT = ? and BEFORE = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setDate(1, service.getAfter());
+			updateStmt.setFloat(2, service.getSoldierId());
+			updateStmt.setString(3, service.getNumber());
+			updateStmt.setString(4, service.getRank());
+			updateStmt.setString(5, service.getRegiment());
+			updateStmt.setDate(6, prior.getBefore());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
 }

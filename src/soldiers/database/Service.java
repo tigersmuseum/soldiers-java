@@ -99,7 +99,7 @@ public class Service {
 		ch.startPrefixMapping("", SoldiersModel.XML_NAMESPACE);
 
 		AttributesImpl attr = new AttributesImpl();
-		if ( number != null )  attr.addAttribute("", "number",  "number", "String", number);
+		if ( number.length() >  0 )  attr.addAttribute("", "number",  "number", "String", number);
 		if ( rank != null )  attr.addAttribute("", "rank",  "rank", "String", rank);
 		if ( regiment != null )  attr.addAttribute("", "regiment",  "regiment", "String", regiment);
 		if ( unit != null )  attr.addAttribute("", "unit",  "unit", "String", unit);

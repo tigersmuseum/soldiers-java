@@ -26,7 +26,8 @@ public class Update {
 	public static void main(String[] args) throws XPathExpressionException, ParseException {
 
 	    XmlUtils xmlutils = new XmlUtils();
-		Document doc = xmlutils.parse(new File("/F:/Museum/results.xml"));
+		//Document doc = xmlutils.parse(new File("/F:/Museum/results.xml"));
+		Document doc = xmlutils.parse(new File("output/results.xml"));
 		
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
@@ -65,17 +66,20 @@ public class Update {
 			if ( !person.getSurname().equals(known.getSurname()) ) {
 			
 				System.out.println(person.getSurname() + " != " + known.getSurname());
+				SoldiersModel.updateSurname(connection, person);
 			}
 			if ( !person.getForenames().equals(known.getForenames()) ) {
 			
-				System.out.println(person.getSurname() + " != " + known.getSurname());				
+				System.out.println(person.getForenames() + " != " + known.getForenames());				
+				SoldiersModel.updateForenames(connection, person);
 			}
 			
 			// birth
 			
 			if ( person.getBirth() != null && !person.getBirth().equals(known.getBirth()) ) {
 				
-				System.out.println("UPDATE birth: " + person.getBirth() + " != " + known.getBirth());				
+				System.out.println("UPDATE birth: " + person.getBirth() + " != " + known.getBirth());
+				SoldiersModel.updateBirth(connection, person);
 			}
 			
 			// born before
@@ -83,6 +87,7 @@ public class Update {
 			if ( person.getBornbefore() != null && !person.getBornbefore().equals(known.getBornbefore()) ) {
 				
 				System.out.println("UPDATE bornbefore: " + person.getBornbefore() + " != " + known.getBornbefore());				
+				SoldiersModel.updateBornBefore(connection, person);
 			}
 			
 			// born after
@@ -90,6 +95,7 @@ public class Update {
 			if ( person.getBornafter() != null && !person.getBornafter().equals(known.getBornafter()) ) {
 				
 				System.out.println("UPDATE bornafter: " + person.getBornafter() + " != " + known.getBornafter());				
+				SoldiersModel.updateBornAfter(connection, person);
 			}
 			
 			// death
@@ -97,6 +103,7 @@ public class Update {
 			if ( person.getDeath() != null && !person.getDeath().equals(known.getDeath()) ) {
 				
 				System.out.println("UPDATE death: " + person.getDeath() + " != " + known.getDeath());				
+				SoldiersModel.updateDeath(connection, person);
 			}
 			
 			// died before
@@ -119,12 +126,14 @@ public class Update {
 				
 				// "SID", "NUM", "RANK_ABBREV", "REGIMENT", "BEFORE"
 				String key = String.format("%d: %s %s %s", service.getSoldierId(), service.getNumber(), service.getRank(), service.getRegiment());
+				System.out.println("KNOWN: " + key);
 				serviceMap.put(key, service);
 			}
 			
 			for ( Service service: person.getService() ) {
 				
 				String key = String.format("%d: %s %s %s", service.getSoldierId(), service.getNumber(), service.getRank(), service.getRegiment());
+				System.out.println("TEST: " + key);
 				Service knownService = serviceMap.get(key);
 				
 				if ( knownService == null ) {
@@ -138,8 +147,14 @@ public class Update {
 						System.out.println("update unit to " + service.getUnit());
 						SoldiersModel.updateUnit(connection, service);
 					}
-					if ( service.getBefore() != null && service.getBefore() != knownService.getBefore() )  System.out.println("update before to " + service.getBefore());
-					if ( service.getAfter() != null && service.getAfter() != knownService.getAfter() )  System.out.println("update after to " + service.getAfter());
+					if ( service.getAfter() != null && !service.getAfter().equals(knownService.getAfter()) ) {
+						System.out.println("update after to " + service.getAfter());
+						SoldiersModel.updateServiceAfter(connection, service, knownService);
+					}
+					if ( service.getBefore() != null && !service.getBefore().equals(knownService.getBefore()) )  {
+						System.out.println("update before to " + service.getBefore() + " != " + knownService.getBefore());
+						SoldiersModel.updateServiceBefore(connection, service, knownService);
+					}
 				}
 			}
 		}

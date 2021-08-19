@@ -58,10 +58,10 @@ public class HtmlData {
         serializer = tf.newTransformerHandler();
         Transformer transformer = serializer.getTransformer();
         
-        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        //transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-        transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "-//W3C//DTD XHTML 1.0 Transitional//EN");
-        transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd");
+        //transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "-//W3C//DTD XHTML 1.0 Transitional//EN");
+        //transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd");
 
         DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(new FileOutputStream("output/htmldata.xml"));

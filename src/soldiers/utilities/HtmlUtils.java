@@ -25,7 +25,10 @@ public class HtmlUtils {
 		props.setOmitDoctypeDeclaration(true);
 		props.setRecognizeUnicodeChars(true);
 		props.setTranslateSpecialEntities(false);
-		props.setAdvancedXmlEscape(false);
+		props.setAdvancedXmlEscape(true);
+		props.setIgnoreQuestAndExclam(true);
+		props.setDeserializeEntities(true);
+		props.setCharset("windows-1252");
 
 		cleaner = new HtmlCleaner(props);
 		serializer = new DomSerializer(props);
@@ -37,7 +40,7 @@ public class HtmlUtils {
 		Document doc = null;
 		
 		try {
-			TagNode tn = cleaner.clean(new FileInputStream(file), "UTF-8");
+			TagNode tn = cleaner.clean(new FileInputStream(file), "windows-1252");
 			doc = serializer.createDOM(tn);			
 		}
 		catch (IOException e) {

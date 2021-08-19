@@ -35,15 +35,15 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("TOLLEMACHE");
-		//svc.setNumber("8041");
-		p.setInitials("C H");
+		p.setSurname("SIMS");
+		//svc.setNumber("5896");
+		p.setInitials("A");
 		
 		p.addService(svc);
 		
 		Set<Person> results = SoldiersModel.getCandidatesForNumberName(ConnectionManager.getConnection(), p);
 		
-		if (svc.getNumber() != null) results.addAll(SoldiersModel.getCandidatesForExactNumber(ConnectionManager.getConnection(), p));
+		if (svc.getNumber() != "") results.addAll(SoldiersModel.getCandidatesForExactNumber(ConnectionManager.getConnection(), p));
 		results.addAll(SoldiersModel.getCandidatesForNameInitials(ConnectionManager.getConnection(), p));
 
 		System.out.println("......" + results.size());
@@ -87,7 +87,7 @@ public class SearchSoldier {
 		
 		results.addAll(SoldiersModel.getCandidatesForNameInitials(connection, p));
 
-		System.out.println("......" + results.size());
+		System.out.println(".X....." + results.size());
 		
 		return filterMatches(p, results);
 		//return results;
@@ -101,6 +101,7 @@ public class SearchSoldier {
 		Soundex soundex = new Soundex();
 		
 		if ( query.getService().size() == 0 ) return results;
+		System.out.println("QQQQQQQQQQ " + "W");
 
 		Set<Person> filtered = new HashSet<Person>();
 		
@@ -124,17 +125,17 @@ public class SearchSoldier {
 			
 			int surnamedist = distance.apply(qsurname, csurname);
 
-			if ( qnum != null && qnum.length() > 4 && qnum.equals(cnum) && distance.apply(qsurname, csurname) < 3 ) {
+			if ( qnum.length() > 4 && qnum.equals(cnum) && distance.apply(qsurname, csurname) < 3 ) {
 				
 				filtered.add(candidate);				
 				getCandidateSet(surnamedist, scores).add(candidate);				
 			}
 			
-			else if ( (distance.apply(qsurname, csurname) < 2 || soundex.encode(qsurname).equals(csurname)) && qnum != null && cnum != null && distance.apply(qnum, cnum) < 3 ) {
+			else if ( (distance.apply(qsurname, csurname) < 2 || soundex.encode(qsurname).equals(csurname)) && qnum.length() > 0 && cnum.length() > 0 && distance.apply(qnum, cnum) < 2 ) {
 				
 				getCandidateSet(distance.apply(qnum, cnum), scores).add(candidate);
 			}
-			else if ( qnum == null && cnum == null && qinitials != null && distance.apply(qsurname, csurname) < 2 && qinitials.equals(cinitials)) {
+			else if ( qnum.length() == 0 && cnum.length() == 0 && qinitials != null && distance.apply(qsurname, csurname) < 2 && qinitials.equals(cinitials)) {
 				
 				filtered.add(candidate);				
 			}
@@ -143,6 +144,7 @@ public class SearchSoldier {
 		List<Integer> s = new ArrayList<Integer>();
 		s.addAll(scores.keySet());
 		Collections.sort(s);
+
 		if ( !s.isEmpty() ) filtered.addAll(scores.get(s.iterator().next()));
 		
 		return filtered;

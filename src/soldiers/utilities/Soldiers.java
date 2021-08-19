@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -91,8 +92,12 @@ public class Soldiers {
 
 	public static void identifyPersonMentionsInPlaceXML(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException {
 		
-		xpath.setNamespaceContext(new SoldiersNamespaceContext());
+		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
+		String ns = namespaceContext.getNamespaceURI("soldiers");
+		
+		xpath.setNamespaceContext(namespaceContext);
 		XPathExpression expr = xpath.compile(".//soldiers:person");
+		XPathExpression xsvc = xpath.compile("./soldiers:service/soldiers:record");
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
     	
 		for ( int i = 0; i < list.getLength(); i++ ) {
@@ -101,12 +106,13 @@ public class Soldiers {
 
 			Element e = (Element) list.item(i);
 			
-			String surname = e.getElementsByTagName("surname").getLength() == 0 ? null : e.getElementsByTagName("surname").item(0).getTextContent();
-			String forenames = e.getElementsByTagName("forenames").getLength() == 0 ? null : e.getElementsByTagName("forenames").item(0).getTextContent();
-			String initials = e.getElementsByTagName("initials").getLength() == 0 ? null : e.getElementsByTagName("initials").item(0).getTextContent();
-			String suffix = e.getElementsByTagName("suffix").getLength() == 0 ? null : e.getElementsByTagName("suffix").item(0).getTextContent();
+			String surname = e.getElementsByTagNameNS(ns, "surname").getLength() == 0 ? null : e.getElementsByTagNameNS(ns, "surname").item(0).getTextContent();
+			String forenames = e.getElementsByTagNameNS(ns, "forenames").getLength() == 0 ? null : e.getElementsByTagNameNS(ns, "forenames").item(0).getTextContent();
+			String initials = e.getElementsByTagNameNS(ns, "initials").getLength() == 0 ? null : e.getElementsByTagNameNS(ns, "initials").item(0).getTextContent();
+			String suffix = e.getElementsByTagNameNS(ns, "suffix").getLength() == 0 ? null : e.getElementsByTagNameNS(ns, "suffix").item(0).getTextContent();
 						
-			NodeList serviceList = e.getElementsByTagName("service");
+			NodeList serviceList = (NodeList) xsvc.evaluate(e, XPathConstants.NODESET);
+			System.out.println("RECORDS: " + serviceList.getLength());
 
 			for ( int s = 0; s < serviceList.getLength(); s++ ) {
 				
@@ -140,7 +146,7 @@ public class Soldiers {
 				candidate.setAttribute("sid", String.format("%d", p.getSoldierId()));
 				candidate.setAttribute("content", p.getContent());
 				candidate.setAttribute("sort", p.getSort());
-				candidate.setAttribute("number", svc.getNumber());
+				if ( svc.getNumber().length() > 0 ) candidate.setAttribute("number", svc.getNumber());
 				candidate.setAttribute("rank", svc.getRank());
 				e.appendChild(candidate);
 				System.out.println("=" + p.getContent());

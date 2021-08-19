@@ -43,15 +43,17 @@ public class Person {
 	public void setForenames(String forenames) {
 		if ( forenames != null ) this.forenames = forenames.toUpperCase();
 		
-		if ( getInitials() == null ) {
+		if ( getInitials() == null && this.forenames != null ) {
 			
-			String[] tokens = forenames.split("\\s+");
+			String[] tokens = this.forenames.split("\\s+");
 			StringBuffer initials = new StringBuffer();
 			
 			for ( String token: tokens ) {
 				
 				initials.append(token.substring(0, 1));
 			}
+			
+			this.setInitials(normalizeInitials(initials.toString()));
 		}
 	}
 
