@@ -25,7 +25,7 @@ public class HtmlUtils {
 		props.setOmitDoctypeDeclaration(true);
 		props.setRecognizeUnicodeChars(true);
 		props.setTranslateSpecialEntities(false);
-		props.setAdvancedXmlEscape(true);
+		props.setAdvancedXmlEscape(false);
 		props.setIgnoreQuestAndExclam(true);
 		props.setDeserializeEntities(true);
 		props.setCharset("windows-1252");
