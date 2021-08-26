@@ -35,9 +35,9 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("SIMS");
-		//svc.setNumber("5896");
-		p.setInitials("A");
+		p.setSurname("LANE");
+		//svc.setNumber("3499");
+		p.setInitials("T");
 		
 		p.addService(svc);
 		

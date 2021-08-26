@@ -519,6 +519,30 @@ public class SoldiersModel {
 	}
 	
 
+	public static int updateInitials(Connection connection, Person person) {
+		
+		String sql = "update PERSON set INITIALS = ? where SID = ?";
+	
+		int rows = 0;
+		
+		try {
+			
+			PreparedStatement updateStmt = connection.prepareStatement(sql);
+			
+			updateStmt.setString(1, person.getInitials());
+			updateStmt.setFloat(2, person.getSoldierId());
+	
+			rows = updateStmt.executeUpdate();
+			updateStmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return rows;
+	}
+	
+
 	public static int updateBirth(Connection connection, Person person) {
 		
 		String sql = "update PERSON set BIRTH = ? where SID = ?";

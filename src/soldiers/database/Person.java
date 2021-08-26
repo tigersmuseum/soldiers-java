@@ -192,6 +192,8 @@ public class Person {
 		
 		attr = new AttributesImpl();
 		if (death != null)  attr.addAttribute("", "date",  "date", "String",  formatter.format(death));
+		if (diedafter != null)  attr.addAttribute("", "after",  "after", "String",  formatter.format(diedafter));
+		if (diedbefore != null)  attr.addAttribute("", "before",  "before", "String",  formatter.format(diedbefore));
 
 		if ( attr.getLength() > 0 ) {
 			ch.startElement(SoldiersModel.XML_NAMESPACE, "death", "death", attr);

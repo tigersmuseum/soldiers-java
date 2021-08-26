@@ -22,8 +22,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import soldiers.database.SoldiersModel;
-import soldiers.utilities.ConnectionManager;
 import soldiers.utilities.HtmlUtils;
 
 public class HtmlData {
@@ -44,10 +42,6 @@ public class HtmlData {
 		System.out.println(list.getLength());
 		
 		writeXml(doc);
-		
-		long sid = SoldiersModel.getNextAvailableSoldierId(ConnectionManager.getConnection());
-		System.out.println(sid);
-
 	}
 
 	

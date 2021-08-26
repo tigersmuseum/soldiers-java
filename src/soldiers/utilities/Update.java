@@ -73,6 +73,12 @@ public class Update {
 				System.out.println(person.getForenames() + " != " + known.getForenames());				
 				SoldiersModel.updateForenames(connection, person);
 			}
+			if ( !person.getInitials().equals(known.getInitials()) ) {
+				
+				System.out.println(person.getInitials() + " != " + known.getInitials());				
+				SoldiersModel.updateInitials(connection, person);
+			}
+			
 			
 			// birth
 			
