@@ -43,7 +43,8 @@ public class Normalize {
 	    XPath xpath = factory.newXPath();
 
 	    XmlUtils xmlutils = new XmlUtils();
-		Document doc = xmlutils.parse(new File("/C:/workspaces/development/Tigers/data/secondchinawar.xml"));
+		//Document doc = xmlutils.parse(new File("/C:/workspaces/development/Tigers/data/secondchinawar.xml"));
+		Document doc = xmlutils.parse(new File("output/out.xml"));
 		
 		
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
@@ -110,10 +111,14 @@ public class Normalize {
 		ranks.put("pte", "Pte");
 		ranks.put("private", "Pte");
 		ranks.put("dmr", "Dmr");
+		ranks.put("bdsm", "Bdsm");
 		ranks.put("drummer", "Dmr");
+		ranks.put("lcpl", "L/Cpl");
+		ranks.put("lancecorporal", "L/Cpl");
 		ranks.put("cpl", "Cpl");
 		ranks.put("corporal", "Cpl");
 		ranks.put("corp", "Cpl");
+		ranks.put("lsgt", "L/Sgt");
 		ranks.put("sgt", "Sgt");
 		ranks.put("serjeant", "Sgt");
 		ranks.put("sergeant", "Sgt");
@@ -123,12 +128,19 @@ public class Normalize {
 		ranks.put("hospsgt", "Sgt");
 		ranks.put("orsgt", "Sgt");
 		ranks.put("musksgt", "Sgt");
+		ranks.put("sgtdrm", "Sgt");
+		ranks.put("drmsgt", "Sgt");
 		ranks.put("csgt", "CSgt");
 		ranks.put("coloursergeant", "CSgt");
 		ranks.put("sgtmaj", "Sgt Maj");
 		ranks.put("drummaj", "Drum Maj");
+		ranks.put("cqms", "CQMS");
+		ranks.put("qms", "QMS");
+		ranks.put("csm", "CSM");
 		ranks.put("ens", "Ens");
 		ranks.put("ensign", "Ens");
+		ranks.put("2lt", "2Lt");
+		ranks.put("secondlieutentant", "2Lt");
 		ranks.put("lt", "Lt");
 		ranks.put("asstsurg", "Asst Surg");
 		ranks.put("astsurg", "Asst Surg");
@@ -145,6 +157,11 @@ public class Normalize {
 		ranks.put("surg", "Surg");
 		ranks.put("surgeon", "Surg");
 		ranks.put("ltcol", "Lt Col");
+		ranks.put("col", "Col");
+		ranks.put("btcol", "Col");
+		ranks.put("colonel", "Col");
+		ranks.put("gen", "Gen");
+		ranks.put("general", "Gen");
 		
 		return ranks;
 	}
@@ -160,6 +177,8 @@ public class Normalize {
 		}
 		
 		String raw = service.getRank().toLowerCase().trim();
+		raw = raw.split("\\(")[0];
+		raw = raw.split("&")[0];
 		raw = raw.replaceAll("/", "");
 		raw = raw.replaceAll("\\.", "");
 		raw = raw.replaceAll("\\s+", "");
@@ -171,7 +190,7 @@ public class Normalize {
 		}
 		else {
 			
-			System.out.println("no rank for: " + raw);
+			System.out.println(service + " has no rank for: " + raw);
 		}
 		
 	}

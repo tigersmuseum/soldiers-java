@@ -35,9 +35,9 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("LANE");
-		//svc.setNumber("3499");
-		p.setInitials("T");
+		p.setSurname("ARMSTRONG");
+		svc.setNumber("2142");
+		p.setInitials("R B");
 		
 		p.addService(svc);
 		
@@ -82,7 +82,7 @@ public class SearchSoldier {
 		if ( service.size() > 0 ) {
 			
 			Service svc = service.iterator().next();
-			if (svc.getNumber() != null) results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
+			if (svc.getNumber() != null && svc.getNumber().length() > 0) results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
 		}
 		
 		results.addAll(SoldiersModel.getCandidatesForNameInitials(connection, p));
@@ -124,14 +124,15 @@ public class SearchSoldier {
 			String cinitials = candidate.getInitials();
 			
 			int surnamedist = distance.apply(qsurname, csurname);
+			int numberdist  = distance.apply(qnum.replace("/", ""), cnum.replace("/", ""));
 
-			if ( qnum.length() > 4 && qnum.equals(cnum) && distance.apply(qsurname, csurname) < 3 ) {
+			if ( qnum.length() >= 4 && qnum.equals(cnum) && surnamedist < 3 ) {
 				
 				filtered.add(candidate);				
 				getCandidateSet(surnamedist, scores).add(candidate);				
 			}
 			
-			else if ( (distance.apply(qsurname, csurname) < 2 || soundex.encode(qsurname).equals(csurname)) && qnum.length() > 0 && cnum.length() > 0 && distance.apply(qnum, cnum) < 2 ) {
+			else if ( (surnamedist < 2 || soundex.encode(qsurname).equals(csurname)) && qnum.length() > 0 && cnum.length() > 0 && numberdist < 2 ) {
 				
 				getCandidateSet(distance.apply(qnum, cnum), scores).add(candidate);
 			}

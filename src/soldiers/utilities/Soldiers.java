@@ -46,7 +46,7 @@ public class Soldiers {
 	static XPathFactory factory = XPathFactory.newInstance();
     static XPath xpath = factory.newXPath();
 
-    public static void main(String[] args) throws TransformerException, XPathExpressionException, SAXException, IOException, ParserConfigurationException {
+    public static void main(String[] args) throws TransformerException, XPathExpressionException, SAXException, IOException, ParserConfigurationException, ParseException {
 
     	if ( args.length < 1 ) {
     		
@@ -65,6 +65,8 @@ public class Soldiers {
 		
 		TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        //transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(new FileOutputStream("output/out.xml"));	
 		transformer.transform(source, result);	
@@ -90,52 +92,24 @@ public class Soldiers {
 		transformer.transform(source, result);	
 	}
 
-	public static void identifyPersonMentionsInPlaceXML(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException {
+	public static void identifyPersonMentionsInPlaceXML(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException, ParseException {
 		
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
-		String ns = namespaceContext.getNamespaceURI("soldiers");
 		
 		xpath.setNamespaceContext(namespaceContext);
 		XPathExpression expr = xpath.compile(".//soldiers:person");
-		XPathExpression xsvc = xpath.compile("./soldiers:service/soldiers:record");
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
     	
 		for ( int i = 0; i < list.getLength(); i++ ) {
 			
-			Person person = new Person();
-
 			Element e = (Element) list.item(i);
-			
-			String surname = e.getElementsByTagNameNS(ns, "surname").getLength() == 0 ? null : e.getElementsByTagNameNS(ns, "surname").item(0).getTextContent();
-			String forenames = e.getElementsByTagNameNS(ns, "forenames").getLength() == 0 ? null : e.getElementsByTagNameNS(ns, "forenames").item(0).getTextContent();
-			String initials = e.getElementsByTagNameNS(ns, "initials").getLength() == 0 ? null : e.getElementsByTagNameNS(ns, "initials").item(0).getTextContent();
-			String suffix = e.getElementsByTagNameNS(ns, "suffix").getLength() == 0 ? null : e.getElementsByTagNameNS(ns, "suffix").item(0).getTextContent();
-						
-			NodeList serviceList = (NodeList) xsvc.evaluate(e, XPathConstants.NODESET);
-			System.out.println("RECORDS: " + serviceList.getLength());
-
-			for ( int s = 0; s < serviceList.getLength(); s++ ) {
-				
-				Element svc = (Element) serviceList.item(s);
-				
-				Service ss = new Service();
-				if ( svc.getAttribute("number").length() > 0 ) ss.setNumber(svc.getAttribute("number"));
-				ss.setRank(svc.getAttribute("rank"));
-				ss.setRegiment(svc.getAttribute("regiment"));
-				ss.setUnit(svc.getAttribute("unit"));
-				person.addService(ss);
-			}
-			
-			person.setSurname(surname);
-			person.setInitials(initials);
-			person.setForenames(forenames);
-			person.setSuffix(suffix);
+			Person person = parsePerson(e);
 			
 			System.out.println(person.getContent());
 			Set<Person> candidates = SearchSoldier.checkIdentity(person, connection);
 			
-			AttributesImpl attr= new AttributesImpl();
-			attr.addAttribute("", "hits",  "hits", "Integer", String.valueOf(candidates.size()));
+			//AttributesImpl attr= new AttributesImpl();
+			//attr.addAttribute("", "hits",  "hits", "Integer", String.valueOf(candidates.size()));
 			
 			for (Person p: candidates) {
 			
@@ -242,6 +216,7 @@ public class Soldiers {
         TransformerHandler serializer;
         serializer = tf.newTransformerHandler();
         serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        serializer.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
         serializer.setResult(new StreamResult(new FileOutputStream("output/temp.xml")));
 
 		serializer.startDocument();

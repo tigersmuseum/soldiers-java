@@ -41,7 +41,10 @@ public class Person {
 	}
 
 	public void setForenames(String forenames) {
-		if ( forenames != null ) this.forenames = forenames.toUpperCase();
+		
+		if ( forenames == null || forenames.replaceAll("\\s+", "").length() == 0 ) return;
+		
+		this.forenames = forenames.toUpperCase();
 		
 		if ( getInitials() == null && this.forenames != null ) {
 			
