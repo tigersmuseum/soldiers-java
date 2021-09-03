@@ -21,8 +21,16 @@ public class Insert {
 
 	public static void main(String[] args) throws XPathExpressionException, ParseException {
 
-	    XmlUtils xmlutils = new XmlUtils();
-		Document doc = xmlutils.parse(new File("/C:/workspaces/development/Tigers/input/new.xml"));
+    	if ( args.length < 1 ) {
+    		
+    		System.err.println("Usage: Insert <filename>");
+    		System.exit(1);
+    	}
+    	
+    	String inputfile = args[0];
+
+    	XmlUtils xmlutils = new XmlUtils();
+		Document doc = xmlutils.parse(new File(inputfile));
 		
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
