@@ -68,7 +68,7 @@ public class Update {
 				System.out.println(person.getSurname() + " != " + known.getSurname());
 				SoldiersModel.updateSurname(connection, person);
 			}
-			if ( !person.getForenames().equals(known.getForenames()) ) {
+			if ( person.getForenames() != null && !person.getForenames().equals(known.getForenames()) ) {
 			
 				System.out.println(person.getForenames() + " != " + known.getForenames());				
 				SoldiersModel.updateForenames(connection, person);

@@ -35,21 +35,14 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("ARMSTRONG");
-		svc.setNumber("2142");
-		p.setInitials("R B");
+		p.setSurname("MARTIN");
+		svc.setNumber("2629");
+		p.setInitials("A");
 		
 		p.addService(svc);
-		
-		Set<Person> results = SoldiersModel.getCandidatesForNumberName(ConnectionManager.getConnection(), p);
-		
-		if (svc.getNumber() != "") results.addAll(SoldiersModel.getCandidatesForExactNumber(ConnectionManager.getConnection(), p));
-		results.addAll(SoldiersModel.getCandidatesForNameInitials(ConnectionManager.getConnection(), p));
-
-		System.out.println("......" + results.size());
-		
+				
+		Set<Person> results = SearchSoldier.checkIdentity(p, ConnectionManager.getConnection());
 		Iterator<Person> x = results.iterator();
-//		Iterator<Person> x = filterMatches(p, results).iterator();
 		
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler serializer;
@@ -85,7 +78,8 @@ public class SearchSoldier {
 			if (svc.getNumber() != null && svc.getNumber().length() > 0) results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
 		}
 		
-		results.addAll(SoldiersModel.getCandidatesForNameInitials(connection, p));
+		//results.addAll(SoldiersModel.getCandidatesForNameInitials(connection, p));
+		results.addAll(SoldiersModel.getCandidatesForSurname(connection, p));
 
 		System.out.println(".X....." + results.size());
 		
@@ -101,7 +95,7 @@ public class SearchSoldier {
 		Soundex soundex = new Soundex();
 		
 		if ( query.getService().size() == 0 ) return results;
-		System.out.println("QQQQQQQQQQ " + "W");
+		System.out.println("QQQQQQQQQQ " + query.getContent());
 
 		Set<Person> filtered = new HashSet<Person>();
 		
@@ -123,30 +117,54 @@ public class SearchSoldier {
 			String qinitials = query.getInitials();
 			String cinitials = candidate.getInitials();
 			
+			if (qinitials == null)  qinitials= "";
+			if (cinitials == null)  cinitials= "";
+			
 			int surnamedist = distance.apply(qsurname, csurname);
 			int numberdist  = distance.apply(qnum.replace("/", ""), cnum.replace("/", ""));
+			int initdist = distance.apply(qinitials, cinitials);
 
-			if ( qnum.length() >= 4 && qnum.equals(cnum) && surnamedist < 3 ) {
+			if ( qnum.length() >= 4 && qnum.equals(cnum) && surnamedist < 4 ) {
 				
-				filtered.add(candidate);				
-				getCandidateSet(surnamedist, scores).add(candidate);				
+				//filtered.add(candidate);				
+				getCandidateSet(surnamedist, scores).add(candidate);
+			//	System.out.println("A: " + candidate.getContent() + " = " + surnamedist);
 			}
 			
-			else if ( (surnamedist < 2 || soundex.encode(qsurname).equals(csurname)) && qnum.length() > 0 && cnum.length() > 0 && numberdist < 2 ) {
+			else if ( (surnamedist < 2 || soundex.encode(qsurname).equals(csurname)) && qnum.length() > 0 && cnum.length() > 0 && numberdist <= 2 ) {
 				
-				getCandidateSet(distance.apply(qnum, cnum), scores).add(candidate);
+				getCandidateSet(numberdist + surnamedist + initdist, scores).add(candidate);
+			//	System.out.println("B: " + candidate.getContent() + " = " + numberdist + surnamedist + initdist);
 			}
-			else if ( qnum.length() == 0 && cnum.length() == 0 && qinitials != null && distance.apply(qsurname, csurname) < 2 && qinitials.equals(cinitials)) {
+			else if ( qnum.length() == 0 && cnum.length() == 0 && qinitials != null && distance.apply(qsurname, csurname) <= 2 && qinitials.equals(cinitials)) {
 				
-				filtered.add(candidate);				
+				//filtered.add(candidate);				
+				getCandidateSet(surnamedist, scores).add(candidate);				
+			//	System.out.println("C: " + candidate.getContent() + " = " + surnamedist);
+			}
+			else if ( qnum.equals(cnum) && qsurname.equals(csurname) && qinitials.length() >= 3 && initdist <= 1 ) {
+				
+				getCandidateSet(initdist, scores).add(candidate);				
+				//filtered.add(candidate);								
+			//	System.out.println("D: " + candidate.getContent() + " = " + initdist);
+			}
+			else {
+				//System.out.println("rejected: " + candidate.getContent());
 			}
 		}
 		
 		List<Integer> s = new ArrayList<Integer>();
 		s.addAll(scores.keySet());
 		Collections.sort(s);
+		
+		System.out.println("RESULT SETS: " + s);
 
-		if ( !s.isEmpty() ) filtered.addAll(scores.get(s.iterator().next()));
+		if ( !s.isEmpty() ) {
+			
+			int r = s.iterator().next();
+			System.out.println(r + " = " + scores.get(r).size());
+			filtered.addAll(scores.get(r));
+		}
 		
 		return filtered;
 	}

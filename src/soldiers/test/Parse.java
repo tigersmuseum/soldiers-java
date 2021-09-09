@@ -30,7 +30,7 @@ public class Parse {
 	    XPath xpath = factory.newXPath();
 
 	    XmlUtils xmlutils = new XmlUtils();
-		Document doc = xmlutils.parse(new File("/C:/workspaces/development/Tigers/data/collection-search.xml"));
+		Document doc = xmlutils.parse(new File("/C:/workspaces/development/Tigers/data/collection.xml"));
 		
 		XPathExpression expr = xpath.compile("//set");
 		NodeList list = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
@@ -42,7 +42,23 @@ public class Parse {
 		for ( int i = 0; i < list.getLength(); i++ ) {
 		
 			Element e = (Element) list.item(i);
-			String text = e.getAttribute("person");
+			//String text = e.getAttribute("person");
+			String text = e.getElementsByTagName("person").item(0).getTextContent();
+			
+			//text = text.toUpperCase();
+			text = text.replaceAll("\\p{javaSpaceChar}", " ").trim();
+			text = text.replaceAll("(?i)medal(s)? of", "");
+			text = text.replaceAll("(?i)^gift", "");
+			text = text.replaceAll("(?i)^.+?the late", "");
+			text = text.replaceAll("(?i)^.+?belonging to", "");
+			text = text.replaceAll("(?i)^.+?those of", "");
+			text = text.replaceAll("(?i)(served).*", "");
+			text = text.replaceAll("(?i)(\\d+(ST|ND|RD|TH)?\\s*)(HAMP|HANT|37TH|67TH|BATT|BN|VOL).*", "");
+			text = text.replaceAll("(?i)(HAMP|HANT|37TH|67TH|VOL).*", "");
+			text = text.replaceAll("(?i)K\\.I\\.A.*", "");
+			text = text.trim();
+			System.out.println(" ... " + text);
+			
 			Person p = Parser.parsePersonMention(text);
 			System.out.println(text);
 			System.out.println(p);

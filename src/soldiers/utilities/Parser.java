@@ -8,7 +8,7 @@ import soldiers.database.Service;
 
 public class Parser {
 
-	static Pattern rankPattern = Pattern.compile("(A/)?(Pte|Drumr|Dmr|Dvr|GNR|Gnr|Cpl|L/Cpl|LCpl|C/Sgt|C Sgt|CR:SGT|L/Sgt|Sergt|Sjt|QMSgt|Qr Mr Sjt|Sgt Major|Sgt|CQMS|CSM|RSM|WO2|W O Cl2|WO Cl II|WO1|2Lt|Lt & Adjt|Lt Col|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?");
+	static Pattern rankPattern = Pattern.compile("(A/)?(Pte|Drumr|Dmr|Dvr|GNR|Gnr|Cpl|L/Cpl|LCpl|LCorpl|Sgt Drummer|C/Sgt|C Sgt|CR:SGT|L/Sgt|Sergt|Sjt|QMSgt|Qr Mr Sjt|Sgt Major|Sgt|CQMS|CSM|RSM|WO2|W O Cl2|WO Cl II|WO1|2Lt|Lt & Adjt|Lt Col|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?");
 	static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?\\d[\\d-/]+\\b");
 	static Pattern initialsPattern = Pattern.compile("^(([A-Z]\\s)+).+");
 	static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC))+$");
@@ -25,6 +25,8 @@ public class Parser {
 		String text = surface.replaceAll("\\p{javaSpaceChar}", " ").trim();
 		//text = text.replaceAll("([A-Z])\\.", "$1");
 		text = text.replaceAll("\\.", "");
+		
+		System.out.println("### " + text);
 
 		text = suffix(text, person);
 		text = number(text, service);

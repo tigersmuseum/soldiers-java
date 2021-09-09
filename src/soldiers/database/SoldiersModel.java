@@ -188,6 +188,46 @@ public class SoldiersModel {
 	}
 
 	
+	public static Set<Person> getCandidatesForSurname(Connection connection, Person person) {
+		
+		Set<Person> candidates = new HashSet<Person>();
+		
+		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID";
+
+		try {
+				
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			stmt.setString(1, person.getSurname());
+			
+			ResultSet results = stmt.executeQuery();
+			
+			while ( results.next() ) {
+				
+				Person candidate = new Person();
+				Service svc = new Service();
+
+				candidate.setSoldierId(results.getLong("SID"));
+				svc.setNumber(results.getString("NUM"));
+				svc.setRank(results.getString("RANK_ABBREV"));
+				candidate.setSurname(results.getString("SURNAME"));
+				candidate.setInitials(results.getString("INITIALS"));
+				candidate.setForenames(results.getString("FORENAMES"));
+
+				candidate.addService(svc);
+				candidates.add(candidate);
+			}
+			
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return candidates;
+	}
+
+
+	
 	public static Set<Person> getCandidatesForExactNumber(Connection connection, Person person) {
 		
 		Set<Person> candidates = new HashSet<Person>();
