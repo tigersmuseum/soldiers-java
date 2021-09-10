@@ -35,9 +35,9 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("MARTIN");
-		svc.setNumber("2629");
-		p.setInitials("A");
+		p.setSurname("ATKEY");
+		//svc.setNumber("2629");
+		p.setInitials("W");
 		
 		p.addService(svc);
 				
@@ -123,6 +123,7 @@ public class SearchSoldier {
 			int surnamedist = distance.apply(qsurname, csurname);
 			int numberdist  = distance.apply(qnum.replace("/", ""), cnum.replace("/", ""));
 			int initdist = distance.apply(qinitials, cinitials);
+			
 
 			if ( qnum.length() >= 4 && qnum.equals(cnum) && surnamedist < 4 ) {
 				
@@ -136,7 +137,7 @@ public class SearchSoldier {
 				getCandidateSet(numberdist + surnamedist + initdist, scores).add(candidate);
 			//	System.out.println("B: " + candidate.getContent() + " = " + numberdist + surnamedist + initdist);
 			}
-			else if ( qnum.length() == 0 && cnum.length() == 0 && qinitials != null && distance.apply(qsurname, csurname) <= 2 && qinitials.equals(cinitials)) {
+			else if ( qnum.length() == 0 && qinitials != null && distance.apply(qsurname, csurname) <= 2 && qinitials.equals(cinitials)) {
 				
 				//filtered.add(candidate);				
 				getCandidateSet(surnamedist, scores).add(candidate);				

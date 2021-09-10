@@ -283,4 +283,17 @@ public class Person {
 		this.surfaceText = surfaceText.replaceAll("\\s+", " ").trim();
 	}
 
+	public boolean hasNumber(String number) {
+		
+		if ( number == null )  return false;
+		
+		Set<Service> service = getService();
+		
+		for ( Service record: service ) {
+			
+			if ( record.getNumber().equals(number) ) return true;
+		}
+		
+		return false;
+	}
 }

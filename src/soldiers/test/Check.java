@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.sql.Date;
 import java.text.ParseException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.transform.Transformer;
@@ -45,6 +47,8 @@ public class Check {
         xpath.setNamespaceContext(namespaceContext);
 		XPathExpression expr = xpath.compile("//soldiers:person");
 		
+		Set<Person> identified = new HashSet<Person>();
+		
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 		
 		for ( int i = 0; i < list.getLength(); i++ ) {
@@ -63,6 +67,13 @@ public class Check {
 	        	p.setSoldierId(Long.valueOf(candidate.getAttribute("sid")));
 	        	
 	        	//checkTransfer(xpath, e, p);
+	        	
+	        	String cnum = candidate.getAttribute("number");
+	        	
+	        	if ( p.hasNumber(cnum) ) {
+	        		
+	        		identified.add(p);
+	        	}
 	        }
 	        else {
 	        	System.out.println(clist.getLength() + " x== "  + p.getContent());
@@ -75,7 +86,9 @@ public class Check {
 		StreamResult result = new StreamResult(new FileOutputStream("output/fixed.xml"));
 		
 		DOMSource source = new DOMSource(doc);
-		transformer.transform(source, result);      
+		transformer.transform(source, result);
+		
+		System.out.println("IDENTIFIED: " + identified.size());
 	}
 	
 	

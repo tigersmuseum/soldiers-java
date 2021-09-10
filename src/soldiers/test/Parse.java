@@ -30,7 +30,7 @@ public class Parse {
 	    XPath xpath = factory.newXPath();
 
 	    XmlUtils xmlutils = new XmlUtils();
-		Document doc = xmlutils.parse(new File("/C:/workspaces/development/Tigers/data/collection.xml"));
+		Document doc = xmlutils.parse(new File("/H:/Archive/Admin/Database/eclipse-workspace/Tigers/output/collection-adjusted.xml"));
 		
 		XPathExpression expr = xpath.compile("//set");
 		NodeList list = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
@@ -43,27 +43,33 @@ public class Parse {
 		
 			Element e = (Element) list.item(i);
 			//String text = e.getAttribute("person");
+			String set = e.getAttribute("number");			
 			String text = e.getElementsByTagName("person").item(0).getTextContent();
-			
-			//text = text.toUpperCase();
-			text = text.replaceAll("\\p{javaSpaceChar}", " ").trim();
-			text = text.replaceAll("(?i)medal(s)? of", "");
-			text = text.replaceAll("(?i)^gift", "");
-			text = text.replaceAll("(?i)^.+?the late", "");
-			text = text.replaceAll("(?i)^.+?belonging to", "");
-			text = text.replaceAll("(?i)^.+?those of", "");
-			text = text.replaceAll("(?i)(served).*", "");
-			text = text.replaceAll("(?i)(\\d+(ST|ND|RD|TH)?\\s*)(HAMP|HANT|37TH|67TH|BATT|BN|VOL).*", "");
-			text = text.replaceAll("(?i)(HAMP|HANT|37TH|67TH|VOL).*", "");
-			text = text.replaceAll("(?i)K\\.I\\.A.*", "");
-			text = text.trim();
-			System.out.println(" ... " + text);
-			
-			Person p = Parser.parsePersonMention(text);
-			System.out.println(text);
-			System.out.println(p);
-			System.out.println("** " + p.getContent());
-			collection.add(p);
+
+			if ( text != null ) {
+				
+				
+				//text = text.toUpperCase();
+				text = text.replaceAll("\\p{javaSpaceChar}", " ").trim();
+				text = text.replaceAll("(?i)medal(s)? of", "");
+				text = text.replaceAll("(?i)^gift", "");
+				text = text.replaceAll("(?i)^.+?the late", "");
+				text = text.replaceAll("(?i)^.+?belonging to", "");
+				text = text.replaceAll("(?i)^.+?those of", "");
+				text = text.replaceAll("(?i)(served).*", "");
+				text = text.replaceAll("(?i)(\\d+(ST|ND|RD|TH)?\\s*)(HAMP|HANT|37TH|67TH|BATT|BN|VOL).*", "");
+				text = text.replaceAll("(?i)(HAMP|HANT|37TH|67TH|VOL).*", "");
+				text = text.replaceAll("(?i)K\\.I\\.A.*", "");
+				text = text.trim();
+				System.out.println(" ... " + text);
+				
+				Person p = Parser.parsePersonMention(text);
+				System.out.println(text);
+				System.out.println(p);
+				p.setSurfaceText( set + "=" + p.getSurfaceText());
+				System.out.println("** " + p.getContent());
+				collection.add(p);
+			}
 		}
 		
 		Soldiers.writeXml(collection);
