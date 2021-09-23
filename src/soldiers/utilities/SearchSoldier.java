@@ -29,16 +29,19 @@ import soldiers.database.Service;
 import soldiers.database.SoldiersModel;
 
 public class SearchSoldier {
+	
+	static Map<String, Integer> rankMap;
 
 	public static void main(String[] args) throws TransformerConfigurationException, SAXException, IllegalArgumentException, FileNotFoundException {
 
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("ATKEY");
-		//svc.setNumber("2629");
-		p.setInitials("W");
-		
+		p.setSurname("WHITE");
+		//svc.setNumber("3749");
+		p.setInitials("J");
+
+	//	svc.setRank("Pte");
 		p.addService(svc);
 				
 		Set<Person> results = SearchSoldier.checkIdentity(p, ConnectionManager.getConnection());
@@ -83,17 +86,22 @@ public class SearchSoldier {
 
 		System.out.println(".X....." + results.size());
 		
-		return filterMatches(p, results);
+		return filterMatches(p, results, 3);
 		//return results;
 
 	}
 	
 	
-	public static Set<Person> filterMatches(Person query, Set<Person> results) {
+	public static Set<Person> filterMatches(Person query, Set<Person> results, Integer maxscore) {
 		
 		LevenshteinDistance distance = new LevenshteinDistance();
 		Soundex soundex = new Soundex();
-		
+				
+		if (rankMap == null) {
+			rankMap = SoldiersModel.getRankOrdinals(ConnectionManager.getConnection());
+			rankMap.put("", 0);
+		}
+
 		if ( query.getService().size() == 0 ) return results;
 		System.out.println("QQQQQQQQQQ " + query.getContent());
 
@@ -125,7 +133,7 @@ public class SearchSoldier {
 			int initdist = distance.apply(qinitials, cinitials);
 			
 
-			if ( qnum.length() >= 4 && qnum.equals(cnum) && surnamedist < 4 ) {
+			if ( qnum.length() >= 2 && qnum.equals(cnum) && surnamedist < 4 ) {
 				
 				//filtered.add(candidate);				
 				getCandidateSet(surnamedist, scores).add(candidate);
@@ -139,8 +147,10 @@ public class SearchSoldier {
 			}
 			else if ( qnum.length() == 0 && qinitials != null && distance.apply(qsurname, csurname) <= 2 && qinitials.equals(cinitials)) {
 				
+				//System.out.println("[" + svcq.getRank() + "]");
+				int ndist = svcq.getRank() == null || rankMap.get(svcq.getRank()) < 8 ? 1 : cnum.length();
 				//filtered.add(candidate);				
-				getCandidateSet(surnamedist, scores).add(candidate);				
+				getCandidateSet(surnamedist + ndist, scores).add(candidate);				
 			//	System.out.println("C: " + candidate.getContent() + " = " + surnamedist);
 			}
 			else if ( qnum.equals(cnum) && qsurname.equals(csurname) && qinitials.length() >= 3 && initdist <= 1 ) {
@@ -164,7 +174,7 @@ public class SearchSoldier {
 			
 			int r = s.iterator().next();
 			System.out.println(r + " = " + scores.get(r).size());
-			filtered.addAll(scores.get(r));
+			 if ( r <= maxscore) filtered.addAll(scores.get(r));
 		}
 		
 		return filtered;

@@ -44,7 +44,7 @@ public class Normalize {
 
 	    XmlUtils xmlutils = new XmlUtils();
 		//Document doc = xmlutils.parse(new File("/C:/workspaces/development/Tigers/data/secondchinawar.xml"));
-		Document doc = xmlutils.parse(new File("output/out.xml"));
+		Document doc = xmlutils.parse(new File("output/temp.xml"));
 		
 		
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
@@ -58,8 +58,10 @@ public class Normalize {
 		XPathExpression notesexpr = xpath.compile(".//soldiers:note");
 		
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+		
+		Normalize normalizer = new Normalize();
 
-		Map<String, String> ranks = getRanks();
+		Map<String, String> ranks = normalizer.getRanks();
 		
 		Document collectedResults = xmlutils.newDocument();
 		Element collection = (Element) collectedResults.appendChild(collectedResults.createElementNS(namespaceContext.getNamespaceURI("soldiers"), "list"));
@@ -68,7 +70,7 @@ public class Normalize {
 			
 			Element e = (Element) list.item(i);
 	        Person p = Soldiers.parsePerson(e);
-	        normalizeRank(p, ranks);
+	        normalizer.normalizeRank(p, ranks);
 
 			Document results = xmlutils.newDocument();
 	        serializer = tf.newTransformerHandler();
@@ -102,7 +104,7 @@ public class Normalize {
 	}
 	
 	
-	public static Map<String, String> getRanks() {
+	public Map<String, String> getRanks() {
 		
 		Map<String, String> ranks = new HashMap<String, String>();
 		
@@ -111,15 +113,22 @@ public class Normalize {
 		ranks.put("pte", "Pte");
 		ranks.put("private", "Pte");
 		ranks.put("dmr", "Dmr");
+		ranks.put("drumr", "Dmr");
+		ranks.put("dvr", "Dvr");
+		ranks.put("gnr", "Gnr");
+		ranks.put("spr", "Spr");
 		ranks.put("bdsm", "Bdsm");
 		ranks.put("drummer", "Dmr");
 		ranks.put("lcpl", "L/Cpl");
+		ranks.put("lcorpl", "L/Cpl");
 		ranks.put("lancecorporal", "L/Cpl");
 		ranks.put("cpl", "Cpl");
 		ranks.put("corporal", "Cpl");
 		ranks.put("corp", "Cpl");
 		ranks.put("lsgt", "L/Sgt");
+		ranks.put("lsjt", "L/Sgt");
 		ranks.put("sgt", "Sgt");
+		ranks.put("sergt", "Sgt");
 		ranks.put("serjeant", "Sgt");
 		ranks.put("sergeant", "Sgt");
 		ranks.put("sergent", "Sgt");
@@ -130,18 +139,26 @@ public class Normalize {
 		ranks.put("musksgt", "Sgt");
 		ranks.put("sgtdrm", "Sgt");
 		ranks.put("drmsgt", "Sgt");
+		ranks.put("sgtdrummer", "Sgt");
+		ranks.put("qmsgt", "QMS");
 		ranks.put("csgt", "CSgt");
 		ranks.put("coloursergeant", "CSgt");
+		ranks.put("wo2", "WO2");
+		ranks.put("wo1", "WO1");
 		ranks.put("sgtmaj", "Sgt Maj");
+		ranks.put("rsm", "RSM");
 		ranks.put("drummaj", "Drum Maj");
 		ranks.put("cqms", "CQMS");
 		ranks.put("qms", "QMS");
+		ranks.put("rqms", "RQMS");
 		ranks.put("csm", "CSM");
 		ranks.put("ens", "Ens");
 		ranks.put("ensign", "Ens");
 		ranks.put("2lt", "2Lt");
 		ranks.put("secondlieutentant", "2Lt");
 		ranks.put("lt", "Lt");
+		ranks.put("lieut", "Lt");
+		ranks.put("lieutenant", "Lt");
 		ranks.put("asstsurg", "Asst Surg");
 		ranks.put("astsurg", "Asst Surg");
 		ranks.put("capt", "Capt");
@@ -160,6 +177,7 @@ public class Normalize {
 		ranks.put("col", "Col");
 		ranks.put("btcol", "Col");
 		ranks.put("colonel", "Col");
+		ranks.put("brigadiergeneral", "Brig Gen");
 		ranks.put("gen", "Gen");
 		ranks.put("general", "Gen");
 		
@@ -167,16 +185,23 @@ public class Normalize {
 	}
 	
 	
-	private static void normalizeRank(Service service, Map<String, String> ranks) {
+	public void normalizeRank(Service service, Map<String, String> ranks) {
 		
 		if (service.getRank() == null) {
 			
-			System.out.println("NO RANK: " + service);
+			//System.out.println("NO RANK: " + service);
 			return;
 			
 		}
 		
+		String rankqualifier = null;
 		String raw = service.getRank().toLowerCase().trim();
+		
+		if ( raw.startsWith("a/")) {
+			
+			rankqualifier = "A";
+			raw = raw.substring(2);
+		}
 		raw = raw.split("\\(")[0];
 		raw = raw.split("&")[0];
 		raw = raw.replaceAll("/", "");
@@ -187,6 +212,8 @@ public class Normalize {
 		if ( normal != null ) {
 			
 			service.setRank(normal);
+			service.setRankqualifier(rankqualifier);
+			
 		}
 		else {
 			
@@ -196,7 +223,7 @@ public class Normalize {
 	}
 	
 
-	private static void normalizeRank(Person person, Map<String, String> ranks) {
+	public void normalizeRank(Person person, Map<String, String> ranks) {
 		
 		//System.out.println(person.getSurname());
 		for ( Service service: person.getService() ) {

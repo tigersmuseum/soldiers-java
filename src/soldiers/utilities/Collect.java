@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
@@ -58,7 +60,7 @@ public class Collect {
 		XPathExpression peopleXpr = xpath.compile(".//soldiers:person");
 		XPathExpression notesXpr = xpath.compile(".//soldiers:note");
 		
-		Map<Long, List<Element>> notesMap = new HashMap<Long, List<Element>>();
+		Map<Long, Set<Note>> notesMap = new HashMap<Long, Set<Note>>();
 
     	for ( File file: folder.listFiles() ) {
     		
@@ -78,7 +80,7 @@ public class Collect {
         			
             		for ( int n = 0; n < nList.getLength(); n++ ) {
             			
-            			addToMap(notesMap, sid, (Element) nList.item(n));
+            			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
             		}
     			}   			
     		}
@@ -90,20 +92,20 @@ public class Collect {
     	
     	NoteDateComparator comparator = new NoteDateComparator();
     	
+    	List<String> records = new ArrayList<String>();
+    	
     	for ( Long sid: notesMap.keySet() ) {
     		
-    		List<Element> notes = notesMap.get(sid);
+    		List<Note> notes = new ArrayList<Note>();
+    		notes.addAll(notesMap.get(sid));
     		notes.sort(comparator);
-    		System.out.println(sid + " = " + notes.size());
     		
-    		for ( Element e: notes ) {
-    			
-    			System.out.println(e.getAttribute("date"));
-    		}
-    		
-    		if ( notes.size() >= 3 ) {
+    		if ( notes.size() >= 0 ) {
     			
     			Person p = SoldiersModel.getPerson(ConnectionManager.getConnection(), sid);
+    			
+    			String rec = String.format("%-30s %10d", p.getSort(), p.getSoldierId());
+    			records.add(rec);
     			
     			Document results = xmlutils.newDocument();
     	        serializer = tf.newTransformerHandler();
@@ -116,28 +118,35 @@ public class Collect {
     	        
     	        Element newp = (Element) results.getDocumentElement();
     	        
-    	        for ( Element note: notes ) {
+    	        for ( Note note: notes ) {
     	        	
-    	        	Element n = (Element) results.importNode(note, true);
+    	        	Element n = (Element) results.importNode(note.getElement(), true);
     	        	newp.appendChild(n);
     	        }
     	        
-    	        Soldiers.writeDocument(results, new FileOutputStream("output/xxx/" + sid + ".xml"));
+    	        Soldiers.writeDocument(results, new FileOutputStream("/D:/Tigers/biography/xml/" + sid + ".xml"));
     		}
+    	}
+    	
+    	Collections.sort(records);
+    	
+    	for (String r: records) {
+    		
+    		System.out.println(r);
     	}
 	}
 
 	
-	public static void addToMap(Map<Long, List<Element>> map, Long sid, Element element) {
+	public static void addToMap(Map<Long, Set<Note>> map, Long sid, Note note) {
 		
-		List<Element> notes = map.get(sid);
+		Set<Note> notes = map.get(sid);
 		
 		if ( notes == null ) {
 			
-			notes = new ArrayList<Element>();
+			notes = new HashSet<Note>();
 		}
-		
-		notes.add(element);
+			
+		notes.add(note);
 		map.put(sid, notes);
 	}
 }

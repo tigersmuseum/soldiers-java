@@ -4,13 +4,16 @@ import java.util.Comparator;
 
 import org.w3c.dom.Element;
 
-public class NoteDateComparator implements Comparator<Element> {
+public class NoteDateComparator implements Comparator<Note> {
 
 	@Override
-	public int compare(Element arg0, Element arg1) {
+	public int compare(Note noteA, Note noteB) {
 
-		String dateA = arg0.getAttribute("date");
-		String dateB = arg1.getAttribute("date");
+		Element elementA = noteA.getElement();
+		Element elementB = noteB.getElement();
+		
+		String dateA = elementA.getAttribute("date");
+		String dateB = elementB.getAttribute("date");
 		
 		if ( dateA == null && dateB == null ) {		
 

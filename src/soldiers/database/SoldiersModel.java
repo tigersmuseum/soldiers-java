@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class SoldiersModel {
@@ -346,6 +348,33 @@ public class SoldiersModel {
 			while ( results.next() ) {
 				
 				ranks.add(results.getString("ABBREV"));
+			}
+			
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return ranks;
+	}
+	
+
+	public static Map<String, Integer> getRankOrdinals(Connection connection) {
+		
+		Map<String, Integer> ranks = new HashMap<String, Integer>();
+		
+		String sql = "select ABBREV, ORDINAL from RANK";
+
+		try {
+				
+			PreparedStatement stmt = connection.prepareStatement(sql);
+
+			ResultSet results = stmt.executeQuery();
+			
+			while ( results.next() ) {
+				
+				ranks.put(results.getString("ABBREV"), results.getInt("ORDINAL"));
 			}
 			
 			stmt.close();
