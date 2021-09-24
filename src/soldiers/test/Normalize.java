@@ -39,12 +39,19 @@ public class Normalize {
 
 	public static void main(String[] args) throws XPathExpressionException, IllegalArgumentException, FileNotFoundException, SAXException, ParseException, TransformerException {
 
+    	if ( args.length < 1 ) {
+    		
+    		System.err.println("Usage: Normalize <filename>");
+    		System.exit(1);
+    	}
+    	
+    	String inputfile = args[0];
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
 
 	    XmlUtils xmlutils = new XmlUtils();
 		//Document doc = xmlutils.parse(new File("/C:/workspaces/development/Tigers/data/secondchinawar.xml"));
-		Document doc = xmlutils.parse(new File("output/temp.xml"));
+		Document doc = xmlutils.parse(new File(inputfile));
 		
 		
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
@@ -128,12 +135,14 @@ public class Normalize {
 		ranks.put("lsgt", "L/Sgt");
 		ranks.put("lsjt", "L/Sgt");
 		ranks.put("sgt", "Sgt");
+		ranks.put("sjt", "Sgt");
 		ranks.put("sergt", "Sgt");
 		ranks.put("serjeant", "Sgt");
 		ranks.put("sergeant", "Sgt");
 		ranks.put("sergent", "Sgt");
 		ranks.put("armsgt", "Sgt");
 		ranks.put("paysgt", "Sgt");
+		ranks.put("hossgt", "Sgt");
 		ranks.put("hospsgt", "Sgt");
 		ranks.put("orsgt", "Sgt");
 		ranks.put("musksgt", "Sgt");
@@ -142,19 +151,23 @@ public class Normalize {
 		ranks.put("sgtdrummer", "Sgt");
 		ranks.put("qmsgt", "QMS");
 		ranks.put("csgt", "CSgt");
+		ranks.put("bmstr", "CSgt");
 		ranks.put("coloursergeant", "CSgt");
 		ranks.put("wo2", "WO2");
 		ranks.put("wo1", "WO1");
 		ranks.put("sgtmaj", "Sgt Maj");
 		ranks.put("rsm", "RSM");
+		ranks.put("drmmaj", "Drum Maj");
 		ranks.put("drummaj", "Drum Maj");
 		ranks.put("cqms", "CQMS");
 		ranks.put("qms", "QMS");
+		ranks.put("qmrsgt", "QMS");
 		ranks.put("rqms", "RQMS");
 		ranks.put("csm", "CSM");
 		ranks.put("ens", "Ens");
 		ranks.put("ensign", "Ens");
 		ranks.put("2lt", "2Lt");
+		ranks.put("2ndlt", "2Lt");
 		ranks.put("secondlieutentant", "2Lt");
 		ranks.put("lt", "Lt");
 		ranks.put("lieut", "Lt");
@@ -177,9 +190,11 @@ public class Normalize {
 		ranks.put("col", "Col");
 		ranks.put("btcol", "Col");
 		ranks.put("colonel", "Col");
+		ranks.put("briggen", "Brig Gen");
 		ranks.put("brigadiergeneral", "Brig Gen");
 		ranks.put("gen", "Gen");
 		ranks.put("general", "Gen");
+		ranks.put("paymstr", "Capt");
 		
 		return ranks;
 	}
