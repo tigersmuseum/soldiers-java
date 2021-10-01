@@ -61,6 +61,17 @@ public class Collect {
 
 
 		//
+		
+		long[] wanted = {201200, 201204, 201215};
+		
+		Map<Long, Set<Note>> sample = new HashMap<Long, Set<Note>>();
+		
+		for (Long w: wanted) {
+			
+			sample.put(w, notesMap.get(w));
+		}
+		
+		writeXmlFiles(sample);
 	}
 
 	
@@ -129,6 +140,7 @@ public class Collect {
 	    xpath.setNamespaceContext(new SoldiersNamespaceContext());
 		XPathExpression peopleXpr = xpath.compile(".//soldiers:person");
 		XPathExpression notesXpr = xpath.compile(".//soldiers:note");
+		
 		Map<Long, Set<Note>> notesMap = new HashMap<Long, Set<Note>>();
 		
     	for ( File file: work ) {
@@ -198,7 +210,7 @@ public class Collect {
     	        	newp.appendChild(n);
     	        }
     	        
-    	        Soldiers.writeDocument(results, new FileOutputStream("/D:/Tigers/biography/xml/" + sid + ".xml"));
+    	        Soldiers.writeDocument(results, new FileOutputStream("output/bio/" + sid + ".xml"));
     	    	
     	    	Collections.sort(records);
     	    	
