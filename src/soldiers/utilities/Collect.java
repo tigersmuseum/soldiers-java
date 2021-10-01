@@ -42,16 +42,86 @@ public class Collect {
     		System.exit(1);
     	}
     	
-    	String foldername = args[0];
+    	String inputname = args[0];
     	
-    	File folder = new File(foldername);
+    	File inputfile = new File(inputname);   	
+    	List<File> work = null;
     	
-    	if ( ! folder.isDirectory() ) {
-    	
-    		System.err.println(foldername + " is not a directory.");
-    		System.exit(-1);
+    	if ( inputfile.isDirectory() ) {
+    		
+    		work = getWorkFromFolder(inputfile);
+    	}
+    	else {
+    		 	
+    		work = getWorkFromFile(inputfile);
     	}
     	
+		Map<Long, Set<Note>> notesMap = makeNoteMap(work);
+		System.out.println(notesMap.size());
+
+
+		//
+	}
+
+	
+	public static List<File> getWorkFromFolder(File folder) {
+		
+		List<File> work = new ArrayList<File>();
+    	
+    	for ( File file: folder.listFiles() ) {
+    		
+    		work.add(file);
+    	}
+    	
+    	return work;
+	}
+	
+	
+	public static List<File> getWorkFromFile(File file) {
+		
+		List<File> work = new ArrayList<File>();
+		
+    	XmlUtils xmlutils = new XmlUtils();
+		XPathFactory factory = XPathFactory.newInstance();
+	    XPath xpath = factory.newXPath();
+	    
+		try {
+			XPathExpression workXpr = xpath.compile(".//source");
+    		Document doc = xmlutils.parse(file);
+    		NodeList list = (NodeList) workXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+
+    		for ( int i = 0; i < list.getLength(); i++ ) {
+    		
+    			Element e = (Element) list.item(i);
+    			String filename = e.getAttribute("filename");
+    			File sourcefile = new File(filename);
+    			work.add(sourcefile);
+    		}
+		}
+		catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}
+	    
+	    return work;
+	}
+
+	
+	public static void addToMap(Map<Long, Set<Note>> map, Long sid, Note note) {
+		
+		Set<Note> notes = map.get(sid);
+		
+		if ( notes == null ) {
+			
+			notes = new HashSet<Note>();
+		}
+			
+		notes.add(note);
+		map.put(sid, notes);
+	}
+	
+	
+	public static Map<Long, Set<Note>> makeNoteMap(List<File> work) throws XPathExpressionException {
+		
     	XmlUtils xmlutils = new XmlUtils();
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
@@ -59,10 +129,9 @@ public class Collect {
 	    xpath.setNamespaceContext(new SoldiersNamespaceContext());
 		XPathExpression peopleXpr = xpath.compile(".//soldiers:person");
 		XPathExpression notesXpr = xpath.compile(".//soldiers:note");
-		
 		Map<Long, Set<Note>> notesMap = new HashMap<Long, Set<Note>>();
-
-    	for ( File file: folder.listFiles() ) {
+		
+    	for ( File file: work ) {
     		
     		Document doc = xmlutils.parse(file);
     		NodeList pList = (NodeList) peopleXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
@@ -85,8 +154,13 @@ public class Collect {
     			}   			
     		}
     	}
-    	
-    	//
+
+    	return notesMap;
+	}
+	
+	public static void writeXmlFiles(Map<Long, Set<Note>> notesMap) throws SAXException, FileNotFoundException, TransformerException {
+		
+    	XmlUtils xmlutils = new XmlUtils();
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler serializer;
     	
@@ -125,28 +199,14 @@ public class Collect {
     	        }
     	        
     	        Soldiers.writeDocument(results, new FileOutputStream("/D:/Tigers/biography/xml/" + sid + ".xml"));
+    	    	
+    	    	Collections.sort(records);
+    	    	
+    	    	for (String r: records) {
+    	    		
+    	    		System.out.println(r);
+    	    	}
     		}
     	}
-    	
-    	Collections.sort(records);
-    	
-    	for (String r: records) {
-    		
-    		System.out.println(r);
-    	}
-	}
-
-	
-	public static void addToMap(Map<Long, Set<Note>> map, Long sid, Note note) {
-		
-		Set<Note> notes = map.get(sid);
-		
-		if ( notes == null ) {
-			
-			notes = new HashSet<Note>();
-		}
-			
-		notes.add(note);
-		map.put(sid, notes);
 	}
 }
