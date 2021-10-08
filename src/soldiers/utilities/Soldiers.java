@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.Date;
 import java.text.ParseException;
-import java.util.Collection;
 import java.util.Set;
 
 import javax.xml.namespace.NamespaceContext;
@@ -22,8 +21,6 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -35,7 +32,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
 import soldiers.database.Person;
 import soldiers.database.Service;
@@ -207,28 +203,6 @@ public class Soldiers {
 		}
 
 		return person;
-	}
-
-	
-	public static void writeXml(Collection<Person> people) throws TransformerConfigurationException, SAXException, IllegalArgumentException, FileNotFoundException {
-		
-        SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
-        TransformerHandler serializer;
-        serializer = tf.newTransformerHandler();
-        serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        serializer.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
-        serializer.setResult(new StreamResult(new FileOutputStream("output/temp.xml")));
-
-		serializer.startDocument();
-		serializer.startElement("", "data", "data", new AttributesImpl());
-		
-		for (Person person : people ) {
-			
-			person.serializePerson(serializer);
-		}	
-		
-		serializer.endElement("", "data", "data");
-		serializer.endDocument();
 	}
 
 }
