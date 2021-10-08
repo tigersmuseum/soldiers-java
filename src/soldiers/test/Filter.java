@@ -103,6 +103,8 @@ public class Filter {
 		System.out.println("UNIDENTIFIED: " + unidentified.size());
 		System.out.println("AMBIGUOUS: " + ambiguous.size());
 		
+		XmlUtils.writeXml(ambiguous, new FileOutputStream("output/ambiguous.xml"));
+		
 //		identify(xpath, colln, setmap);
 	}
 		

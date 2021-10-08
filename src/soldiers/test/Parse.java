@@ -2,6 +2,7 @@ package soldiers.test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +21,6 @@ import org.xml.sax.SAXException;
 
 import soldiers.database.Person;
 import soldiers.utilities.Parser;
-import soldiers.utilities.Soldiers;
 import soldiers.utilities.XmlUtils;
 
 public class Parse {
@@ -104,7 +104,7 @@ public class Parse {
 			}
 		}
 		
-		Soldiers.writeXml(collection);
+		XmlUtils.writeXml(collection, new FileOutputStream("output/out.xml"));
 	}
 
 }
