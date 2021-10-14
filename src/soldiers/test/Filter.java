@@ -38,8 +38,18 @@ public class Filter {
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
 
+	    SoldiersNamespaceContext namespace = new SoldiersNamespaceContext();
+	    
 	    XmlUtils xmlutils = new XmlUtils();
 		Document doc = xmlutils.parse(new File("output/out.xml"));
+		
+		Document ambigdoc = xmlutils.newDocument();
+		Element ambigroot = ambigdoc.createElementNS(namespace.getNamespaceURI("soldiers"), "list");
+		ambigdoc.appendChild(ambigroot);
+		
+		Document unkdoc = xmlutils.newDocument();
+		Element unkroot = unkdoc.createElementNS(namespace.getNamespaceURI("soldiers"), "list");
+		unkdoc.appendChild(unkroot);
 				
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
 
@@ -68,12 +78,15 @@ public class Filter {
 
 	        	identified.add(p);
 	        }
-	        else if ( clist.getLength() == 1 ) {
+	        else if ( clist.getLength() == 0 ) {
 	        	
 	        	unidentified.add(p);
+	        	unkroot.appendChild(unkdoc.importNode(e, true));
 	        }
 	        else {
 	        	ambiguous.add(p);
+	        	ambigroot.appendChild(ambigdoc.importNode(e, true));
+	        	
 	        	System.out.println(clist.getLength() + " x== "  + p.getContent());
 	        	Set<String> names = new HashSet<>();
 	        	
@@ -103,9 +116,17 @@ public class Filter {
 		System.out.println("UNIDENTIFIED: " + unidentified.size());
 		System.out.println("AMBIGUOUS: " + ambiguous.size());
 		
-		XmlUtils.writeXml(ambiguous, new FileOutputStream("output/ambiguous.xml"));
+		//XmlUtils.writeXml(ambiguous, new FileOutputStream("output/ambiguous.xml"));
 		
-//		identify(xpath, colln, setmap);
+		StreamResult ambigresult = new StreamResult(new FileOutputStream("output/ambig.xml"));		
+		DOMSource ambigsource = new DOMSource(ambigdoc);
+		transformer.transform(ambigsource, ambigresult);
+
+		StreamResult unkresult = new StreamResult(new FileOutputStream("output/unknown.xml"));		
+		DOMSource unksource = new DOMSource(unkdoc);
+		transformer.transform(unksource, unkresult);
+
+		//		identify(xpath, colln, setmap);
 	}
 		
 }
