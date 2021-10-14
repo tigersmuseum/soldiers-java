@@ -121,9 +121,11 @@ public class Normalize {
 		ranks.put("private", "Pte");
 		ranks.put("privatepioneer", "Pte");
 		ranks.put("dmr", "Dmr");
+		ranks.put("bandsman", "Bdsm");
 		ranks.put("drumr", "Dmr");
 		ranks.put("dvr", "Dvr");
 		ranks.put("gnr", "Gnr");
+		ranks.put("sapper", "Spr");
 		ranks.put("spr", "Spr");
 		ranks.put("rifleman", "Rfn");
 		ranks.put("bdsm", "Bdsm");
@@ -137,6 +139,7 @@ public class Normalize {
 		ranks.put("lsgt", "L/Sgt");
 		ranks.put("lsjt", "L/Sgt");
 		ranks.put("lancesergeant", "L/Sgt");
+		ranks.put("lanceserjeant", "L/Sgt");
 		ranks.put("sgt", "Sgt");
 		ranks.put("sjt", "Sgt");
 		ranks.put("sergt", "Sgt");
@@ -151,9 +154,13 @@ public class Normalize {
 		ranks.put("musksgt", "Sgt");
 		ranks.put("sgtdrm", "Sgt");
 		ranks.put("sgtdmr", "Sgt");
+		ranks.put("sergeantdrummer", "Sgt");
 		ranks.put("drmsgt", "Sgt");
+		ranks.put("orderlyroomsergeant", "Sgt");
 		ranks.put("armourersergeant", "Sgt");
 		ranks.put("sgtdrummer", "Sgt");
+		ranks.put("quartmastersergeant", "QMS");
+		ranks.put("quartermastersergeant", "QMS");
 		ranks.put("qmsgt", "QMS");
 		ranks.put("csgt", "CSgt");
 		ranks.put("bmstr", "CSgt");
@@ -164,6 +171,8 @@ public class Normalize {
 		ranks.put("woclass2", "WO2");
 		ranks.put("wo1", "WO1");
 		ranks.put("woclass1", "WO1");
+		ranks.put("warrantofficer1stclass", "WO1");
+		ranks.put("sergeantmajor", "Sgt Maj");
 		ranks.put("sgtmaj", "Sgt Maj");
 		ranks.put("rsm", "RSM");
 		ranks.put("regimentalsergeantmajor", "RSM");
@@ -176,6 +185,7 @@ public class Normalize {
 		ranks.put("sqms", "QMS");
 		ranks.put("rqms", "RQMS");
 		ranks.put("regimentalquartermastersergeant", "RQMS");
+		ranks.put("coloursergeantmajor", "CSM");
 		ranks.put("csm", "CSM");
 		ranks.put("companysergeantmajor", "CSM");
 		ranks.put("ens", "Ens");
@@ -195,6 +205,7 @@ public class Normalize {
 		ranks.put("adjutant", "Adjt");
 		ranks.put("adj", "Adjt");
 		ranks.put("qmr", "QM");
+		ranks.put("quartermastercaptain", "QM");
 		ranks.put("qm", "QM");
 		ranks.put("quartermaster", "QM");
 		ranks.put("maj", "Maj");
