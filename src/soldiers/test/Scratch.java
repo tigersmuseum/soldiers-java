@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -31,6 +32,37 @@ public class Scratch {
 
 	public static void main(String[] args) throws XPathExpressionException, IllegalArgumentException, FileNotFoundException, SAXException, ParseException, TransformerException {
 
+		//make14StarNote();
+		makeBarbertonNote();
+	}
+	
+	public static void makeBarbertonNote() throws XPathExpressionException, FileNotFoundException, TransformerException {
+		
+		XPathFactory factory = XPathFactory.newInstance();
+	    XPath xpath = factory.newXPath();
+
+	    XmlUtils xmlutils = new XmlUtils();
+		Document doc = xmlutils.parse(new File("H:\\Archive\\Admin\\Database\\eclipse-workspace\\Tigers\\output\\barberton.xml"));
+				
+		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
+
+        xpath.setNamespaceContext(namespaceContext);
+		XPathExpression expr = xpath.compile("//soldiers:comment");
+		
+		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+		
+		addParsedDateAttribute(list);
+		
+		TransformerFactory treansformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = treansformerFactory.newTransformer();
+		StreamResult result = new StreamResult(new FileOutputStream("output/fixed.xml"));
+		
+		DOMSource source = new DOMSource(doc);
+		transformer.transform(source, result);      
+	}
+	
+	public static void make14StarNote() throws XPathExpressionException, FileNotFoundException, TransformerException {
+		
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
 
@@ -54,14 +86,14 @@ public class Scratch {
 		transformer.transform(source, result);      
 	}
 	
-	
 	public static void addParsedDateAttribute(NodeList list) {
 		
         Pattern datePattern = Pattern.compile(".*?(\\d{1,2})\\.(\\d{1,2})\\.(\\d{2}).*");
-        Pattern diedPattern = Pattern.compile(".*?(dead|died|kia|dow).*", Pattern.CASE_INSENSITIVE);
+        Pattern diedPattern = Pattern.compile(".*?(dead|died|kia|dow|killed).*", Pattern.CASE_INSENSITIVE);
         Pattern disPattern  = Pattern.compile(".*?(Dis|MU|TE).*");
         Pattern xferPattern = Pattern.compile(".*?(trans).*", Pattern.CASE_INSENSITIVE);
         Pattern dsrtPattern = Pattern.compile(".*?(desert).*", Pattern.CASE_INSENSITIVE);
+        Pattern injPattern  = Pattern.compile(".*?(injured).*", Pattern.CASE_INSENSITIVE);
 
         for ( int i = 0; i < list.getLength(); i++ ) {
 			
@@ -73,6 +105,7 @@ public class Scratch {
 			Matcher disMatcher  = disPattern.matcher(text);
 			Matcher xferMatcher = xferPattern.matcher(text);
 			Matcher dsrtMatcher = dsrtPattern.matcher(text);
+			Matcher injMatcher  = injPattern.matcher(text);
 
 			if ( dateMatcher.matches() ) {
 				
@@ -99,6 +132,11 @@ public class Scratch {
 			if ( dsrtMatcher.matches() ) {
 				
 				e.setAttribute("deserted", "yes");
+			}
+
+			if ( injMatcher.matches() ) {
+				
+				e.setAttribute("injured", "yes");
 			}
 		}	
 	}

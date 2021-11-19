@@ -170,6 +170,53 @@ public class Collect {
     	return notesMap;
 	}
 	
+	
+	public static Map<Long, Set<Note>> makeNoteMapCandidates(List<File> work) throws XPathExpressionException {
+		
+    	XmlUtils xmlutils = new XmlUtils();
+		XPathFactory factory = XPathFactory.newInstance();
+	    XPath xpath = factory.newXPath();
+
+	    xpath.setNamespaceContext(new SoldiersNamespaceContext());
+		XPathExpression peopleXpr = xpath.compile(".//soldiers:person[soldiers:candidate]");
+		XPathExpression notesXpr = xpath.compile(".//soldiers:note");
+		
+		Map<Long, Set<Note>> notesMap = new HashMap<Long, Set<Note>>();
+		
+    	for ( File file: work ) {
+    		
+    		Document doc = xmlutils.parse(file);
+    		NodeList pList = (NodeList) peopleXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+
+    		for ( int i = 0; i < pList.getLength(); i++ ) {
+    		
+    			Element person = (Element) pList.item(i);
+    			
+    			NodeList cList = person.getElementsByTagNameNS(SoldiersModel.XML_NAMESPACE, "candidate");
+    			
+    	   		for ( int j = 0; j < cList.getLength(); j++ ) {
+    	   		
+        			Element candidate = (Element) cList.item(j);
+        			String sidAttr = candidate.getAttribute("sid");
+        			
+        			if ( sidAttr.length() > 0 ) {
+        				 				
+            			Long sid = Long.parseLong(sidAttr);
+            			
+                		NodeList nList = (NodeList) notesXpr.evaluate(person, XPathConstants.NODESET);
+            			
+                		for ( int n = 0; n < nList.getLength(); n++ ) {
+                			
+                			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
+                		}
+        			}   			
+    	   		}  			
+    		}
+    	}
+
+    	return notesMap;
+	}
+	
 	public static void writeXmlFiles(Map<Long, Set<Note>> notesMap) throws SAXException, FileNotFoundException, TransformerException {
 		
     	XmlUtils xmlutils = new XmlUtils();
@@ -184,6 +231,7 @@ public class Collect {
     		
     		List<Note> notes = new ArrayList<Note>();
     		notes.addAll(notesMap.get(sid));
+    		System.out.println("zz " + notes.size());
     		notes.sort(comparator);
     		
     		if ( notes.size() >= 0 ) {
