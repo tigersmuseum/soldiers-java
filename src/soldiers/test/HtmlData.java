@@ -34,7 +34,7 @@ public class HtmlData {
 		HtmlUtils html = new HtmlUtils();
 		
 		File file = new File(args[0]);
-		Document doc = html.cleanFile(file);
+		Document doc = html.cleanFile(file, "windows-1252");
 		
 		XPathExpression expr = xpath.compile("//tr");
 		NodeList list = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
