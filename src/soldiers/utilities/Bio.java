@@ -79,8 +79,6 @@ public class Bio {
         serializer.startDocument();
         person.serializePerson(serializer);
         serializer.endDocument();
-		
-        Soldiers.writeDocument(results, new FileOutputStream("output/bio/" + person.getSoldierId() + ".xml"));
 	}
 
 	public static void getNotes(Person person) throws XPathExpressionException, FileNotFoundException, SAXException, TransformerException {
@@ -90,11 +88,15 @@ public class Bio {
 		
 		Map<Long, Set<Note>> notesMap = Collect.makeNoteMapCandidates(files);
 		
-		Map<Long, Set<Note>> wanted = new HashMap<Long, Set<Note>>();
-		wanted.put(person.getSoldierId(), notesMap.get(person.getSoldierId()));
+		long[] wanted = {102033,196418};
 		
-		System.out.println(notesMap.get(person.getSoldierId()).size());
+		Map<Long, Set<Note>> sample = new HashMap<Long, Set<Note>>();
 		
-		Collect.writeXmlFiles(wanted);
+		for (Long w: wanted) {
+			
+			sample.put(w, notesMap.get(w));
+		}
+		
+		Collect.writeXmlFiles(sample);
 	}
 }
