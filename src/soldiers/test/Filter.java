@@ -35,6 +35,16 @@ public class Filter {
 
 	public static void main(String[] args) throws XPathExpressionException, IllegalArgumentException, FileNotFoundException, SAXException, ParseException, TransformerException {
 
+		/*
+		 Filters a file of person entries that have been through the identification process. These will have a "candidate" element
+		 for each matching entry in the soldiers database.
+		 
+		 This program fixes the person to the soldier ID if there is exactly one candidate entry, otherwise filters the person entry to
+		 either an "ambiguous" file (multiple candidates) or an "unknown" file (no candidates).
+		 
+		 Quality control on the single candidate?
+		 */
+		
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
 
@@ -43,10 +53,12 @@ public class Filter {
 	    XmlUtils xmlutils = new XmlUtils();
 		Document doc = xmlutils.parse(new File("output/out.xml"));
 		
+		// a document for ambiguous identification
 		Document ambigdoc = xmlutils.newDocument();
 		Element ambigroot = ambigdoc.createElementNS(namespace.getNamespaceURI("soldiers"), "list");
 		ambigdoc.appendChild(ambigroot);
 		
+		// a document for unidentified persons
 		Document unkdoc = xmlutils.newDocument();
 		Element unkroot = unkdoc.createElementNS(namespace.getNamespaceURI("soldiers"), "list");
 		unkdoc.appendChild(unkroot);
