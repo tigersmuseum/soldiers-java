@@ -118,10 +118,13 @@ public class Normalize {
 		ranks.put("hosapp", "Hos App");
 		ranks.put("hospitalapprentice", "Hos App");
 		ranks.put("pte", "Pte");
+		ranks.put("pnr", "Pnr");
+		ranks.put("sig", "Sig");
 		ranks.put("private", "Pte");
 		ranks.put("privatepioneer", "Pte");
 		ranks.put("dmr", "Dmr");
 		ranks.put("bandsman", "Bdsm");
+		ranks.put("bdmn", "Bdsm");
 		ranks.put("drumr", "Dmr");
 		ranks.put("dvr", "Dvr");
 		ranks.put("gnr", "Gnr");
@@ -131,9 +134,11 @@ public class Normalize {
 		ranks.put("bdsm", "Bdsm");
 		ranks.put("drummer", "Dmr");
 		ranks.put("lcpl", "L/Cpl");
+		ranks.put("lc", "L/Cpl");
 		ranks.put("lcorpl", "L/Cpl");
 		ranks.put("lancecorporal", "L/Cpl");
 		ranks.put("cpl", "Cpl");
+		ranks.put("acpl", "Cpl");
 		ranks.put("corporal", "Cpl");
 		ranks.put("corp", "Cpl");
 		ranks.put("lsgt", "L/Sgt");
@@ -261,6 +266,7 @@ public class Normalize {
 			raw = raw.substring(2);
 		}
 		
+		raw = raw.replaceAll("\\p{javaSpaceChar}", " ").trim();
 		raw = raw.split("\\(")[0];
 		raw = raw.split("&")[0];
 		raw = raw.replaceAll("/", "");
