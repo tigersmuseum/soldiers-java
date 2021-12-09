@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.Collection;
 
@@ -11,8 +12,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
@@ -108,6 +112,19 @@ public class XmlUtils {
 		
 		serializer.endElement("", "list", "list");
 		serializer.endDocument();
+	}
+
+
+
+	public static void writeDocument(Document doc, OutputStream output) throws TransformerException {
+		
+		TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+		DOMSource source = new DOMSource(doc);
+		System.out.println("DDD " + doc);
+		StreamResult result = new StreamResult(output);	
+		transformer.setOutputProperty(OutputKeys.ENCODING, "windows-1252");
+		transformer.transform(source, result);	
 	}
 
 }
