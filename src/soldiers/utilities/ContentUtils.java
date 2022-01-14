@@ -63,7 +63,11 @@ public class ContentUtils {
 			
 			Element e = (Element) list.item(i);
 			String source = e.getAttribute("sourceref");
-			e.setAttribute("amot", "025/" + lookup.get(source));			
+			String record = lookup.get(source);
+			if (record == null) {
+				System.err.println("unknown page: " + source);
+			}
+			else e.setAttribute("amot", "025/" + record);			
 		}	
 		
 		XmlUtils.writeDocument(doc, new FileOutputStream("output/amot.xml"));
@@ -75,7 +79,7 @@ public class ContentUtils {
 		
 		XmlUtils xmlutils = new XmlUtils();
 		
-    	String filenameIn = "/D:/Tigers/database/CASLDGR/casualty-ledger-AH.xml";
+    	String filenameIn = "/D:/Tigers/database/CASLDGR/casualty-ledger-PP.xml";
 		Document doc = xmlutils.parse(new File(filenameIn));			 
 		doc.normalizeDocument(); doc.getDocumentElement();
 		

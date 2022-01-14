@@ -234,7 +234,7 @@ public class SoldiersModel {
 		
 		Set<Person> candidates = new HashSet<Person>();
 		
-		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV from PERSON P, SERVICE S where P.SID = S.SID and S.NUM = ?";
+		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV, S.REGIMENT from PERSON P, SERVICE S where P.SID = S.SID and S.NUM = ?";
 
 		try {
 				
@@ -254,6 +254,7 @@ public class SoldiersModel {
 				candidate.setSoldierId(results.getLong("SID"));
 				ss.setNumber(results.getString("NUM"));
 				ss.setRank(results.getString("RANK_ABBREV"));
+				ss.setRegiment(results.getString("REGIMENT"));
 				candidate.setSurname(results.getString("SURNAME"));
 				candidate.setInitials(results.getString("INITIALS"));
 				candidate.setForenames(results.getString("FORENAMES"));

@@ -37,11 +37,11 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("BROPHY");
-		//svc.setNumber("3749");
-		p.setInitials("M");
+		p.setSurname("ELSTONE");
+		svc.setNumber("25423");
+		p.setInitials("C W");
 
-	//	svc.setRank("Pte");
+		svc.setRank("Pte");
 		p.addService(svc);
 				
 		Set<Person> results = SearchSoldier.checkIdentity(p, ConnectionManager.getConnection());
@@ -81,12 +81,48 @@ public class SearchSoldier {
 			if (svc.getNumber() != null && svc.getNumber().length() > 0) results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
 		}
 		
+		if ( filterMatchingNumber(p, results).size() == 0 ) {
+			
+			results.addAll(SoldiersModel.getCandidatesForSurname(connection, p));
+		}
 		//results.addAll(SoldiersModel.getCandidatesForNameInitials(connection, p));
-		results.addAll(SoldiersModel.getCandidatesForSurname(connection, p));
+		
+		results.addAll(checkIdentityOfficer(p, connection));
 
 		System.out.println(".X....." + results.size());
 		
-		return filterMatches(p, results, 3);
+		return filterMatches(p, results, 4);
+		//return results;
+
+	}
+
+
+	public static Set<Person> checkIdentityOfficer(Person p, Connection connection) {
+
+		
+		if (rankMap == null) {
+			rankMap = SoldiersModel.getRankOrdinals(ConnectionManager.getConnection());
+			rankMap.put("", 0);
+		}
+		
+		Set<Person> results = new HashSet<Person>();
+		
+		Set<Service> service = p.getService();
+		
+		if ( service.size() > 0 ) {
+			
+			Service svc = service.iterator().next();
+			
+			if (rankMap.get(svc.getRank()) == null ) {
+				
+				System.err.println("person is " + p);
+				System.err.println("service is " + svc);
+			}
+			
+			if (rankMap.get(svc.getRank()) != null && rankMap.get(svc.getRank()) > 8 ) results.addAll(SoldiersModel.getCandidatesForSurname(connection, p));
+		}
+		
+		return filterMatches(p, results, 1);
 		//return results;
 
 	}
@@ -125,23 +161,43 @@ public class SearchSoldier {
 			String qinitials = query.getInitials();
 			String cinitials = candidate.getInitials();
 			
+			String qsound = soundex.encode(qsurname);
+			String csound = soundex.encode(csurname);
+			
 			if (qinitials == null)  qinitials= "";
 			if (cinitials == null)  cinitials= "";
 			
 			int surnamedist = distance.apply(qsurname, csurname);
 			int numberdist  = distance.apply(qnum.replace("/", ""), cnum.replace("/", ""));
-			int initdist = distance.apply(qinitials, cinitials);
+			int sounddist   = distance.apply(qsound, csound);
 			
-
-			if ( qnum.length() >= 2 && qnum.equals(cnum) && surnamedist < 4 ) {
+			//System.out.println(qsound + " = " + csound);
+			
+			if ( qinitials.length() < cinitials.length() ) {
 				
-				//filtered.add(candidate);				
-				getCandidateSet(surnamedist, scores).add(candidate);
-			//	System.out.println("A: " + candidate.getContent() + " = " + surnamedist);
+				cinitials = cinitials.substring(0, qinitials.length());
+			}
+			else if ( qinitials.length() > cinitials.length() ) {
+				
+				qinitials = qinitials.substring(0, cinitials.length());
 			}
 			
-			else if ( (surnamedist < 2 || soundex.encode(qsurname).equals(csurname)) && qnum.length() > 0 && cnum.length() > 0 && numberdist <= 2 ) {
+			int initdist = distance.apply(qinitials, cinitials);
+			
+			
+			//System.out.println("aa: " + svcc);
+
+			//if ( qnum.length() >= 2 && qnum.equals(cnum) && surnamedist < 4 ) {
+			if ( qnum.length() >= 2 && qnum.equals(cnum) && svcc.getRegiment() != null && svcc.getRegiment().startsWith("Hampshire") ) {
 				
+				//getCandidateSet(surnamedist, scores).add(candidate);
+				getCandidateSet(Math.min(surnamedist, sounddist), scores).add(candidate);
+				System.out.println("A: " + candidate.getContent() + " = " + surnamedist);
+			}
+			
+			else if ( (surnamedist < 2 || soundex.encode(qsurname).equals(soundex.encode(csurname))) && qnum.length() > 0 && cnum.length() > 0 && numberdist <= 2 ) {
+				
+				if ( qsound.equals(csound) ) surnamedist = 0;
 				getCandidateSet(numberdist + surnamedist + initdist, scores).add(candidate);
 			//	System.out.println("B: " + candidate.getContent() + " = " + numberdist + surnamedist + initdist);
 			}
@@ -194,4 +250,32 @@ public class SearchSoldier {
 		return candidates;
 	}
 
+	public static Set<Person> filterMatchingNumber(Person query, Set<Person> results) {
+		
+		LevenshteinDistance distance = new LevenshteinDistance();
+		Soundex soundex = new Soundex();
+
+		Set<Person> filtered = new HashSet<Person>();
+		
+		for ( Person candidate: results ) {
+			
+			String qsurname = query.getSurname();
+			String csurname = candidate.getSurname();
+			int surnamedist = distance.apply(qsurname, csurname);
+			
+			//System.out.println(soundex.encode(qsurname) + " = " + soundex.encode(csurname));
+			
+			if ( soundex.encode(qsurname).equals(soundex.encode(csurname)) ) {
+				
+				filtered.add(candidate);
+			}
+			else if ( surnamedist <= 2 ) {
+				
+				filtered.add(candidate);
+			}
+		}
+			
+		return filtered;
+	}
+	
 }

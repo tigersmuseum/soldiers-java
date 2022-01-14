@@ -115,11 +115,15 @@ public class Normalize {
 		
 		Map<String, String> ranks = new HashMap<String, String>();
 		
+		ranks.put("boy", "Boy");
 		ranks.put("hosapp", "Hos App");
 		ranks.put("hospitalapprentice", "Hos App");
 		ranks.put("pte", "Pte");
 		ranks.put("pnr", "Pnr");
+		ranks.put("pioneer", "Pnr");
 		ranks.put("sig", "Sig");
+		ranks.put("bgr", "Bgr");
+		ranks.put("bugler", "Bgr");
 		ranks.put("private", "Pte");
 		ranks.put("privatepioneer", "Pte");
 		ranks.put("dmr", "Dmr");
@@ -130,6 +134,7 @@ public class Normalize {
 		ranks.put("gnr", "Gnr");
 		ranks.put("sapper", "Spr");
 		ranks.put("spr", "Spr");
+		ranks.put("rfn", "Rfn");
 		ranks.put("rifleman", "Rfn");
 		ranks.put("bdsm", "Bdsm");
 		ranks.put("drummer", "Dmr");
@@ -170,7 +175,10 @@ public class Normalize {
 		ranks.put("csgt", "CSgt");
 		ranks.put("bmstr", "CSgt");
 		ranks.put("coloursergeant", "CSgt");
+		ranks.put("colourserjeant", "CSgt");
+		ranks.put("ssgt", "SSgt");
 		ranks.put("staffsergeant", "SSgt");
+		ranks.put("staffserjeant", "SSgt");
 		ranks.put("wo2", "WO2");
 		ranks.put("warrantofficerclass2", "WO2");
 		ranks.put("woclass2", "WO2");
@@ -178,21 +186,28 @@ public class Normalize {
 		ranks.put("woclass1", "WO1");
 		ranks.put("warrantofficer1stclass", "WO1");
 		ranks.put("sergeantmajor", "Sgt Maj");
+		ranks.put("serjeantmajor", "Sgt Maj");
 		ranks.put("sgtmaj", "Sgt Maj");
 		ranks.put("rsm", "RSM");
 		ranks.put("regimentalsergeantmajor", "RSM");
+		ranks.put("regimentalserjeantmajor", "RSM");
 		ranks.put("drmmaj", "Drum Maj");
 		ranks.put("drummaj", "Drum Maj");
 		ranks.put("cqms", "CQMS");
+		ranks.put("companyquartermasterserjeant", "CQMS");
 		ranks.put("companyquartermastersergeant", "CQMS");
 		ranks.put("qms", "QMS");
+		ranks.put("quartermasterserjeant", "QMS");
 		ranks.put("qmrsgt", "QMS");
 		ranks.put("sqms", "QMS");
 		ranks.put("rqms", "RQMS");
 		ranks.put("regimentalquartermastersergeant", "RQMS");
+		ranks.put("regimentalquartermasterserjeant", "RQMS");
 		ranks.put("coloursergeantmajor", "CSM");
 		ranks.put("csm", "CSM");
+		ranks.put("companyserjeantmajor", "CSM");
 		ranks.put("companysergeantmajor", "CSM");
+		ranks.put("cadet", "Cadet");
 		ranks.put("ens", "Ens");
 		ranks.put("ensign", "Ens");
 		ranks.put("2lt", "2Lt");
@@ -220,6 +235,7 @@ public class Normalize {
 		ranks.put("ltcol", "Lt Col");
 		ranks.put("ltcolonel", "Lt Col");
 		ranks.put("lieutenantcolonel", "Lt Col");
+		ranks.put("brevetlieutcolonel", "Lt Col");
 		ranks.put("col", "Col");
 		ranks.put("btcol", "Col");
 		ranks.put("colonel", "Col");
@@ -270,6 +286,7 @@ public class Normalize {
 		raw = raw.split("\\(")[0];
 		raw = raw.split("&")[0];
 		raw = raw.replaceAll("/", "");
+		raw = raw.replaceAll("-", "");
 		raw = raw.replaceAll("\\.", "");
 		raw = raw.replaceAll("\\s+", "");
 		String normal = ranks.get(raw);

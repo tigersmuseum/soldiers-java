@@ -43,6 +43,7 @@ public class Collect {
     	}
     	
     	String inputname = args[0];
+    	System.out.println(inputname);
     	
     	File inputfile = new File(inputname);   	
     	List<File> work = null;
@@ -56,13 +57,14 @@ public class Collect {
     		work = getWorkFromFile(inputfile);
     	}
     	
-		Map<Long, Set<Note>> notesMap = makeNoteMap(work);
+		//Map<Long, Set<Note>> notesMap = makeNoteMap(work);
+		Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
 		System.out.println(notesMap.size());
 
 
 		//
 		
-		long[] wanted = {201200, 201204, 201215};
+		long[] wanted = {191001, 100627, 104022};
 		
 		Map<Long, Set<Note>> sample = new HashMap<Long, Set<Note>>();
 		
@@ -145,8 +147,12 @@ public class Collect {
 		
     	for ( File file: work ) {
     		
+    		System.out.println(file.getPath());
+    		
     		Document doc = xmlutils.parse(file);
     		NodeList pList = (NodeList) peopleXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+    		
+    		System.out.println(pList.getLength());
 
     		for ( int i = 0; i < pList.getLength(); i++ ) {
     		
@@ -188,6 +194,9 @@ public class Collect {
     		Document doc = xmlutils.parse(file);
     		NodeList pList = (NodeList) peopleXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 
+			System.out.println(pList.getLength());
+			int max = 0;
+			
     		for ( int i = 0; i < pList.getLength(); i++ ) {
     		
     			Element person = (Element) pList.item(i);
@@ -208,6 +217,11 @@ public class Collect {
                 		for ( int n = 0; n < nList.getLength(); n++ ) {
                 			
                 			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
+                		}
+                		
+                		if ( notesMap.get(sid) != null && notesMap.get(sid).size() > max ) {
+                			
+                			System.out.println("max " + max++ + " = " + sid);
                 		}
         			}   			
     	   		}  			
@@ -230,7 +244,7 @@ public class Collect {
     	for ( Long sid: notesMap.keySet() ) {
     		
     		List<Note> notes = new ArrayList<Note>();
-    		notes.addAll(notesMap.get(sid));
+    		if ( notesMap.get(sid) != null ) notes.addAll(notesMap.get(sid));
     		System.out.println("zz " + notes.size());
     		notes.sort(comparator);
     		
@@ -261,12 +275,12 @@ public class Collect {
     	        Soldiers.writeDocument(results, new FileOutputStream("output/bio/" + sid + ".xml"));
     	    	
     	    	Collections.sort(records);
-    	    	
-    	    	for (String r: records) {
-    	    		
-    	    		System.out.println(r);
-    	    	}
     		}
+    	}
+    	
+    	for (String r: records) {
+    		
+    		System.out.println(r);
     	}
 	}
 }
