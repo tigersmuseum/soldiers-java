@@ -19,6 +19,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.xml.sax.SAXException;
@@ -27,6 +28,10 @@ import org.xml.sax.helpers.AttributesImpl;
 import soldiers.database.Person;
 import soldiers.database.Service;
 import soldiers.database.SoldiersModel;
+import soldiers.search.Candidate;
+import soldiers.search.CandidateScore;
+import soldiers.search.MakeEncoderMap;
+import soldiers.search.CandidateComparator;
 
 public class SearchSoldier {
 	
@@ -37,14 +42,14 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("ELSTONE");
-		svc.setNumber("25423");
-		p.setInitials("C W");
+		p.setSurname("BASTON");
+		//svc.setNumber("125157");
+		p.setInitials("T J");
 
-		svc.setRank("Pte");
+		//svc.setRank("L/Cpl");
 		p.addService(svc);
 				
-		Set<Person> results = SearchSoldier.checkIdentity(p, ConnectionManager.getConnection());
+		List<Person> results = SearchSoldier.checkIdentity(p, ConnectionManager.getConnection());
 		Iterator<Person> x = results.iterator();
 		
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
@@ -66,12 +71,20 @@ public class SearchSoldier {
 		
 		serializer.endElement(SoldiersModel.XML_NAMESPACE, "list", "list");
 		serializer.endDocument();
+		
+		x = results.iterator();
+		
+		while ( x.hasNext() ) {
+			
+			scoreCandidate(p, x.next());
+		}
+		
 	}
 
 
-	public static Set<Person> checkIdentity(Person p, Connection connection) {
+	public static List<Person> checkIdentity(Person p, Connection connection) {
 
-		Set<Person> results = SoldiersModel.getCandidatesForNumberName(connection, p);
+		List<Person> results = SoldiersModel.getCandidatesForNumberName(connection, p);
 		
 		Set<Service> service = p.getService();
 		
@@ -97,7 +110,54 @@ public class SearchSoldier {
 	}
 
 
-	public static Set<Person> checkIdentityOfficer(Person p, Connection connection) {
+	public static List<Candidate> findMatches(Person p, Connection connection) {
+
+		List<Candidate> candidates = new ArrayList<Candidate>();
+		
+		//Set<Person> results = SoldiersModel.getCandidatesForNumberName(connection, p);
+		List<Person> results = SoldiersModel.getCandidatesForSurname(connection, p);
+//		results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
+		
+		if ( results.size() == 0 ) {
+			
+			Metaphone encoder = new Metaphone();
+			Map<String, List<String>> soundMap = MakeEncoderMap.getSoundMap(encoder, connection);
+			
+			List<String> names = soundMap.get(encoder.encode(p.getSurname()));
+			
+			if ( names!= null ) {
+								
+				for ( String name: names ) {
+					
+					Person x = new Person();
+					x.setSurname(name);
+					results.addAll(SoldiersModel.getCandidatesForSurname(connection, x));
+					
+				}
+			}
+		}
+		
+		for ( Person r: results ) {
+			
+			CandidateScore score = scoreCandidate(p, r);
+			Candidate candidate = new Candidate();
+			candidate.setPerson(r);
+			candidate.setScore(score);
+			
+			candidates.add(candidate);
+		}
+		
+		CandidateComparator comparator = new CandidateComparator();
+		candidates.sort(comparator);
+		
+		System.out.println(candidates.size() + " matches");
+		if ( candidates.size() > 0 ) System.out.println("best - " + candidates.iterator().next().getPerson());
+
+		return candidates;
+	}
+
+	
+	public static List<Person> checkIdentityOfficer(Person p, Connection connection) {
 
 		
 		if (rankMap == null) {
@@ -105,7 +165,7 @@ public class SearchSoldier {
 			rankMap.put("", 0);
 		}
 		
-		Set<Person> results = new HashSet<Person>();
+		List<Person> results = new ArrayList<Person>();
 		
 		Set<Service> service = p.getService();
 		
@@ -128,7 +188,7 @@ public class SearchSoldier {
 	}
 	
 	
-	public static Set<Person> filterMatches(Person query, Set<Person> results, Integer maxscore) {
+	public static List<Person> filterMatches(Person query, List<Person> results, Integer maxscore) {
 		
 		LevenshteinDistance distance = new LevenshteinDistance();
 		Soundex soundex = new Soundex();
@@ -141,7 +201,7 @@ public class SearchSoldier {
 		if ( query.getService().size() == 0 ) return results;
 		System.out.println("QQQQQQQQQQ " + query.getContent());
 
-		Set<Person> filtered = new HashSet<Person>();
+		List<Person> filtered = new ArrayList<Person>();
 		
 		Map<Integer, Set<Person>> scores = new HashMap<Integer, Set<Person>>();
 		
@@ -188,10 +248,10 @@ public class SearchSoldier {
 			//System.out.println("aa: " + svcc);
 
 			//if ( qnum.length() >= 2 && qnum.equals(cnum) && surnamedist < 4 ) {
-			if ( qnum.length() >= 2 && qnum.equals(cnum) && svcc.getRegiment() != null && svcc.getRegiment().startsWith("Hampshire") ) {
+			if ( qnum.length() >= 2 && qnum.equals(cnum) && svcc.getRegiment() != null && (svcc.getRegiment().startsWith("Hampshire") || svcc.getRegiment().startsWith("Labour")) ) {
 				
 				//getCandidateSet(surnamedist, scores).add(candidate);
-				getCandidateSet(Math.min(surnamedist, sounddist), scores).add(candidate);
+				getCandidateSet(Math.min(surnamedist, sounddist+1), scores).add(candidate);
 				System.out.println("A: " + candidate.getContent() + " = " + surnamedist);
 			}
 			
@@ -250,12 +310,12 @@ public class SearchSoldier {
 		return candidates;
 	}
 
-	public static Set<Person> filterMatchingNumber(Person query, Set<Person> results) {
+	public static List<Person> filterMatchingNumber(Person query, List<Person> results) {
 		
 		LevenshteinDistance distance = new LevenshteinDistance();
 		Soundex soundex = new Soundex();
 
-		Set<Person> filtered = new HashSet<Person>();
+		List<Person> filtered = new ArrayList<Person>();
 		
 		for ( Person candidate: results ) {
 			
@@ -276,6 +336,77 @@ public class SearchSoldier {
 		}
 			
 		return filtered;
+	}
+	
+	public static CandidateScore scoreCandidate(Person query, Person candidate) {
+		
+		LevenshteinDistance distance = new LevenshteinDistance();
+		Soundex soundex = new Soundex();
+		
+		// The query and candidate Person objects will have only one service record each ...
+		
+		Service qservice = query.getService().iterator().next();
+		Service cservice = candidate.getService().iterator().next();
+		
+		// SERVICE NUMBER
+		
+		String qnumber = qservice.getNumber();
+		String cnumber = cservice.getNumber();
+		
+		if      ( qnumber.contains("/") && !cnumber.contains("/") ) qnumber = qnumber.substring(qnumber.indexOf("/") + 1);
+		else if ( cnumber.contains("/") && !qnumber.contains("/") ) cnumber = cnumber.substring(cnumber.indexOf("/") + 1);
+		
+		int numberDist = distance.apply(qnumber, cnumber);
+		
+		// add a penalty of 1 to the score if lengths of query and candidate service numbers don't match		
+		numberDist += qnumber.length() == cnumber.length() ? 0 : 1;
+		
+		System.out.println("number, dist: " + qnumber + ", " + cnumber + ", " + numberDist);
+		
+		// SURNAME
+		
+		String qsurname = query.getSurname();
+		String csurname = candidate.getSurname();
+		
+		int surnameDist = distance.apply(qsurname, csurname);
+		surnameDist += distance.apply(soundex.encode(qsurname), soundex.encode(csurname));
+		
+		System.out.println("surname, dist: " + qsurname + ", " + csurname + ", " + surnameDist);
+		
+		// INITIALS
+		
+		String qinitials = query.getInitials();
+		String cinitials = candidate.getInitials();
+		
+		if (qinitials == null)  qinitials= "";
+		if (cinitials == null)  cinitials= "";
+		
+		if ( qinitials.length() < cinitials.length() )			cinitials = cinitials.substring(0, qinitials.length());
+		else if ( qinitials.length() > cinitials.length() )		qinitials = qinitials.substring(0, cinitials.length());
+		
+		int initialsDist = distance.apply(qinitials, cinitials);
+		
+		System.out.println("initials, dist: " + qinitials + ", " + cinitials + ", " + initialsDist);
+		
+		// REGIMENT
+
+		String qregiment = qservice.getRegiment();
+		String cregiment = cservice.getRegiment();
+		
+		int regimentDist = qregiment != null && qregiment.equals(cregiment) ? 0 : 1;
+		
+		System.out.println("regiment, dist: " + qregiment + ", " + cregiment + ", " + regimentDist);
+		
+		System.out.println(" ---------------- ");
+		
+		CandidateScore score = new CandidateScore();
+		
+		score.setSurname(surnameDist);
+		score.setNumber(numberDist);
+		score.setInitials(initialsDist);
+		score.setRegiment(regimentDist);
+		
+		return score;
 	}
 	
 }

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -102,13 +103,13 @@ public class SoldiersModel {
 	}
 
 	
-	public static Set<Person> getCandidatesForNumberName(Connection connection, Person person) {
+	public static List<Person> getCandidatesForNumberName(Connection connection, Person person) {
 		
-		Set<Person> candidates = new HashSet<Person>();
+		List<Person> candidates = new ArrayList<Person>();
 		
 		if ( person.getService().size() == 0 ) return candidates;
 		
-		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID and S.NUM != '' and S.NUM like ?";
+		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV, S.REGIMENT from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID and S.NUM != '' and S.NUM like ?";
 
 		try {
 				
@@ -129,6 +130,7 @@ public class SoldiersModel {
 				candidate.setSoldierId(results.getLong("SID"));
 				ss.setNumber(results.getString("NUM"));
 				ss.setRank(results.getString("RANK_ABBREV"));
+				ss.setRegiment(results.getString("REGIMENT"));
 				candidate.setSurname(results.getString("SURNAME"));
 				candidate.setInitials(results.getString("INITIALS"));
 				candidate.setForenames(results.getString("FORENAMES"));
@@ -148,11 +150,11 @@ public class SoldiersModel {
 	}
 
 	
-	public static Set<Person> getCandidatesForNameInitials(Connection connection, Person person) {
+	public static List<Person> getCandidatesForNameInitials(Connection connection, Person person) {
 		
-		Set<Person> candidates = new HashSet<Person>();
+		List<Person> candidates = new ArrayList<Person>();
 		
-		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID and P.INITIALS like ?";
+		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV, S.REGIMENT from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID and P.INITIALS like ?";
 
 		String initials = person.getInitials() != null && person.getInitials().length() > 0 ? person.getInitials().substring(0, 1) + "%" : "%";
 		
@@ -172,6 +174,7 @@ public class SoldiersModel {
 				candidate.setSoldierId(results.getLong("SID"));
 				svc.setNumber(results.getString("NUM"));
 				svc.setRank(results.getString("RANK_ABBREV"));
+				svc.setRegiment(results.getString("REGIMENT"));
 				candidate.setSurname(results.getString("SURNAME"));
 				candidate.setInitials(results.getString("INITIALS"));
 				candidate.setForenames(results.getString("FORENAMES"));
@@ -190,11 +193,11 @@ public class SoldiersModel {
 	}
 
 	
-	public static Set<Person> getCandidatesForSurname(Connection connection, Person person) {
+	public static List<Person> getCandidatesForSurname(Connection connection, Person person) {
 		
-		Set<Person> candidates = new HashSet<Person>();
+		List<Person> candidates = new ArrayList<Person>();
 		
-		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID";
+		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV, S.REGIMENT from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID";
 
 		try {
 				
@@ -211,6 +214,7 @@ public class SoldiersModel {
 				candidate.setSoldierId(results.getLong("SID"));
 				svc.setNumber(results.getString("NUM"));
 				svc.setRank(results.getString("RANK_ABBREV"));
+				svc.setRegiment(results.getString("REGIMENT"));
 				candidate.setSurname(results.getString("SURNAME"));
 				candidate.setInitials(results.getString("INITIALS"));
 				candidate.setForenames(results.getString("FORENAMES"));
@@ -230,9 +234,9 @@ public class SoldiersModel {
 
 
 	
-	public static Set<Person> getCandidatesForExactNumber(Connection connection, Person person) {
+	public static List<Person> getCandidatesForExactNumber(Connection connection, Person person) {
 		
-		Set<Person> candidates = new HashSet<Person>();
+		List<Person> candidates = new ArrayList<Person>();
 		
 		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV, S.REGIMENT from PERSON P, SERVICE S where P.SID = S.SID and S.NUM = ?";
 
@@ -243,6 +247,49 @@ public class SoldiersModel {
 			
 			PreparedStatement stmt = connection.prepareStatement(sql);
 			stmt.setString(1, svc.getNumber());
+			
+			ResultSet results = stmt.executeQuery();
+			
+			while ( results.next() ) {
+				
+				Person candidate = new Person();
+				Service ss = new Service();
+
+				candidate.setSoldierId(results.getLong("SID"));
+				ss.setNumber(results.getString("NUM"));
+				ss.setRank(results.getString("RANK_ABBREV"));
+				ss.setRegiment(results.getString("REGIMENT"));
+				candidate.setSurname(results.getString("SURNAME"));
+				candidate.setInitials(results.getString("INITIALS"));
+				candidate.setForenames(results.getString("FORENAMES"));
+
+				candidate.addService(ss);
+				candidates.add(candidate);
+			}
+			
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return candidates;
+	}
+
+	
+	public static List<Person> getCandidatesForNumber(Connection connection, Person person) {
+		
+		List<Person> candidates = new ArrayList<Person>();
+		
+		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV, S.REGIMENT from PERSON P, SERVICE S where P.SID = S.SID and S.NUM like ?";
+
+		try {
+				
+			Set<Service> service = person.getService();
+			Service svc = service.iterator().next();
+			
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			stmt.setString(1, "%" + svc.getNumber().replace("\\d+/", ""));
 			
 			ResultSet results = stmt.executeQuery();
 			
