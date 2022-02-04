@@ -34,8 +34,8 @@ public class HtmlData {
 		HtmlUtils html = new HtmlUtils();
 		
 		File file = new File(args[0]);
-		//Document doc = html.cleanFile(file, "windows-1252");
-		Document doc = html.cleanFile(file, "UTF-8");
+		Document doc = html.cleanFile(file, "windows-1252");
+		//Document doc = html.cleanFile(file, "UTF-8");
 		
 		XPathExpression expr = xpath.compile("//tr");
 		NodeList list = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
