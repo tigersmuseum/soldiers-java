@@ -42,11 +42,11 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("BASTON");
-		//svc.setNumber("125157");
-		p.setInitials("T J");
+		p.setSurname("WICKHAM");
+		//svc.setNumber("200163");
+		p.setInitials("A");
 
-		//svc.setRank("L/Cpl");
+		//svc.setRank("Lt");
 		p.addService(svc);
 				
 		List<Person> results = SearchSoldier.checkIdentity(p, ConnectionManager.getConnection());
@@ -110,53 +110,6 @@ public class SearchSoldier {
 	}
 
 
-	public static List<Candidate> findMatches(Person p, Connection connection) {
-
-		List<Candidate> candidates = new ArrayList<Candidate>();
-		
-		//Set<Person> results = SoldiersModel.getCandidatesForNumberName(connection, p);
-		List<Person> results = SoldiersModel.getCandidatesForSurname(connection, p);
-//		results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
-		
-		if ( results.size() == 0 ) {
-			
-			Metaphone encoder = new Metaphone();
-			Map<String, List<String>> soundMap = MakeEncoderMap.getSoundMap(encoder, connection);
-			
-			List<String> names = soundMap.get(encoder.encode(p.getSurname()));
-			
-			if ( names!= null ) {
-								
-				for ( String name: names ) {
-					
-					Person x = new Person();
-					x.setSurname(name);
-					results.addAll(SoldiersModel.getCandidatesForSurname(connection, x));
-					
-				}
-			}
-		}
-		
-		for ( Person r: results ) {
-			
-			CandidateScore score = scoreCandidate(p, r);
-			Candidate candidate = new Candidate();
-			candidate.setPerson(r);
-			candidate.setScore(score);
-			
-			candidates.add(candidate);
-		}
-		
-		CandidateComparator comparator = new CandidateComparator();
-		candidates.sort(comparator);
-		
-		System.out.println(candidates.size() + " matches");
-		if ( candidates.size() > 0 ) System.out.println("best - " + candidates.iterator().next().getPerson());
-
-		return candidates;
-	}
-
-	
 	public static List<Person> checkIdentityOfficer(Person p, Connection connection) {
 
 		
