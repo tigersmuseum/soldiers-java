@@ -20,6 +20,7 @@ public class Person {
 	private Date birth, death;
 	private Date bornafter, bornbefore, diedafter, diedbefore;
 	private Set<Service> service = new HashSet<Service>();
+	private boolean forceToUpper = true;
 
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); 
 	
@@ -33,7 +34,8 @@ public class Person {
 		
 		if ( surname == null ) return;
 		String normal = surname.replaceAll("’", "'");
-		this.surname = normal.toUpperCase();
+		if ( forceToUpper )  this.surname = normal.toUpperCase();
+		else  this.surname = normal;
 	}
 
 	public String getForenames() {
@@ -44,7 +46,8 @@ public class Person {
 		
 		if ( forenames == null || forenames.replaceAll("\\s+", "").length() == 0 ) return;
 		
-		this.forenames = forenames.toUpperCase();
+		if ( forceToUpper )  this.forenames = forenames.toUpperCase();
+		else  this.forenames = forenames;
 		
 		if ( getInitials() == null && this.forenames != null ) {
 			
@@ -149,6 +152,10 @@ public class Person {
 		this.service = service;
 	}
 	
+	public void setForceToUpper(boolean value) {		
+		this.forceToUpper = value;
+	}
+	
 	public void addService(Service svc) {
 		
 		service.add(svc);
@@ -190,8 +197,7 @@ public class Person {
 		if ( attr.getLength() > 0 ) {
 			ch.startElement(SoldiersModel.XML_NAMESPACE, "birth", "birth", attr);
 			ch.endElement(SoldiersModel.XML_NAMESPACE, "birth", "birth");
-		}
-		
+		}		
 		
 		attr = new AttributesImpl();
 		if (death != null)  attr.addAttribute("", "date",  "date", "String",  formatter.format(death));
