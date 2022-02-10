@@ -11,6 +11,7 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.NamespaceContext;
@@ -30,6 +31,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.codec.language.Metaphone;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -39,6 +41,8 @@ import soldiers.database.Person;
 import soldiers.database.Service;
 import soldiers.database.SoldiersNamespaceContext;
 import soldiers.search.Candidate;
+import soldiers.search.MakeEncoderMap;
+import soldiers.search.PersonFinder;
 
 public class Soldiers {
 
@@ -144,6 +148,13 @@ public class Soldiers {
 
 	public static void identifyPersonMentionsInPlaceXMLTest(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException, ParseException {
 		
+		
+		Metaphone encoder = new Metaphone();
+		Map<String, List<String>> similarNameMap = MakeEncoderMap.getEncoderMap(encoder, connection);
+
+		PersonFinder finder = new PersonFinder();
+		finder.enableSimilarNameMatching(encoder, similarNameMap);
+		
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
 		
 		xpath.setNamespaceContext(namespaceContext);
@@ -167,17 +178,19 @@ public class Soldiers {
 
 			
 			System.out.println(person.getContent());
-			List<Candidate> candidates = SearchSoldier.findMatches(person, connection);
+			List<Candidate> candidates = finder.findMatches(person, connection);
 			
 			int bestScore = Integer.MAX_VALUE;
 			Iterator<Candidate> iter = candidates.iterator();
+			
+			int threshold = 5;
 			
 			while ( iter.hasNext() ) {
 				
 				Candidate c = iter.next();
 				Person p = c.getPerson();
 				
-				if ( c.getScore().getOverallScore() <= bestScore ) {
+				if ( c.getScore().getOverallScore() <= bestScore && c.getScore().getOverallScore() <= threshold ) {
 					
 					Service svc = p.getService().iterator().next();
 
