@@ -24,7 +24,7 @@ public class MakeEncoderMap {
 		Connection connection = ConnectionManager.getConnection();
 		Metaphone encoder = new Metaphone();
 		
-		Map<String, List<String>> soundMap = getSoundMap(encoder, connection);
+		Map<String, List<String>> soundMap = getEncoderMap(encoder, connection);
 
 		
 		String sound = encoder.encode("WAR");
@@ -40,7 +40,7 @@ public class MakeEncoderMap {
 	}
 
 	
-	public static Map<String, List<String>> getSoundMap(StringEncoder encoder, Connection connection) {
+	public static Map<String, List<String>> getEncoderMap(StringEncoder encoder, Connection connection) {
 
 		Map<String, List<String>> soundMap = new HashMap<String, List<String>>();
 		

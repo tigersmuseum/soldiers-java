@@ -6,6 +6,7 @@ public class CandidateScore {
 	private int number = 0;
 	private int initials = 0;
 	private int regiment = 0;
+	private int rank = 0;
 	
 	private ScoreFunction function;
 	
@@ -46,6 +47,15 @@ public class CandidateScore {
 	}
 
 	
+	public int getRank() {
+		return rank;
+	}
+
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
+
+
 	public int getOverallScore() {
 		
 		return function.calculate(this);
