@@ -43,7 +43,7 @@ public class Parse {
 	    
 		Document doc = xmlutils.parse(new File(inputfile));
 		
-		XPathExpression expr = xpath.compile("//set");
+		XPathExpression expr = xpath.compile("//accession");
 		NodeList list = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 		
 		System.out.println(list.getLength());
@@ -54,8 +54,11 @@ public class Parse {
 		
 			Element e = (Element) list.item(i);
 			//String text = e.getAttribute("person");
-			String set = e.getAttribute("number");			
-			String text = e.getElementsByTagName("person").item(0).getTextContent();
+			//String set = e.getAttribute("number");
+			Element eh = (Element) e.getElementsByTagName("history").item(0);
+			String text = null;		
+			if (eh.getElementsByTagName("p").getLength() != 0) text = eh.getElementsByTagName("p").item(0).getTextContent();
+			String inputtext = text;
 
 			if ( text != null ) {
 							
@@ -67,19 +70,24 @@ public class Parse {
 				text = text.replaceAll("(?i).*?medal(s)? of", "");
 				text = text.replaceAll("(?i).*?decoration(s)? of", "");
 				text = text.replaceAll("(?i)^gift", "");
+				text = text.replaceAll("(?i)^T\\.S\\.\\s", "");
 				text = text.replaceAll("(?i)^.*?the late", "");
 				text = text.replaceAll("(?i)^.*?belong(ing|ed) to", "");
 				text = text.replaceAll("(?i)^.*?awarded to", "");
 				text = text.replaceAll("(?i)^.*?(those|property|artefacts) of", "");
+				text = text.replaceAll("(?i)^.*?\\[\\d+\\]", "");
 				text = text.replaceAll("(?i)(served).*", "");
-				text = text.replaceAll("(?i)([-—]\\s+)?(\\d+(ST|ND|RD|TH)?\\s*)(HAMP|HANT|37TH|67TH|BATT|BN|VOL).*", "");
-				text = text.replaceAll("(?i)(the\\s+)?(HAMP|HANT|37TH|67TH|VOL).*", "");
+				text = text.replaceAll("(?i)([-—]\\s+)?(of\\s+)?(the\\s+)?(\\d+(ST|ND|RD|TH)?\\s*)(HAMP|HANT|37TH|67TH|BATT|BN|VOL).*", "");
+				text = text.replaceAll("(?i)(of\\s+)?(the\\s+)?(HAMP|HANT|HYEO|TR HAMP|WEST RIDING|37TH|67TH|VOL).*", "");
+				text = text.replaceAll("(?i)(\\s+)?(67/FOOT|1/).*", "");
+				text = text.replaceAll("(?i)(\\s+)?(\\().*", "");
+				text = text.replaceAll("(?i)(\\s+)?(\\[).*", "");
 				text = text.replaceAll("(?i)K\\.I\\.A.*", "");
 				text = text.replaceAll("(?i)A\\.S\\.C.*", "");
 				text = text.replaceAll("(?i)V\\.C.*", "");
 				text = text.replaceAll("(?i)(enlisted|disembarked|entered|attached).*", "");
 				text = text.replaceAll("(?i)\\smade into\\s.*", "");
-				text = text.replaceAll("(DCM|MM|MC|DSO|VC|CB|OBE|MBE|CBE)\\b.*", "");
+				text = text.replaceAll("(DCM|MM|MC|DSO|VC|CB|OBE|MBE|CBE|ASC)\\b.*", "");
 				text = text.replaceAll("\\d+H.*", "");
 				text = text.replaceAll("\\d\\/$", "");
 				text = text.replaceAll("40B", "40");
@@ -96,7 +104,7 @@ public class Parse {
 				Person p = Parser.parsePersonMention(text);
 				System.out.println(text);
 				System.out.println(p);
-				p.setSurfaceText( set + "=" + p.getSurfaceText());
+				p.setSurfaceText(inputtext);
 				System.out.println("** " + p.getContent());
 				
 				normalizer.normalizeRank(p, ranks);
