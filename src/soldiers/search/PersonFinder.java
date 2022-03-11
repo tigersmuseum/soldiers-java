@@ -149,7 +149,7 @@ public class PersonFinder {
 		
 		// RANK
 
-		int rankDist = qregiment != null && qservice.getRank().equals(cservice.getRank()) ? 0 : 1;
+		int rankDist = qservice.getRank() != null && qregiment != null && qservice.getRank().equals(cservice.getRank()) ? 0 : 1;
 		
 		CandidateScore score = new CandidateScore();
 		
