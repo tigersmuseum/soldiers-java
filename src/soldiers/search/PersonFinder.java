@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.StringEncoder;
-import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 
 import soldiers.database.Person;
@@ -89,7 +88,6 @@ public class PersonFinder {
 	public CandidateScore scoreCandidate(Person query, Person candidate) {
 		
 		LevenshteinDistance distance = new LevenshteinDistance();
-		//Soundex soundex = new Soundex();
 		
 		// The query and candidate Person objects will have only one service record each ...
 		
@@ -109,17 +107,12 @@ public class PersonFinder {
 		// add a penalty of 1 to the score if lengths of query and candidate service numbers don't match		
 		numberDist += qnumber.length() == cnumber.length() ? 0 : 1;
 		
-		System.out.println("number, dist: " + qnumber + ", " + cnumber + ", " + numberDist);
-		
 		// SURNAME
 		
 		String qsurname = query.getSurname();
 		String csurname = candidate.getSurname();
 		
 		int surnameDist = distance.apply(qsurname, csurname);
-		//surnameDist += distance.apply(soundex.encode(qsurname), soundex.encode(csurname));
-		
-		System.out.println("surname, dist: " + qsurname + ", " + csurname + ", " + surnameDist);
 		
 		// INITIALS
 		
@@ -134,18 +127,12 @@ public class PersonFinder {
 		
 		int initialsDist = distance.apply(qinitials, cinitials);
 		
-		System.out.println("initials, dist: " + qinitials + ", " + cinitials + ", " + initialsDist);
-		
 		// REGIMENT
 
 		String qregiment = qservice.getRegiment();
 		String cregiment = cservice.getRegiment();
 		
 		int regimentDist = qregiment != null && qregiment.equals(cregiment) ? 0 : 1;
-		
-		System.out.println("regiment, dist: " + qregiment + ", " + cregiment + ", " + regimentDist);
-		
-		System.out.println(" ---------------- ");
 		
 		// RANK
 

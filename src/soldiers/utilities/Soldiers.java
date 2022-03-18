@@ -12,7 +12,6 @@ import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -64,8 +63,7 @@ public class Soldiers {
 		
 		Connection connection = ConnectionManager.getConnection();
 		
-		//identifyPersonMentionsInPlaceXML(doc, connection);
-		identifyPersonMentionsInPlaceXMLTest(doc, connection);
+		identifyPersonMentionsInPlaceXML(doc, connection);
 		
 		TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
@@ -97,58 +95,7 @@ public class Soldiers {
 	}
 
 	public static void identifyPersonMentionsInPlaceXML(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException, ParseException {
-		
-		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
-		
-		xpath.setNamespaceContext(namespaceContext);
-		XPathExpression expr = xpath.compile(".//soldiers:person");
-		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
-    	
-		for ( int i = 0; i < list.getLength(); i++ ) {
-			
-			Element e = (Element) list.item(i);
-			Person person = parsePerson(e);
-			
-			// remove any results from a previous run
-			XPathExpression prevcandidate = xpath.compile(".//soldiers:candidate");
-			NodeList prevlist = (NodeList) prevcandidate.evaluate(e, XPathConstants.NODESET);
-			
-			for ( int c = 0; c < prevlist.getLength(); c++ ) {
 				
-				e.removeChild(prevlist.item(c));
-				
-			}
-
-			
-			System.out.println(person.getContent());
-			List<Person> candidates = SearchSoldier.checkIdentity(person, connection);
-			
-			//AttributesImpl attr= new AttributesImpl();
-			//attr.addAttribute("", "hits",  "hits", "Integer", String.valueOf(candidates.size()));
-			
-			for (Person p: candidates) {
-			
-				Set<Service> service = p.getService();
-				Service svc = service.iterator().next();
-
-				Element candidate = doc.createElement("candidate");
-				candidate.setAttribute("sid", String.format("%d", p.getSoldierId()));
-				candidate.setAttribute("content", p.getContent());
-				candidate.setAttribute("sort", p.getSort());
-				if ( svc.getNumber().length() > 0 ) candidate.setAttribute("number", svc.getNumber());
-				candidate.setAttribute("rank", svc.getRank());
-				e.appendChild(candidate);
-				System.out.println("=" + p.getContent());
-			}
-			
-			System.out.println("----------------");
-		}
-		
-	}
-
-	public static void identifyPersonMentionsInPlaceXMLTest(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException, ParseException {
-		
-		
 		Metaphone encoder = new Metaphone();
 		Map<String, List<String>> similarNameMap = MakeEncoderMap.getEncoderMap(encoder, connection);
 
@@ -175,7 +122,6 @@ public class Soldiers {
 				e.removeChild(prevlist.item(c));
 				
 			}
-
 			
 			System.out.println(person.getContent());
 			List<Candidate> candidates = finder.findMatches(person, connection);
@@ -183,7 +129,7 @@ public class Soldiers {
 			int bestScore = Integer.MAX_VALUE;
 			Iterator<Candidate> iter = candidates.iterator();
 			
-			int threshold = 5;
+			int threshold = 3;
 			
 			while ( iter.hasNext() ) {
 				
