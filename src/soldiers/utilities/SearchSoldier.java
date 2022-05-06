@@ -19,7 +19,6 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.xml.sax.SAXException;
@@ -28,10 +27,7 @@ import org.xml.sax.helpers.AttributesImpl;
 import soldiers.database.Person;
 import soldiers.database.Service;
 import soldiers.database.SoldiersModel;
-import soldiers.search.Candidate;
 import soldiers.search.CandidateScore;
-import soldiers.search.MakeEncoderMap;
-import soldiers.search.CandidateComparator;
 
 public class SearchSoldier {
 	
@@ -42,11 +38,11 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("WICKHAM");
+		p.setSurname("LENON");
 		//svc.setNumber("200163");
-		p.setInitials("A");
+		p.setInitials("E H");
 
-		//svc.setRank("Lt");
+		svc.setRank("Lt");
 		p.addService(svc);
 				
 		List<Person> results = SearchSoldier.checkIdentity(p, ConnectionManager.getConnection());
