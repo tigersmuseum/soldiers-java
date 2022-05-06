@@ -36,9 +36,13 @@ public class Collect {
 
 	public static void main(String[] args) throws XPathExpressionException, SAXException, FileNotFoundException, TransformerException {
 
-    	if ( args.length < 1 ) {
+		// group references to the same soldier from different sources.
+		// Records for each source are in a separate file (Soldiers XML format). Supply either a folder of such files, or a "worklist"
+		// file as a parameter.
+		
+		if ( args.length < 1 ) {
     		
-    		System.err.println("Usage: Collect <folder>");
+    		System.err.println("Usage: Collect <file-or-folder>");
     		System.exit(1);
     	}
     	
@@ -47,6 +51,8 @@ public class Collect {
     	
     	File inputfile = new File(inputname);   	
     	List<File> work = null;
+    	
+    	// get a list of Soldiers XML files
     	
     	if ( inputfile.isDirectory() ) {
     		
@@ -57,14 +63,13 @@ public class Collect {
     		work = getWorkFromFile(inputfile);
     	}
     	
-		//Map<Long, Set<Note>> notesMap = makeNoteMap(work);
-		Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
-		System.out.println(notesMap.size());
+    	// Collect sets of note elements - drawn from the various sources, keyed by soldier ID
+		//Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
+		Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work);
 
-
-		//
+		// output a subset of this info
 		
-		long[] wanted = {191001, 100627, 104022};
+		long[] wanted = {102033, 201215, 201200};
 		
 		Map<Long, Set<Note>> sample = new HashMap<Long, Set<Note>>();
 		
@@ -133,7 +138,9 @@ public class Collect {
 	}
 	
 	
-	public static Map<Long, Set<Note>> makeNoteMap(List<File> work) throws XPathExpressionException {
+	public static Map<Long, Set<Note>> makeNoteMapIdentified(List<File> work) throws XPathExpressionException {
+		
+		// This gets notes for soldiers with a sid attribute set on the person element.
 		
     	XmlUtils xmlutils = new XmlUtils();
 		XPathFactory factory = XPathFactory.newInstance();
@@ -152,8 +159,6 @@ public class Collect {
     		Document doc = xmlutils.parse(file);
     		NodeList pList = (NodeList) peopleXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
     		
-    		System.out.println(pList.getLength());
-
     		for ( int i = 0; i < pList.getLength(); i++ ) {
     		
     			Element person = (Element) pList.item(i);
@@ -179,7 +184,10 @@ public class Collect {
 	
 	public static Map<Long, Set<Note>> makeNoteMapCandidates(List<File> work) throws XPathExpressionException {
 		
-    	XmlUtils xmlutils = new XmlUtils();
+		// This gets notes for soldiers with a sid attribute in a candidate element. If there is more than one
+		// candidate element the results will be ambiguous.
+
+		XmlUtils xmlutils = new XmlUtils();
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
 
@@ -245,14 +253,14 @@ public class Collect {
     		
     		List<Note> notes = new ArrayList<Note>();
     		if ( notesMap.get(sid) != null ) notes.addAll(notesMap.get(sid));
-    		System.out.println("zz " + notes.size());
+
     		notes.sort(comparator);
     		
     		if ( notes.size() >= 0 ) {
     			
     			Person p = SoldiersModel.getPerson(ConnectionManager.getConnection(), sid);
     			
-    			String rec = String.format("%-30s %10d", p.getSort(), p.getSoldierId());
+    			String rec = String.format("%-30s %10d %6d", p.getSort(), p.getSoldierId(), notes.size());
     			records.add(rec);
     			
     			Document results = xmlutils.newDocument();
