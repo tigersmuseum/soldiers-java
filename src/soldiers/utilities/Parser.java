@@ -9,8 +9,9 @@ import soldiers.database.Service;
 public class Parser {
 
 	static Pattern rankPattern = Pattern.compile("(A/)?(Private|Pte|Drumr|Drummer|Dmr|Dvr|GNR|Gnr|Spr|Cpl|L/Cpl|LCPL|L Cpl|LCpl|LCorpl|Sgt Drummer|C/Sgt|CSjt|C/Sjt|C Sgt|CRSGT|CR SGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt|Sjt|QMSgt|QMS|Qr Mr Sjt|Sergeant|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|Band Sjt|CQMS|CSM|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt |2Lieut|Lt & Adjt|Lt Col|Lieutenant|Lt|Lieut|2 Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?");
-	static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+\\b");
+	static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
 	static Pattern initialsPattern = Pattern.compile("^(([A-Z]\\s)+).+");
+	public static Pattern namePattern = Pattern.compile("([A-Z]\\w*(\\s+|$))+");
 	static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC))+$");
 	static Pattern delimPattern = Pattern.compile("\\w{4}(\\.|,)");
 	static Pattern regt = Pattern.compile("\\d+(/\\d+)?(th|st|nd|rd)(\\s+[^\\s]+){1,6}?\\s+(Regt|Rgt|Brigade|Watch|Rifles|Yorks|Lancs|Hampshires|Cambs|RSR|Yeomanry|Hants|Sussex|Sx|Bde|RWF|Notts|Derby|Fusilier|Forester|Territorial|Warwicks|Fus|Herts|Borderer|KRR|DLI|LI|RWF|Company)s?");
@@ -31,7 +32,7 @@ public class Parser {
 
 		text = suffix(text, person);
 		text = number(text, service);
-		text = rank(text,service);
+		text = rankOld(text,service);
 
 		String name = text;
 
@@ -86,7 +87,7 @@ public class Parser {
 	}
 	
 	
-	static String suffix(String text, Person person) {
+	public static String suffix(String text, Person person) {
 		
 		String retval = text;
 		
@@ -103,7 +104,7 @@ public class Parser {
 	}
 	
 	
-	static String rank(String text, Service service) {
+	public static String rankOld(String text, Service service) {
 		
 		String retval = text;
 		
@@ -120,13 +121,47 @@ public class Parser {
 	}
 	
 	
-	static String number(String text, Service service) {
+	public static String rank(String text, Service service) {
+		
+		String retval = text;
+		
+		Matcher rankMatcher = rankPattern.matcher(text);
+		
+		if ( rankMatcher.lookingAt() ) {
+			
+			String rank = rankMatcher.group(0).trim();
+			service.setRank(rank);
+			retval = text.replaceAll(rank, "").trim();
+		}
+		
+		return retval;
+	}
+	
+	
+	public static String number(String text, Service service) {
 		
 		String retval = text;
 		
 		Matcher numberMatcher = numberPattern.matcher(text);
 		
 		if ( numberMatcher.find() ) {
+			
+			String number = numberMatcher.group(0).trim();
+			service.setNumber(number.replaceAll("-", "/").replaceAll("No\\.?\\s+?", "").trim());
+			retval = text.replaceAll(number, "").trim();
+		}
+		
+		return retval;
+	}
+	
+	
+	public static String numberNew(String text, Service service) {
+		
+		String retval = text;
+		
+		Matcher numberMatcher = numberPattern.matcher(text);
+		
+		if ( numberMatcher.lookingAt() ) {
 			
 			String number = numberMatcher.group(0).trim();
 			service.setNumber(number.replaceAll("-", "/").replaceAll("No\\.?\\s+?", "").trim());
