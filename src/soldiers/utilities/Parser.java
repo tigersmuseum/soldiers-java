@@ -8,10 +8,11 @@ import soldiers.database.Service;
 
 public class Parser {
 
-	static Pattern rankPattern = Pattern.compile("(A/)?(Private|Pte|Drumr|Drummer|Dmr|Dvr|GNR|Gnr|Spr|Cpl|L/Cpl|LCPL|L Cpl|LCpl|LCorpl|Sgt Drummer|C/Sgt|CSjt|C/Sjt|C Sgt|CRSGT|CR SGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt|Sjt|QMSgt|QMS|Qr Mr Sjt|Sergeant|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|Band Sjt|CQMS|CSM|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt |2Lieut|Lt & Adjt|Lt Col|Lieutenant|Lt|Lieut|2 Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?");
+	static Pattern rankPattern = Pattern.compile("(A/)?(Private|Pte|Drumr|Drummer|Dmr|Dvr|GNR|Gnr|Spr|Cpl|L/Cpl|LCPL|L Cpl|LCpl|LCorpl|Sgt Drummer|C/Sgt|CSjt|C/Sjt|C Sgt|CRSGT|CR SGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt|Sjt|QMSgt|QMS|Qr Mr Sjt|Sergeant|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|Band Sjt|CQMS|CSM|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt |2Lieut|2 Lieut|Lt & Adjt|Lt Col|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?\\.?");
 	static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
-	static Pattern initialsPattern = Pattern.compile("^(([A-Z]\\s)+).+");
-	public static Pattern namePattern = Pattern.compile("([A-Z]\\w*(\\s+|$))+");
+	static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
+	//public static Pattern namePattern = Pattern.compile("([A-Z][A-Za-z]*(\\-|\\.\\s*|\\s{1,2}|$))+");
+	public static Pattern namePattern = Pattern.compile("(([A-Z](\\s|\\.\\s?))+\\s+)?([A-Z][a-z]+(\\-|\\s{1,2}|\\.|$))+");
 	static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC))+$");
 	static Pattern delimPattern = Pattern.compile("\\w{4}(\\.|,)");
 	static Pattern regt = Pattern.compile("\\d+(/\\d+)?(th|st|nd|rd)(\\s+[^\\s]+){1,6}?\\s+(Regt|Rgt|Brigade|Watch|Rifles|Yorks|Lancs|Hampshires|Cambs|RSR|Yeomanry|Hants|Sussex|Sx|Bde|RWF|Notts|Derby|Fusilier|Forester|Territorial|Warwicks|Fus|Herts|Borderer|KRR|DLI|LI|RWF|Company)s?");
@@ -36,6 +37,103 @@ public class Parser {
 
 		String name = text;
 
+		name(name, person);
+		person.addService(service);
+
+		return person;
+	}
+	
+	
+	public static String suffix(String text, Person person) {
+		
+		String retval = text;
+		
+		Matcher suffixMatcher = suffixPattern.matcher(text);
+		
+		if ( suffixMatcher.find() ) {
+			
+			String suffix = suffixMatcher.group(0).trim();
+			person.setSuffix(suffix);
+			retval = text.replaceAll(suffix, "").trim();
+		}
+		
+		return retval;
+	}
+	
+	
+	public static String rankOld(String text, Service service) {
+		
+		String retval = text;
+		
+		Matcher rankMatcher = rankPattern.matcher(text);
+		
+		if ( rankMatcher.find() ) {
+			
+			String rank = rankMatcher.group(0).trim();
+			service.setRank(rank);
+			retval = text.replaceAll(rank, "").trim();
+		}
+		
+		return retval;
+	}
+	
+	
+	public static String rank(String text, Service service) {
+		
+		String retval = "";
+		
+		Matcher rankMatcher = rankPattern.matcher(text);
+		
+		if ( rankMatcher.lookingAt() ) {
+			
+			String rank = rankMatcher.group(0).trim();
+			service.setRank(rank);
+			retval = text.substring(rankMatcher.start(), rankMatcher.end());
+		}
+		
+		return retval;
+	}
+	
+	
+	public static String number(String text, Service service) {
+		
+		String retval = text;
+		
+		Matcher numberMatcher = numberPattern.matcher(text);
+		
+		if ( numberMatcher.find() ) {
+			
+			String number = numberMatcher.group(0).trim();
+			service.setNumber(number.replaceAll("-", "/").replaceAll("No\\.?\\s+?", "").trim());
+			retval = text.replaceAll(number, "").trim();
+		}
+		
+		return retval;
+	}
+	
+	
+	public static String numberNew(String text, Service service) {
+		
+		String retval = "";
+		
+		Matcher numberMatcher = numberPattern.matcher(text);
+		
+		if ( numberMatcher.lookingAt() ) {
+			
+			String number = numberMatcher.group(0).trim();
+			service.setNumber(number.replaceAll("-", "/").replaceAll("No\\.?\\s+?", "").trim());
+			retval = text.substring(numberMatcher.start(), numberMatcher.end()).trim();
+		}
+		
+		return retval;
+	}
+	
+	
+	public static String name(String name, Person person) {
+		
+		String retval = name;
+		name = name.replaceAll("\\.", " ").replaceAll("//s+", " ");
+		
 		Matcher initialsMatcher = initialsPattern.matcher(name);
 
 		if ( initialsMatcher.matches() ) {
@@ -79,93 +177,6 @@ public class Parser {
 			
 			String forenames = name.replaceAll(surname, "").trim();
 			person.setForenames(forenames);		
-		}
-
-		person.addService(service);
-
-		return person;
-	}
-	
-	
-	public static String suffix(String text, Person person) {
-		
-		String retval = text;
-		
-		Matcher suffixMatcher = suffixPattern.matcher(text);
-		
-		if ( suffixMatcher.find() ) {
-			
-			String suffix = suffixMatcher.group(0).trim();
-			person.setSuffix(suffix);
-			retval = text.replaceAll(suffix, "").trim();
-		}
-		
-		return retval;
-	}
-	
-	
-	public static String rankOld(String text, Service service) {
-		
-		String retval = text;
-		
-		Matcher rankMatcher = rankPattern.matcher(text);
-		
-		if ( rankMatcher.find() ) {
-			
-			String rank = rankMatcher.group(0).trim();
-			service.setRank(rank);
-			retval = text.replaceAll(rank, "").trim();
-		}
-		
-		return retval;
-	}
-	
-	
-	public static String rank(String text, Service service) {
-		
-		String retval = text;
-		
-		Matcher rankMatcher = rankPattern.matcher(text);
-		
-		if ( rankMatcher.lookingAt() ) {
-			
-			String rank = rankMatcher.group(0).trim();
-			service.setRank(rank);
-			retval = text.replaceAll(rank, "").trim();
-		}
-		
-		return retval;
-	}
-	
-	
-	public static String number(String text, Service service) {
-		
-		String retval = text;
-		
-		Matcher numberMatcher = numberPattern.matcher(text);
-		
-		if ( numberMatcher.find() ) {
-			
-			String number = numberMatcher.group(0).trim();
-			service.setNumber(number.replaceAll("-", "/").replaceAll("No\\.?\\s+?", "").trim());
-			retval = text.replaceAll(number, "").trim();
-		}
-		
-		return retval;
-	}
-	
-	
-	public static String numberNew(String text, Service service) {
-		
-		String retval = text;
-		
-		Matcher numberMatcher = numberPattern.matcher(text);
-		
-		if ( numberMatcher.lookingAt() ) {
-			
-			String number = numberMatcher.group(0).trim();
-			service.setNumber(number.replaceAll("-", "/").replaceAll("No\\.?\\s+?", "").trim());
-			retval = text.replaceAll(number, "").trim();
 		}
 		
 		return retval;
