@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 
 import soldiers.database.Person;
 import soldiers.database.Service;
-import soldiers.utilities.Parser;
+import soldiers.text.Normalize;
+import soldiers.text.Parser;
 
 public class ParserTest {
 	

@@ -1,4 +1,4 @@
-package soldiers.test;
+package soldiers.text;
 
 import java.io.File;
 import java.io.FileNotFoundException;

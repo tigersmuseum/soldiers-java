@@ -20,7 +20,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import soldiers.database.Person;
-import soldiers.utilities.Parser;
+import soldiers.text.Normalize;
+import soldiers.text.Parser;
 import soldiers.utilities.XmlUtils;
 
 public class Parse {

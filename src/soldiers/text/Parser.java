@@ -1,4 +1,4 @@
-package soldiers.utilities;
+package soldiers.text;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
