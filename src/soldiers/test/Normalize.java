@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.NamespaceContext;
@@ -330,12 +331,23 @@ public class Normalize {
 
 	public void normalizeRank(Person person, Map<String, String> ranks) {
 		
-		//System.out.println(person.getSurname());
 		for ( Service service: person.getService() ) {
 			
 			normalizeRank(service, ranks);			
 		}
 		
+	}
+	
+	
+	public static void normalizeRank(List<Person> list) {
+		
+		Normalize normalizer = new Normalize();
+		Map<String, String> ranks = normalizer.getRanks();
+		
+		for ( Person person: list ) {
+			
+			normalizer.normalizeRank(person, ranks);
+		}
 	}
 
 }

@@ -12,7 +12,7 @@ public class Parser {
 	static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
 	static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
 	//public static Pattern namePattern = Pattern.compile("([A-Z][A-Za-z]*(\\-|\\.\\s*|\\s{1,2}|$))+");
-	public static Pattern namePattern = Pattern.compile("(([A-Z](\\s|\\.\\s?))+\\s+)?([A-Z][a-z]+(\\-|\\s{1,2}|\\.|$))+");
+	public static Pattern namePattern = Pattern.compile("(([A-Z](\\s|\\.\\s?))+)?([A-Z][a-z]+(\\-|\\s{1,2}|\\.|$))+(\\s+([A-Z](\\s|\\.\\s?))+)?");
 	static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC))+$");
 	static Pattern delimPattern = Pattern.compile("\\w{4}(\\.|,)");
 	static Pattern regt = Pattern.compile("\\d+(/\\d+)?(th|st|nd|rd)(\\s+[^\\s]+){1,6}?\\s+(Regt|Rgt|Brigade|Watch|Rifles|Yorks|Lancs|Hampshires|Cambs|RSR|Yeomanry|Hants|Sussex|Sx|Bde|RWF|Notts|Derby|Fusilier|Forester|Territorial|Warwicks|Fus|Herts|Borderer|KRR|DLI|LI|RWF|Company)s?");
@@ -32,7 +32,7 @@ public class Parser {
 		System.out.println("### " + text);
 
 		text = suffix(text, person);
-		text = number(text, service);
+		text = numberFind(text, service);
 		text = rankOld(text,service);
 
 		String name = text;
@@ -95,7 +95,7 @@ public class Parser {
 	}
 	
 	
-	public static String number(String text, Service service) {
+	public static String numberFind(String text, Service service) {
 		
 		String retval = text;
 		
@@ -112,9 +112,7 @@ public class Parser {
 	}
 	
 	
-	public static String numberNew(String text, Service service) {
-		
-		String retval = "";
+	public static void numberLookAt(String text, Service service) {
 		
 		Matcher numberMatcher = numberPattern.matcher(text);
 		
@@ -122,10 +120,7 @@ public class Parser {
 			
 			String number = numberMatcher.group(0).trim();
 			service.setNumber(number.replaceAll("-", "/").replaceAll("No\\.?\\s+?", "").trim());
-			retval = text.substring(numberMatcher.start(), numberMatcher.end()).trim();
 		}
-		
-		return retval;
 	}
 	
 	
