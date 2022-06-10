@@ -69,7 +69,7 @@ public class Collect {
 
 		// output a subset of this info
 		
-		long[] wanted = {102033, 201215, 201200};
+		long[] wanted = {102033, 201215, 201200, 201217, 118369, 170215, 177516, 161705, 118143};
 		
 		Map<Long, Set<Note>> sample = new HashMap<Long, Set<Note>>();
 		
@@ -173,6 +173,7 @@ public class Collect {
             		for ( int n = 0; n < nList.getLength(); n++ ) {
             			
             			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
+            			System.out.printf("%d,%s,%s,%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
             		}
     			}   			
     		}
@@ -225,6 +226,7 @@ public class Collect {
                 		for ( int n = 0; n < nList.getLength(); n++ ) {
                 			
                 			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
+                			System.out.printf("%d,%s,%s,%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
                 		}
                 		
                 		if ( notesMap.get(sid) != null && notesMap.get(sid).size() > max ) {

@@ -17,7 +17,7 @@ public class ParserTest {
 
 	public static void main(String[] args) {
 
-		String surface = "4. 5827 Pte E Marshall A Coy has been permitted to extend his service to complete 12 years with the Colours. Authority dtd 1.10.06.";
+		String surface = "8904 Cpl. H Rowe 2nd hampshires";
 		
 		String text = surface.replaceAll("\\p{javaSpaceChar}", " ").trim();
 				
@@ -26,7 +26,7 @@ public class ParserTest {
 		
 		for ( Person p: list ) {
 			
-			System.out.println(p.getContent() + " = " + p.getSurfaceText());
+			System.out.printf("(%d) %s = %s", p.getSoldierId(), p.getContent(), p.getSurfaceText());
 		}
 	}
 	

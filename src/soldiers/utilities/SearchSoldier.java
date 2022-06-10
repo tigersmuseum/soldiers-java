@@ -38,11 +38,11 @@ public class SearchSoldier {
 		Person p = new Person();
 		Service svc = new Service();
 		
-		p.setSurname("LENON");
-		//svc.setNumber("200163");
-		p.setInitials("E H");
+		p.setSurname("ROWE");
+		svc.setNumber("8904");
+		p.setInitials("H");
 
-		svc.setRank("Lt");
+		svc.setRank("Cpl");
 		p.addService(svc);
 				
 		List<Person> results = SearchSoldier.checkIdentity(p, ConnectionManager.getConnection());
