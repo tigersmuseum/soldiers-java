@@ -3,6 +3,7 @@ package soldiers.utilities;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +34,8 @@ import soldiers.database.SoldiersModel;
 import soldiers.database.SoldiersNamespaceContext;
 
 public class Collect {
+	
+	static PrintWriter outwriter;
 
 	public static void main(String[] args) throws XPathExpressionException, SAXException, FileNotFoundException, TransformerException {
 
@@ -52,6 +55,9 @@ public class Collect {
     	File inputfile = new File(inputname);   	
     	List<File> work = null;
     	
+    	File outputfile = new File("/D:/Tigers/lonlist.csv");
+    	outwriter = new PrintWriter(outputfile);
+    	
     	// get a list of Soldiers XML files
     	
     	if ( inputfile.isDirectory() ) {
@@ -64,8 +70,8 @@ public class Collect {
     	}
     	
     	// Collect sets of note elements - drawn from the various sources, keyed by soldier ID
-		//Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
-		Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work);
+		Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
+		//Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work);
 
 		// output a subset of this info
 		
@@ -79,6 +85,8 @@ public class Collect {
 		}
 		
 		writeXmlFiles(sample);
+		
+		outwriter.close();
 	}
 
 	
@@ -212,29 +220,32 @@ public class Collect {
     			
     			NodeList cList = person.getElementsByTagNameNS(SoldiersModel.XML_NAMESPACE, "candidate");
     			
-    	   		for ( int j = 0; j < cList.getLength(); j++ ) {
-    	   		
-        			Element candidate = (Element) cList.item(j);
-        			String sidAttr = candidate.getAttribute("sid");
-        			
-        			if ( sidAttr.length() > 0 ) {
-        				 				
-            			Long sid = Long.parseLong(sidAttr);
+    			if ( cList.getLength() == 1 ) {
+    				
+        	   		for ( int j = 0; j < cList.getLength(); j++ ) {
+            	   		
+            			Element candidate = (Element) cList.item(j);
+            			String sidAttr = candidate.getAttribute("sid");
             			
-                		NodeList nList = (NodeList) notesXpr.evaluate(person, XPathConstants.NODESET);
-            			
-                		for ( int n = 0; n < nList.getLength(); n++ ) {
+            			if ( sidAttr.length() > 0 ) {
+            				 				
+                			Long sid = Long.parseLong(sidAttr);
                 			
-                			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
-                			System.out.printf("%d,%s,%s,%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
-                		}
-                		
-                		if ( notesMap.get(sid) != null && notesMap.get(sid).size() > max ) {
+                    		NodeList nList = (NodeList) notesXpr.evaluate(person, XPathConstants.NODESET);
                 			
-                			System.out.println("max " + max++ + " = " + sid);
-                		}
-        			}   			
-    	   		}  			
+                    		for ( int n = 0; n < nList.getLength(); n++ ) {
+                    			
+                    		//	addToMap(notesMap, sid, new Note((Element) nList.item(n)));
+                    			outwriter.printf("%d,\"%s\",%s,%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
+                    		}
+                    		
+                    		if ( notesMap.get(sid) != null && notesMap.get(sid).size() > max ) {
+                    			
+                    			System.out.println("max " + max++ + " = " + sid);
+                    		}
+            			}   			
+        	   		}  			
+    			}   			
     		}
     	}
 
