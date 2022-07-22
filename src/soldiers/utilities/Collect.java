@@ -28,6 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
 
 import soldiers.database.Person;
 import soldiers.database.SoldiersModel;
@@ -55,7 +56,7 @@ public class Collect {
     	File inputfile = new File(inputname);   	
     	List<File> work = null;
     	
-    	File outputfile = new File("/D:/Tigers/lonlist.csv");
+    	File outputfile = new File("lonlist.csv");
     	outwriter = new PrintWriter(outputfile);
     	
     	// get a list of Soldiers XML files
@@ -75,7 +76,7 @@ public class Collect {
 
 		// output a subset of this info
 		
-		long[] wanted = {102033, 201215, 201200, 201217, 118369, 170215, 177516, 161705, 118143};
+		long[] wanted = {191001, 119075, 104022, 201217, 118369, 170215, 177516, 161705, 118143};
 		
 		Map<Long, Set<Note>> sample = new HashMap<Long, Set<Note>>();
 		
@@ -84,7 +85,8 @@ public class Collect {
 			sample.put(w, notesMap.get(w));
 		}
 		
-		writeXmlFiles(sample);
+		//writeXmlFiles(sample);
+		writeCollectedXmlFile(sample, new File("collected.xml"));
 		
 		outwriter.close();
 	}
@@ -235,8 +237,8 @@ public class Collect {
                 			
                     		for ( int n = 0; n < nList.getLength(); n++ ) {
                     			
-                    		//	addToMap(notesMap, sid, new Note((Element) nList.item(n)));
-                    			outwriter.printf("%d,\"%s\",%s,%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
+                    			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
+                    			outwriter.printf("%d,\"%s\",\"%s\",%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
                     		}
                     		
                     		if ( notesMap.get(sid) != null && notesMap.get(sid).size() > max ) {
@@ -304,4 +306,57 @@ public class Collect {
     		System.out.println(r);
     	}
 	}
+	
+	
+	public static void writeCollectedXmlFile(Map<Long, Set<Note>> notesMap, File xmlfile) throws SAXException, FileNotFoundException, TransformerException {
+		
+    	XmlUtils xmlutils = new XmlUtils();
+    	
+		Document collected = xmlutils.newDocument();
+		Element root  = (Element) collected.appendChild(collected.createElement("collected"));
+
+        SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler serializer;
+    	
+    	NoteDateComparator comparator = new NoteDateComparator();
+    	
+    	System.out.println("size: " + notesMap.keySet().size());
+    	
+    	for ( Long sid: notesMap.keySet() ) {
+    		
+    		List<Note> notes = new ArrayList<Note>();
+    		if ( notesMap.get(sid) != null ) notes.addAll(notesMap.get(sid));
+    		
+    		System.out.println(notes.size());
+
+    		notes.sort(comparator);
+    		
+    		if ( notes.size() >= 0 ) {
+    			
+    			Person p = SoldiersModel.getPerson(ConnectionManager.getConnection(), sid);
+    			
+    			Document results = xmlutils.newDocument();
+    	        serializer = tf.newTransformerHandler();
+    	        serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+    	        serializer.setResult(new DOMResult(results));
+
+    	        serializer.startDocument();
+    	        p.serializePerson(serializer);
+    	        serializer.endDocument();
+    	        
+    	        Element newp = (Element) results.getDocumentElement();
+    	        
+    	        for ( Note note: notes ) {
+    	        	
+    	        	Element n = (Element) results.importNode(note.getElement(), true);
+    	        	newp.appendChild(n);
+    	        }
+    	        
+    	        root.appendChild(collected.importNode(newp, true));
+    		}
+    	}
+    	
+        Soldiers.writeDocument(collected, new FileOutputStream(xmlfile));
+	}
+
 }
