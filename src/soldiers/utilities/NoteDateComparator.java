@@ -68,7 +68,7 @@ public class NoteDateComparator implements Comparator<Note> {
 			
 			try {
 				Element nested = (Element) expr.evaluate(element, XPathConstants.NODE);
-				date = nested.getAttribute("date");
+				if ( nested != null ) date = nested.getAttribute("date");
 			}
 			catch (XPathExpressionException e) {
 				e.printStackTrace();
