@@ -135,6 +135,7 @@ public class Normalize {
 		ranks.put("drumr", "Dmr");
 		ranks.put("dvr", "Dvr");
 		ranks.put("gnr", "Gnr");
+		ranks.put("signaller", "Sig");
 		ranks.put("sapper", "Spr");
 		ranks.put("spr", "Spr");
 		ranks.put("rfn", "Rfn");
@@ -222,6 +223,7 @@ public class Normalize {
 		ranks.put("csmjr", "CSM");
 		ranks.put("companysergeantmajor", "CSM");
 		ranks.put("companyserjeantmajor", "CSM");
+		ranks.put("companyquartermastersergeantmajor", "CSM");
 		ranks.put("cadet", "Cadet");
 		ranks.put("officercadet", "Cadet");
 		ranks.put("ens", "Ens");
