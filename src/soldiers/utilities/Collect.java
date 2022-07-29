@@ -28,7 +28,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
 import soldiers.database.Person;
 import soldiers.database.SoldiersModel;
@@ -86,7 +85,7 @@ public class Collect {
 		}
 		
 		//writeXmlFiles(sample);
-		writeCollectedXmlFile(sample, new File("collected.xml"));
+		writeCollectedXmlFile(notesMap, new File("collected.xml"));
 		
 		outwriter.close();
 	}
@@ -210,10 +209,13 @@ public class Collect {
 		
     	for ( File file: work ) {
     		
+    		System.out.println(file.getPath());
+    		
     		Document doc = xmlutils.parse(file);
     		NodeList pList = (NodeList) peopleXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+    		
+    		System.out.println("people: " + pList.getLength());
 
-			System.out.println(pList.getLength());
 			int max = 0;
 			
     		for ( int i = 0; i < pList.getLength(); i++ ) {
@@ -327,8 +329,6 @@ public class Collect {
     		List<Note> notes = new ArrayList<Note>();
     		if ( notesMap.get(sid) != null ) notes.addAll(notesMap.get(sid));
     		
-    		System.out.println(notes.size());
-
     		notes.sort(comparator);
     		
     		if ( notes.size() >= 0 ) {
