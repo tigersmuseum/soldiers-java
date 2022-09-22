@@ -42,28 +42,31 @@ public class PersonFinder {
 		//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
 				
 		String number = p.getService().iterator().next().getNumber();
-		if ( number.length() > 0 ) results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
 		
-//		if ( results.size() == 0 ) {
+		if ( number.length() > 0 ) {
 			
-			List<String> names;
-			try {
-				names = similarNameMap.get(encoder.encode(p.getSurname()));
+			//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
+			results.addAll(SoldiersModel.getCandidatesForNumber(connection, p));
+		}
+		
+		
+		List<String> names;
+		try {
+			names = similarNameMap.get(encoder.encode(p.getSurname()));
 
-				if ( names!= null ) {
+			if ( names!= null ) {
+				
+				for ( String name: names ) {
 					
-					for ( String name: names ) {
-						
-						Person x = new Person();
-						x.setSurname(name);
-						results.addAll(SoldiersModel.getCandidatesForSurname(connection, x));						
-					}
+					Person x = new Person();
+					x.setSurname(name);
+					results.addAll(SoldiersModel.getCandidatesForSurname(connection, x));						
 				}
 			}
-			catch (EncoderException e) {
-				e.printStackTrace();
-			}			
-//		}
+		}
+		catch (EncoderException e) {
+			e.printStackTrace();
+		}			
 		
 		for ( Person r: results ) {
 			

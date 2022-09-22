@@ -71,7 +71,7 @@ public class Collect {
     	
     	// Collect sets of note elements - drawn from the various sources, keyed by soldier ID
 		Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
-		//Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work);
+	//	Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work);
 
 		// output a subset of this info
 		

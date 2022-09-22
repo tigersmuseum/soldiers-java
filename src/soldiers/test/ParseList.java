@@ -1,34 +1,80 @@
 package soldiers.test;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
+
 import soldiers.database.Person;
 import soldiers.database.Service;
+import soldiers.database.SoldiersModel;
 import soldiers.text.Normalize;
 import soldiers.text.Parser;
 
-public class ParserTest {
+public class ParseList {
 	
 	static Pattern whitespace = Pattern.compile("^|\\s+"); // match the start of the text, or any sequence of whitespace
 	public static Pattern companyPattern = Pattern.compile("[A-Z]\\s+Coy"); // match a unit (signals the end of a name string)
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, TransformerConfigurationException, SAXException {
 
-		String surface = "3117 Pte T Jarvis";
+
+		FileInputStream inputFile = new FileInputStream("C:\\workspaces\\development\\Tigers\\input\\list.txt");
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputFile));
+		List<Person> list = new ArrayList<Person>();
 		
-		String text = surface.replaceAll("\\p{javaSpaceChar}", " ").trim();
-				
-		List<Person> list = findMention(text);
-		System.out.println(list.size());
+		String line;
+
+		while ((line = reader.readLine()) != null) {
+			
+			String text = line.replaceAll("\\p{javaSpaceChar}", " ").trim();
+			List<Person> l = findMention(text);
+			list.addAll(l);
+		}
+		
+		reader.close();
+		
 		Normalize.normalizeRank(list);
 		
 		for ( Person p: list ) {
 			
 			System.out.printf("(%d) %s = %s", p.getSoldierId(), p.getContent(), p.getSurfaceText());
 		}
+		
+        SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler serializer;
+        serializer = tf.newTransformerHandler();
+        serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        serializer.setResult(new StreamResult(new FileOutputStream("output/results.xml")));
+
+		serializer.startDocument();
+		serializer.startElement(SoldiersModel.XML_NAMESPACE, "list", "list", new AttributesImpl());
+
+
+		for ( Person p: list ) {
+			
+			p.serializePerson(serializer);
+		}
+		
+		serializer.endElement(SoldiersModel.XML_NAMESPACE, "list", "list");
+		serializer.endDocument();
+
 	}
 	
 	

@@ -8,7 +8,7 @@ import soldiers.database.Service;
 
 public class Parser {
 
-	static Pattern rankPattern = Pattern.compile("(A/)?(Private|Pte|Drumr|Drummer|Dmr|Dvr|GNR|Gnr|Spr|Cpl|L/Cpl|LCPL|L Cpl|LCpl|LCorpl|Sgt Drummer|C/Sgt|CSjt|C/Sjt|C Sgt|CRSGT|CR SGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt|Sjt|QMSgt|QMS|Qr Mr Sjt|Sergeant|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|Band Sjt|CQMS|CSM|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt |2Lieut|2 Lieut|Lt & Adjt|Lt Col|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?\\.?");
+	static Pattern rankPattern = Pattern.compile("(A/)?(Private|Pte|Drumr|Drummer|Dmr|Dvr|GNR|Gnr|Spr|Cpl|L/Cpl|L/C|LCPL|L Cpl|LCpl|LCorpl|Sgt Drummer|C/Sgt|CSjt|C/Sjt|C Sgt|CRSGT|CR SGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt|Sjt|QMSgt|QMS|Qr Mr Sjt|Sergeant|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|Band Sjt|CQMS|CSM|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt |2Lieut|2 Lieut|Lt & Adjt|Lt Col|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?\\.?");
 	static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
 	static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
 	//public static Pattern namePattern = Pattern.compile("([A-Z][A-Za-z]*(\\-|\\.\\s*|\\s{1,2}|$))+");

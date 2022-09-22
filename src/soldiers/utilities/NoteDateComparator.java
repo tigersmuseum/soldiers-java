@@ -21,7 +21,7 @@ public class NoteDateComparator implements Comparator<Note> {
 		super();
 		
 		try {
-			expr = xpath.compile(".//*[@date][last()]");
+			expr = xpath.compile(".//*[@date][1]");
 		}
 		catch (XPathExpressionException e) {
 			e.printStackTrace();
