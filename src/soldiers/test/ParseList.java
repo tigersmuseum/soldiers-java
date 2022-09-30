@@ -33,8 +33,15 @@ public class ParseList {
 
 	public static void main(String[] args) throws IOException, TransformerConfigurationException, SAXException {
 
+    	if ( args.length < 1 ) {
+    		
+    		System.err.println("Usage: ParseList <filename>");
+    		System.exit(1);
+    	}
+    	
+    	String inputfile = args[0];
 
-		FileInputStream inputFile = new FileInputStream("C:\\workspaces\\development\\Tigers\\input\\list.txt");
+		FileInputStream inputFile = new FileInputStream(inputfile);
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputFile));
 		List<Person> list = new ArrayList<Person>();
@@ -61,7 +68,7 @@ public class ParseList {
         TransformerHandler serializer;
         serializer = tf.newTransformerHandler();
         serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        serializer.setResult(new StreamResult(new FileOutputStream("output/results.xml")));
+        serializer.setResult(new StreamResult(new FileOutputStream("output/list.xml")));
 
 		serializer.startDocument();
 		serializer.startElement(SoldiersModel.XML_NAMESPACE, "list", "list", new AttributesImpl());
