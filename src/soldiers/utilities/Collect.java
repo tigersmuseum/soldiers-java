@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,9 +70,12 @@ public class Collect {
     		work = getWorkFromFile(inputfile);
     	}
     	
-    	// Collect sets of note elements - drawn from the various sources, keyed by soldier ID
-		Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
-	//	Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work);
+		Set<Long> filter = new HashSet<Long>();
+		filter.add((long) 104022);
+
+		// Collect sets of note elements - drawn from the various sources, keyed by soldier ID
+	//	Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
+		Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work, filter);
 
 		// output a subset of this info
 		
@@ -147,7 +151,7 @@ public class Collect {
 	}
 	
 	
-	public static Map<Long, Set<Note>> makeNoteMapIdentified(List<File> work) throws XPathExpressionException {
+	public static Map<Long, Set<Note>> makeNoteMapIdentified(List<File> work, Set<Long> filter) throws XPathExpressionException {
 		
 		// This gets notes for soldiers with a sid attribute set on the person element.
 		
@@ -177,13 +181,17 @@ public class Collect {
     				 				
         			Long sid = Long.parseLong(sidAttr);
         			
-            		NodeList nList = (NodeList) notesXpr.evaluate(person, XPathConstants.NODESET);
-        			
-            		for ( int n = 0; n < nList.getLength(); n++ ) {
+        			if ( filter == null || filter.contains(sid) ) {
+        				
             			
-            			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
-            			System.out.printf("%d,%s,%s,%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
-            		}
+                		NodeList nList = (NodeList) notesXpr.evaluate(person, XPathConstants.NODESET);
+            			
+                		for ( int n = 0; n < nList.getLength(); n++ ) {
+                			
+                			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
+                			System.out.printf("%d,%s,%s,%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
+                		}
+        			}
     			}   			
     		}
     	}
