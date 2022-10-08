@@ -3,3 +3,4 @@
 output/results.xml
 /output/
 *.log
+/input/
