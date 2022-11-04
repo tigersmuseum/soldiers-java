@@ -20,10 +20,10 @@ import javax.xml.transform.stream.StreamResult;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
+import soldiers.database.Normalize;
 import soldiers.database.Person;
 import soldiers.database.Service;
 import soldiers.database.SoldiersModel;
-import soldiers.text.Normalize;
 import soldiers.text.Parser;
 
 public class ParseList {

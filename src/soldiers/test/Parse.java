@@ -19,8 +19,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import soldiers.database.Normalize;
 import soldiers.database.Person;
-import soldiers.text.Normalize;
 import soldiers.text.Parser;
 import soldiers.utilities.XmlUtils;
 

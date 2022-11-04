@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import soldiers.database.Normalize;
 import soldiers.database.Person;
 import soldiers.database.Service;
-import soldiers.text.Normalize;
 import soldiers.text.Parser;
 
 public class ParserTest {

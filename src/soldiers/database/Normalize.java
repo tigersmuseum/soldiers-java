@@ -1,4 +1,4 @@
-package soldiers.text;
+package soldiers.database;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,33 +30,36 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import soldiers.database.Person;
-import soldiers.database.Service;
-import soldiers.database.SoldiersNamespaceContext;
 import soldiers.utilities.Soldiers;
 import soldiers.utilities.XmlUtils;
+
+/**
+ * This utility normalizes values in Soldiers XML. Currently this is just the rank attributes on service elements.
+ * 
+ * @author The Royal Hampshire Regiment Museum
+ *
+ */
 
 public class Normalize {
 
 	public static void main(String[] args) throws XPathExpressionException, IllegalArgumentException, FileNotFoundException, SAXException, ParseException, TransformerException {
 
-    	if ( args.length < 1 ) {
+    	if ( args.length < 2 ) {
     		
-    		System.err.println("Usage: Normalize <filename>");
+    		System.err.println("Usage: Normalize <input filename> <output filename>");
     		System.exit(1);
     	}
     	
-    	String inputfile = args[0];
+    	String inputfile  = args[0];
+    	String outputfile = args[1];
+    	
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
 
 	    XmlUtils xmlutils = new XmlUtils();
-		//Document doc = xmlutils.parse(new File("/C:/workspaces/development/Tigers/data/secondchinawar.xml"));
-		Document doc = xmlutils.parse(new File(inputfile));
-		
+		Document doc = xmlutils.parse(new File(inputfile));	
 		
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
-	//	Element collection = (Element) results.appendChild(results.createElementNS(namespaceContext.getNamespaceURI("soldiers"), "list"));
 		
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler serializer;
@@ -105,7 +108,7 @@ public class Normalize {
 		
 		TransformerFactory treansformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = treansformerFactory.newTransformer();
-		StreamResult result = new StreamResult(new FileOutputStream("output/fixed.xml"));
+		StreamResult result = new StreamResult(new FileOutputStream(outputfile));
 		
 		DOMSource source = new DOMSource(collectedResults);
 		transformer.transform(source, result);      
@@ -135,6 +138,7 @@ public class Normalize {
 		ranks.put("drumr", "Dmr");
 		ranks.put("dvr", "Dvr");
 		ranks.put("gnr", "Gnr");
+		ranks.put("gunner", "Gnr");
 		ranks.put("signaller", "Sig");
 		ranks.put("sapper", "Spr");
 		ranks.put("spr", "Spr");
@@ -191,6 +195,7 @@ public class Normalize {
 		ranks.put("ssgt", "SSgt");
 		ranks.put("staffsergeant", "SSgt");
 		ranks.put("staffserjeant", "SSgt");
+		ranks.put("fitterstaffserjeant", "SSgt");
 		ranks.put("wo2", "WO2");
 		ranks.put("warrantofficerclassii", "WO2");
 		ranks.put("warrantofficerclass2", "WO2");
@@ -273,6 +278,7 @@ public class Normalize {
 		ranks.put("civsurg", "UNK");
 		ranks.put("unk", "UNK");
 		ranks.put("unknown", "UNK");
+		ranks.put("soldier", "UNK");
 		
 		return ranks;
 	}
