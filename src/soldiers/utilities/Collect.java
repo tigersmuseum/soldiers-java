@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +39,8 @@ public class Collect {
 
 	public static void main(String[] args) throws XPathExpressionException, SAXException, FileNotFoundException, TransformerException {
 
-		// group references to the same soldier from different sources.
+		// Group references to the same soldier from different sources.
+		
 		// Records for each source are in a separate file (Soldiers XML format). Supply either a folder of such files, or a "worklist"
 		// file as a parameter.
 		
@@ -74,8 +74,15 @@ public class Collect {
 		filter.add((long) 104022);
 
 		// Collect sets of note elements - drawn from the various sources, keyed by soldier ID
+		// We can either use the sid attribute on the person element for this, or rely on there being a single candidate
+		// element - automate this choice?
+		
+		// If the filter parameter is null, then all records are collected. Otherwise only soldier ID's in the filter
+		// set are collected.
+		
 	//	Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
-		Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work, filter);
+	//	Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work, filter);
+		Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work, null);
 
 		// output a subset of this info
 		
@@ -320,7 +327,9 @@ public class Collect {
 	
 	public static void writeCollectedXmlFile(Map<Long, Set<Note>> notesMap, File xmlfile) throws SAXException, FileNotFoundException, TransformerException {
 		
-    	XmlUtils xmlutils = new XmlUtils();
+    	// Serialize XML. Given a map of distinct soldier ID's with a set of collected notes for each
+		
+		XmlUtils xmlutils = new XmlUtils();
     	
 		Document collected = xmlutils.newDocument();
 		Element root  = (Element) collected.appendChild(collected.createElement("collected"));
@@ -342,6 +351,8 @@ public class Collect {
     		if ( notes.size() >= 0 ) {
     			
     			Person p = SoldiersModel.getPerson(ConnectionManager.getConnection(), sid);
+    			
+    			// Serialize the Person to a new Document object, then append notes elements to that object.
     			
     			Document results = xmlutils.newDocument();
     	        serializer = tf.newTransformerHandler();
