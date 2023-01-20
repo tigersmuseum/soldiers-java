@@ -107,6 +107,8 @@ public class Soldiers {
 		xpath.setNamespaceContext(namespaceContext);
 		XPathExpression expr = xpath.compile(".//soldiers:person");
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+		
+		System.out.println("number of person elements: " + list.getLength());
     	
 		for ( int i = 0; i < list.getLength(); i++ ) {
 			

@@ -202,5 +202,53 @@ public class CompareNames {
 	}
 	
 	
+	public static Map<Long,  List<Person>> makeNoteMapCandidates(List<File> work, Set<Long> filter) throws XPathExpressionException, ParseException {
+		
+		// This gets notes for soldiers with a sid attribute in a candidate element. If there is more than one
+		// candidate element the results will be ambiguous.
+
+		XmlUtils xmlutils = new XmlUtils();
+		XPathFactory factory = XPathFactory.newInstance();
+	    XPath xpath = factory.newXPath();
+
+	    xpath.setNamespaceContext(new SoldiersNamespaceContext());
+		XPathExpression peopleXpr = xpath.compile(".//soldiers:person[soldiers:candidate]");
+		
+		Map<Long, List<Person>> personMap = new HashMap<Long, List<Person>>();
+		
+    	for ( File file: work ) {
+    		
+    		System.out.println(file.getPath());
+    		
+    		Document doc = xmlutils.parse(file);
+    		NodeList pList = (NodeList) peopleXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+    		
+    		for ( int i = 0; i < pList.getLength(); i++ ) {
+    		
+    			Element person = (Element) pList.item(i);
+    			Person mention = Soldiers.parsePerson(person);
+    			
+    			NodeList cList = person.getElementsByTagNameNS(SoldiersModel.XML_NAMESPACE, "candidate");
+    			
+    			if ( cList.getLength() == 1 ) {
+    				
+        	   		for ( int j = 0; j < cList.getLength(); j++ ) {
+            	   		
+            			Element candidate = (Element) cList.item(j);
+            			String sidAttr = candidate.getAttribute("sid");
+            			
+            			if ( sidAttr.length() > 0 ) {
+            				 				
+                			Long sid = Long.parseLong(sidAttr);
+                			addToMap(personMap, sid, mention);
+            			}   			
+        	   		}  			
+    			}   			
+    		}
+    	}
+
+    	return personMap;
+	}
+	
 
 }
