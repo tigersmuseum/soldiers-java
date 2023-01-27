@@ -43,6 +43,13 @@ import soldiers.search.Candidate;
 import soldiers.search.MakeEncoderMap;
 import soldiers.search.PersonFinder;
 
+/**
+ * Identify person entries in a Soldiers XML file.
+ * 
+ * @author Royal Hampshire Regiment Museum
+ *
+ */
+
 public class Soldiers {
 
 	static XPathFactory factory = XPathFactory.newInstance();
@@ -50,13 +57,14 @@ public class Soldiers {
 
     public static void main(String[] args) throws TransformerException, XPathExpressionException, SAXException, IOException, ParserConfigurationException, ParseException {
 
-    	if ( args.length < 1 ) {
+    	if ( args.length < 2 ) {
     		
-    		System.err.println("Usage: Soldiers <filename>");
+    		System.err.println("Usage: Soldiers <input-filename> <output-filename>");
     		System.exit(1);
     	}
     	
-    	String inputfile = args[0];
+    	String inputfile  = args[0];
+    	String outputfile = args[1];
     	
 		Document doc = readDocument(new FileInputStream(inputfile));			 
 		doc.normalizeDocument();
@@ -70,7 +78,7 @@ public class Soldiers {
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         //transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(new FileOutputStream("output/out.xml"));	
+		StreamResult result = new StreamResult(new FileOutputStream(outputfile));	
 		transformer.transform(source, result);	
 	}
         

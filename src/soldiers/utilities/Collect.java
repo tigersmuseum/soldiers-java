@@ -33,6 +33,14 @@ import soldiers.database.Person;
 import soldiers.database.SoldiersModel;
 import soldiers.database.SoldiersNamespaceContext;
 
+/**
+ *  Collect together identified person mentions in a set of Soldiers XML file to produce an output file with only one person element
+ *  for each identified person. In other words, collect
+ *  
+ * @author Royal Hampshire Regiment Museum
+ *
+ */
+
 public class Collect {
 	
 	static PrintWriter outwriter;

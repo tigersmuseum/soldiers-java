@@ -31,6 +31,15 @@ import soldiers.database.SoldiersNamespaceContext;
 import soldiers.utilities.Soldiers;
 import soldiers.utilities.XmlUtils;
 
+/**
+ * Split a file of Soldiers XML, with candidate elements suggesting identity, into 3 output files: One where person elements are uniquely 
+ * identified (a single candidate element), one where persons are ambiguous (multiple candidate elements), and one where persons 
+ * are unknown (no candidate element);
+ * 
+ * @author Royal Hampshire Regiment Museum
+ *
+ */
+
 public class Filter {
 
 	public static void main(String[] args) throws XPathExpressionException, IllegalArgumentException, FileNotFoundException, SAXException, ParseException, TransformerException {
