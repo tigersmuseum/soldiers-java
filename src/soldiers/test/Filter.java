@@ -53,14 +53,27 @@ public class Filter {
 		 
 		 Quality control on the single candidate?
 		 */
-		
+
+    	if ( args.length < 1 ) {
+    		
+    		System.err.println("Usage: Filter <input-filename>");
+    		System.exit(1);
+    	}
+
+    	String inputfile = args[0];
+
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
 
 	    SoldiersNamespaceContext namespace = new SoldiersNamespaceContext();
 	    
 	    XmlUtils xmlutils = new XmlUtils();
-		Document doc = xmlutils.parse(new File("output/out.xml"));
+		Document doc = xmlutils.parse(new File(inputfile));
+		
+		// a document for unique identification
+		Document iddoc = xmlutils.newDocument();
+		Element idroot = iddoc.createElementNS(namespace.getNamespaceURI("soldiers"), "list");
+		iddoc.appendChild(idroot);
 		
 		// a document for ambiguous identification
 		Document ambigdoc = xmlutils.newDocument();
@@ -98,6 +111,7 @@ public class Filter {
 	        	p.setSoldierId(Long.valueOf(candidate.getAttribute("sid")));
 
 	        	identified.add(p);
+	        	idroot.appendChild(iddoc.importNode(e, true));
 	        }
 	        else if ( clist.getLength() == 0 ) {
 	        	
@@ -127,27 +141,27 @@ public class Filter {
 
 		TransformerFactory treansformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = treansformerFactory.newTransformer();
-		StreamResult result = new StreamResult(new FileOutputStream("output/fixed.xml"));
+/*		StreamResult result = new StreamResult(new FileOutputStream("output/fixed.xml"));
 		
 		DOMSource source = new DOMSource(doc);
-		transformer.transform(source, result);
+		transformer.transform(source, result); */
 		
 		System.out.println(setmap);
 		System.out.println("IDENTIFIED: " + identified.size());
 		System.out.println("UNIDENTIFIED: " + unidentified.size());
 		System.out.println("AMBIGUOUS: " + ambiguous.size());
 		
-		//XmlUtils.writeXml(ambiguous, new FileOutputStream("output/ambiguous.xml"));
-		
-		StreamResult ambigresult = new StreamResult(new FileOutputStream("output/ambig.xml"));		
+		StreamResult idresult = new StreamResult(new FileOutputStream("output/identified.xml"));		
+		DOMSource idsource = new DOMSource(iddoc);
+		transformer.transform(idsource, idresult);
+
+		StreamResult ambigresult = new StreamResult(new FileOutputStream("output/ambiguous.xml"));		
 		DOMSource ambigsource = new DOMSource(ambigdoc);
 		transformer.transform(ambigsource, ambigresult);
 
 		StreamResult unkresult = new StreamResult(new FileOutputStream("output/unknown.xml"));		
 		DOMSource unksource = new DOMSource(unkdoc);
 		transformer.transform(unksource, unkresult);
-
-		//		identify(xpath, colln, setmap);
 	}
 		
 }

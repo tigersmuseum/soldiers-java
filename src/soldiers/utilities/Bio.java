@@ -86,7 +86,7 @@ public class Bio {
 		List<File> files = new ArrayList<File>();
 		files.add(new File("output/out.xml"));
 		
-		Map<Long, Set<Note>> notesMap = Collect.makeNoteMapCandidates(files);
+		Map<Long, Set<Note>> notesMap = Collect.makeNoteMapCandidates(files, null);
 		
 		long[] wanted = {102033,196418};
 		

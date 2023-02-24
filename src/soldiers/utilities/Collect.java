@@ -79,18 +79,18 @@ public class Collect {
     	}
     	
 		Set<Long> filter = new HashSet<Long>();
-		filter.add((long) 104022);
+		filter.add((long) 155667);
 
 		// Collect sets of note elements - drawn from the various sources, keyed by soldier ID
 		// We can either use the sid attribute on the person element for this, or rely on there being a single candidate
-		// element - automate this choice?
+		// element - Automate this choice? maybe check for @sid if no candidate element?
 		
 		// If the filter parameter is null, then all records are collected. Otherwise only soldier ID's in the filter
 		// set are collected.
 		
-	//	Map<Long, Set<Note>> notesMap = makeNoteMapCandidates(work);
+		Map<Long, Set<Note>> notesMap = makeNoteMapCandidates2(work, filter);
 	//	Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work, filter);
-		Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work, null);
+	//	Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work, null);
 
 		// output a subset of this info
 		
@@ -197,8 +197,7 @@ public class Collect {
         			Long sid = Long.parseLong(sidAttr);
         			
         			if ( filter == null || filter.contains(sid) ) {
-        				
-            			
+        				        			
                 		NodeList nList = (NodeList) notesXpr.evaluate(person, XPathConstants.NODESET);
             			
                 		for ( int n = 0; n < nList.getLength(); n++ ) {
@@ -215,7 +214,7 @@ public class Collect {
 	}
 	
 	
-	public static Map<Long, Set<Note>> makeNoteMapCandidates(List<File> work) throws XPathExpressionException {
+	public static Map<Long, Set<Note>> makeNoteMapCandidates(List<File> work, Set<Long> filter) throws XPathExpressionException {
 		
 		// This gets notes for soldiers with a sid attribute in a candidate element. If there is more than one
 		// candidate element the results will be ambiguous.
@@ -260,15 +259,85 @@ public class Collect {
                 			
                     		NodeList nList = (NodeList) notesXpr.evaluate(person, XPathConstants.NODESET);
                 			
-                    		for ( int n = 0; n < nList.getLength(); n++ ) {
+                    		if (  filter == null || filter.contains(sid) ) {
                     			
-                    			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
-                    			outwriter.printf("%d,\"%s\",\"%s\",%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
+                        		for ( int n = 0; n < nList.getLength(); n++ ) {
+                        			
+                        			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
+                        			outwriter.printf("%d,\"%s\",\"%s\",%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
+                        		}
+                        		
+                        		if ( notesMap.get(sid) != null && notesMap.get(sid).size() > max ) {
+                        			
+                        			System.out.println("max " + max++ + " = " + sid);
+                        		}
                     		}
-                    		
-                    		if ( notesMap.get(sid) != null && notesMap.get(sid).size() > max ) {
+            			}   			
+        	   		}  			
+    			}   			
+    		}
+    	}
+
+    	return notesMap;
+	}
+	
+	public static Map<Long, Set<Note>> makeNoteMapCandidates2(List<File> work, Set<Long> filter) throws XPathExpressionException {
+		
+		// This gets notes for soldiers with a sid attribute in a candidate element. If there is more than one
+		// candidate element the results will be ambiguous.
+
+		XmlUtils xmlutils = new XmlUtils();
+		XPathFactory factory = XPathFactory.newInstance();
+	    XPath xpath = factory.newXPath();
+
+	    xpath.setNamespaceContext(new SoldiersNamespaceContext());
+		XPathExpression notesXpr = xpath.compile(".//soldiers:note");
+		
+		Map<Long, Set<Note>> notesMap = new HashMap<Long, Set<Note>>();
+		
+    	for ( File file: work ) {
+    		
+    		System.out.println(file.getPath());
+    		
+    		Document doc = xmlutils.parse(file);
+    		XPathExpression peopleXpr = xpath.compile(".//soldiers:person[soldiers:candidate/@sid = '155667']");
+    		NodeList pList = (NodeList) peopleXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+    		
+    		System.out.println("people: " + pList.getLength());
+
+			int max = 0;
+			
+    		for ( int i = 0; i < pList.getLength(); i++ ) {
+    		
+    			Element person = (Element) pList.item(i);
+    			
+    			NodeList cList = person.getElementsByTagNameNS(SoldiersModel.XML_NAMESPACE, "candidate");
+    			
+    			if ( cList.getLength() == 1 ) {
+    				
+        	   		for ( int j = 0; j < cList.getLength(); j++ ) {
+            	   		
+            			Element candidate = (Element) cList.item(j);
+            			String sidAttr = candidate.getAttribute("sid");
+            			
+            			if ( sidAttr.length() > 0 ) {
+            				 				
+                			Long sid = Long.parseLong(sidAttr);
+                			
+                    		NodeList nList = (NodeList) notesXpr.evaluate(person, XPathConstants.NODESET);
+                			
+                    		if (  filter == null || filter.contains(sid) ) {
                     			
-                    			System.out.println("max " + max++ + " = " + sid);
+                        		for ( int n = 0; n < nList.getLength(); n++ ) {
+                        			
+                        			addToMap(notesMap, sid, new Note((Element) nList.item(n)));
+                        			outwriter.printf("%d,\"%s\",\"%s\",%s\n", sid, ((Element) nList.item(n)).getAttribute("source"), ((Element) nList.item(n)).getAttribute("sourceref"), ((Element) nList.item(n)).getAttribute("type"));
+                        		}
+                        		
+                        		if ( notesMap.get(sid) != null && notesMap.get(sid).size() > max ) {
+                        			
+                        			System.out.println("max " + max++ + " = " + sid);
+                        		}
                     		}
             			}   			
         	   		}  			
