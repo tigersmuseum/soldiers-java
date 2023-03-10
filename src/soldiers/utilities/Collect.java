@@ -88,7 +88,7 @@ public class Collect {
 		// If the filter parameter is null, then all records are collected. Otherwise only soldier ID's in the filter
 		// set are collected.
 		
-		Map<Long, Set<Note>> notesMap = makeNoteMapCandidates2(work, filter);
+		Map<Long, Set<Note>> notesMap = makeNoteMapCandidates2(work, null);
 	//	Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work, filter);
 	//	Map<Long, Set<Note>> notesMap = makeNoteMapIdentified(work, null);
 
@@ -300,7 +300,7 @@ public class Collect {
     		System.out.println(file.getPath());
     		
     		Document doc = xmlutils.parse(file);
-    		XPathExpression peopleXpr = xpath.compile(".//soldiers:person[soldiers:candidate/@sid = '155667']");
+    		XPathExpression peopleXpr = xpath.compile(".//soldiers:person[soldiers:candidate]");
     		NodeList pList = (NodeList) peopleXpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
     		
     		System.out.println("people: " + pList.getLength());
