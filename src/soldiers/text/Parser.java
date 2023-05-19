@@ -15,7 +15,7 @@ public class Parser {
 	static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
 	static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
 
-	public static Pattern namePattern = Pattern.compile("(([A-Z](\\s|\\.\\s?))+)?([A-Z][a-z]+(\\-|\\s{1,2}|\\.|$))+(\\s+([A-Z](\\s|\\.\\s?))+)?");
+	public static Pattern namePattern = Pattern.compile("(([A-Z](\\s?|\\.\\s?))+)?([A-Z][a-z]+(\\-|\\s{1,2}|,|\\.|$))+(\\s+([A-Z](\\s|\\.\\s?))+)?");
 	static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC))+$");
 	public static Pattern companyPattern = Pattern.compile("[A-Z]\\s+Coy");
 	
