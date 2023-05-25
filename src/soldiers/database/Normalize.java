@@ -4,6 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +72,7 @@ public class Normalize {
         xpath.setNamespaceContext(namespaceContext);
 		XPathExpression expr = xpath.compile(".//soldiers:person");
 		XPathExpression notesexpr = xpath.compile(".//soldiers:note");
+		XPathExpression befores = xpath.compile(".//soldiers:*[@before|@after]");
 		
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 		
@@ -80,6 +86,51 @@ public class Normalize {
 		for ( int i = 0; i < list.getLength(); i++ ) {
 			
 			Element e = (Element) list.item(i);
+			
+			// check dates
+			NodeList dlist = e.getElementsByTagName("death");
+			
+			if ( dlist.getLength() == 1 ) {
+				
+				Element delem = (Element) dlist.item(0);
+				checkDate(delem);
+			}
+			
+			dlist = e.getElementsByTagName("birth");
+			
+			if ( dlist.getLength() == 1 ) {
+				
+				Element delem = (Element) dlist.item(0);
+				checkDate(delem);
+			}
+			
+			NodeList beforelist = (NodeList) befores.evaluate(e, XPathConstants.NODESET);
+			System.out.println("QQQQQQQQQ " + beforelist.getLength());
+			
+			for ( int j = 0; j < beforelist.getLength(); j++) {
+				
+				
+				Element parent = (Element) beforelist.item(j);
+				String value = parent.getAttribute("before");
+				
+				if ( value.length() > 0 ) {
+					
+					System.out.println("normal (before) = " + normalizeDate(value));
+					
+					parent.setAttribute("before", before(normalizeDate(value)));
+				}
+				
+				value = parent.getAttribute("after");
+				
+				if ( value.length() > 0 ) {
+					
+					System.out.println("normal (after) = " + normalizeDate(value));
+					
+					parent.setAttribute("after", after(normalizeDate(value)));
+				}
+			}
+			//
+			
 	        Person p = Soldiers.parsePerson(e);
 	        normalizer.normalizeRank(p, ranks);
 
@@ -355,6 +406,132 @@ public class Normalize {
 		for ( Person person: list ) {
 			
 			normalizer.normalizeRank(person, ranks);
+		}
+	}
+
+	public static String normalizeDate(String inputDate) {
+		
+		DateTimeFormatter df1 = DateTimeFormatter.ofPattern("M/y");
+		
+		String outputDate = "";
+		if ( inputDate == null ) return outputDate;
+		String txt = inputDate.trim();		
+		if ( txt.length() == 0 ) return outputDate;
+
+		txt = txt.replaceAll("\\.", "\\/");		
+
+		SimpleDateFormat f1 = new SimpleDateFormat("d/M/y");
+		SimpleDateFormat f2 = new SimpleDateFormat("d MMM y");
+		SimpleDateFormat f3 = new SimpleDateFormat("MMM-y");
+		SimpleDateFormat f4 = new SimpleDateFormat("y");
+		SimpleDateFormat f5 = new SimpleDateFormat("M/y");
+
+		SimpleDateFormat o1 = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat o2 = new SimpleDateFormat("yyyy-MM");
+		SimpleDateFormat o3 = new SimpleDateFormat("yyyy");
+		
+		System.out.println("input: " + inputDate);
+		
+		try {
+			
+			if ( txt.matches("^\\d{4}\\-\\d{2}\\-\\d{2}$") ) { // normal form anyway
+				
+				outputDate = o1.format(o1.parse(txt));
+			}			
+			else if ( txt.matches("^\\w{3}\\-\\d+$") ) {
+				
+				outputDate = o2.format(f3.parse(txt));
+			}
+			else if ( txt.matches("^\\d+\\/\\d+\\/\\d{4}$") ) {
+				
+				outputDate = o1.format(f1.parse(txt));
+			}
+			else if ( txt.matches("^\\d+\\/\\d+\\/\\d{2}$") ) {
+				
+				outputDate = o1.format(f1.parse(txt));
+			}
+			else if ( txt.matches("^\\d+\\/\\d{4}$") ) {
+				
+				outputDate = o2.format(f5.parse(txt));
+							}
+			else if ( txt.matches("^\\d{4}$") ) {
+				
+				outputDate = o3.format(f4.parse(txt));
+			}
+			else {
+				System.err.println("Can't parse: " + inputDate + "<" + txt + ">");
+			}
+		}
+		catch (ParseException e) {
+		 e.printStackTrace();
+		}
+		
+		return outputDate;
+	}
+
+	
+	private static void checkDate(Element elem) {
+		
+		// Try and normalize the @date attribute (on birth or death element)
+		
+		// If the attribute is a month or year, rather than a specific date, then replace the @date attrbute with suitable
+		// @before and @after attributes
+		
+		String rawdate = elem.getAttribute("date");
+		String normal = normalizeDate(rawdate);				
+		System.out.println(rawdate + " = " + normal);
+		
+		if ( normal.length() != 10 && normal.length() > 0 ) {
+			
+			elem.removeAttribute("date");
+			elem.setAttribute("after", after(normal));
+			elem.setAttribute("before", before(normal));
+		}
+		else {
+		
+			elem.setAttribute("date", normal);
+		}
+	}
+	
+	public static String after(String date) {
+		
+		if ( date.length() == 4 ) {
+			
+			return date + "-01-01";
+		}
+		else if ( date.length() == 7 ) {
+			
+			return date + "-01";
+		}
+		else if ( date.length() == 10 ) {
+			
+			return date;
+		}
+		else {
+			System.err.println("date is not normalized: " + date);
+			return null;
+		}
+	}
+	
+	
+	public static String before(String date) {
+		
+		if ( date.length() == 4 ) {
+			
+			return date + "-12-31";
+		}
+		else if ( date.length() == 7 ) {
+			
+			YearMonth ym = YearMonth.parse(date);
+			return String.format("%s-%2d", date, ym.lengthOfMonth());
+		}
+		else if ( date.length() == 10 ) {
+			
+			return date;
+		}
+		else {
+			System.err.println("date is not normalized: " + date);
+			return null;
 		}
 	}
 
