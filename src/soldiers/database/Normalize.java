@@ -5,10 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Year;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,19 +101,18 @@ public class Normalize {
 				checkDate(delem);
 			}
 			
+			// Normalize "before" and "after" dates - if just year or month, then these become the first/last day of the 
+			// year or month, as appropriate.
+			
 			NodeList beforelist = (NodeList) befores.evaluate(e, XPathConstants.NODESET);
-			System.out.println("QQQQQQQQQ " + beforelist.getLength());
 			
 			for ( int j = 0; j < beforelist.getLength(); j++) {
-				
-				
+							
 				Element parent = (Element) beforelist.item(j);
 				String value = parent.getAttribute("before");
 				
 				if ( value.length() > 0 ) {
-					
-					System.out.println("normal (before) = " + normalizeDate(value));
-					
+
 					parent.setAttribute("before", before(normalizeDate(value)));
 				}
 				
@@ -124,17 +120,21 @@ public class Normalize {
 				
 				if ( value.length() > 0 ) {
 					
-					System.out.println("normal (after) = " + normalizeDate(value));
-					
 					parent.setAttribute("after", after(normalizeDate(value)));
 				}
 			}
-			//
 			
+			// Parse the person XML. This will force names to upper case, and determine initials from forenames if only forenames
+			// are in the XML.
 	        Person p = Soldiers.parsePerson(e);
+	        
+	        // Normalize ranks: The database will accept any text value for rank, but we must be consistent if we want to search by rank.
+	        // This step converts any expression of rank to the relevant form given in the "RANK" table (see ranks.csv).
 	        normalizer.normalizeRank(p, ranks);
 
-			Document results = xmlutils.newDocument();
+			// Collect output: Serialize each person into an XML DOM (picking up corrections made in parsing and normalization),
+	        // and add in the "notes" elements (which aren't parsed or normalized). Add each person to the collected results XML.
+	        Document results = xmlutils.newDocument();
 	        serializer = tf.newTransformerHandler();
 	        serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 	        serializer.setResult(new DOMResult(results));
@@ -157,16 +157,19 @@ public class Normalize {
 			collection.appendChild(importNode);
 		}
 		
+		// Output the results	
 		TransformerFactory treansformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = treansformerFactory.newTransformer();
 		StreamResult result = new StreamResult(new FileOutputStream(outputfile));
 		
 		DOMSource source = new DOMSource(collectedResults);
-		transformer.transform(source, result);      
+		transformer.transform(source, result);
+		
+		System.out.println("finished");
 	}
 	
 	
-	public Map<String, String> getRanks() {
+	public Map<String, String> getRanks() { // read this from a file instead?
 		
 		Map<String, String> ranks = new HashMap<String, String>();
 		
@@ -339,7 +342,6 @@ public class Normalize {
 		
 		if (service.getRank() == null) {
 			
-			//System.out.println("NO RANK: " + service);
 			return;
 			
 		}
@@ -411,7 +413,7 @@ public class Normalize {
 
 	public static String normalizeDate(String inputDate) {
 		
-		DateTimeFormatter df1 = DateTimeFormatter.ofPattern("M/y");
+//		DateTimeFormatter df1 = DateTimeFormatter.ofPattern("M/y");
 		
 		String outputDate = "";
 		if ( inputDate == null ) return outputDate;
@@ -421,7 +423,7 @@ public class Normalize {
 		txt = txt.replaceAll("\\.", "\\/");		
 
 		SimpleDateFormat f1 = new SimpleDateFormat("d/M/y");
-		SimpleDateFormat f2 = new SimpleDateFormat("d MMM y");
+		//SimpleDateFormat f2 = new SimpleDateFormat("d MMM y");
 		SimpleDateFormat f3 = new SimpleDateFormat("MMM-y");
 		SimpleDateFormat f4 = new SimpleDateFormat("y");
 		SimpleDateFormat f5 = new SimpleDateFormat("M/y");
@@ -429,8 +431,6 @@ public class Normalize {
 		SimpleDateFormat o1 = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat o2 = new SimpleDateFormat("yyyy-MM");
 		SimpleDateFormat o3 = new SimpleDateFormat("yyyy");
-		
-		System.out.println("input: " + inputDate);
 		
 		try {
 			
@@ -470,16 +470,15 @@ public class Normalize {
 	}
 
 	
-	private static void checkDate(Element elem) {
+	public static void checkDate(Element elem) {
 		
 		// Try and normalize the @date attribute (on birth or death element)
 		
-		// If the attribute is a month or year, rather than a specific date, then replace the @date attrbute with suitable
+		// If the attribute is a month or year, rather than a specific date, then replace the @date attribute with suitable
 		// @before and @after attributes
 		
 		String rawdate = elem.getAttribute("date");
 		String normal = normalizeDate(rawdate);				
-		System.out.println(rawdate + " = " + normal);
 		
 		if ( normal.length() != 10 && normal.length() > 0 ) {
 			
