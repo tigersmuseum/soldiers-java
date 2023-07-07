@@ -5,7 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.Period;
 import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +138,9 @@ public class Normalize {
 	        // This step converts any expression of rank to the relevant form given in the "RANK" table (see ranks.csv).
 	        normalizer.normalizeRank(p, ranks);
 
+	        // Validate
+	        validate(p);
+	        
 			// Collect output: Serialize each person into an XML DOM (picking up corrections made in parsing and normalization),
 	        // and add in the "notes" elements (which aren't parsed or normalized). Add each person to the collected results XML.
 	        Document results = xmlutils.newDocument();
@@ -532,6 +541,38 @@ public class Normalize {
 			System.err.println("date is not normalized: " + date);
 			return null;
 		}
+	}
+	
+	
+	public static void validate(Person p) {
+		
+		// There must be a surname
+		
+		if ( p.getSurname() == null || p.getSurname().trim().length() == 0 ) System.err.println("no surname: " + p.getContent()); 
+		
+		// check service records ...
+		
+		for (Service s : p.getService() ) {
+			
+			// The database requires that each service record must have a "before" attribute (as it forms part of the 
+			// primary key)
+			
+			if ( s.getBefore() == null ) System.err.println("service record without 'before' attribute: " + p.getContent());
+			
+			// the 'before' date must be later that the 'after' date (if specified)
+			
+			if ( s.getBefore() != null && s.getAfter() != null ) {
+				
+				Calendar before = Calendar.getInstance(); before.setTime(s.getBefore());
+				Calendar after  = Calendar.getInstance(); after.setTime(s.getAfter());
+
+				if ( before.compareTo(after) < 0 ) System.err.println("service record 'before' should be later than 'after': " + p.getContent() + "; " + s);		
+				
+				System.out.println( before.get(Calendar.YEAR) - after.get(Calendar.YEAR) );
+			}
+		}
+		
+		
 	}
 
 }
