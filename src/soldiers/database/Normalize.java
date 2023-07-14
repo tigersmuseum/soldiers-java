@@ -5,12 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
-import java.time.Period;
 import java.time.YearMonth;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +37,8 @@ import soldiers.utilities.Soldiers;
 import soldiers.utilities.XmlUtils;
 
 /**
- * This utility normalizes values in Soldiers XML. Currently this is just the rank attributes on service elements.
+ * This utility normalizes values in Soldiers XML. Currently this is just the
+ * rank attributes on service elements.
  * 
  * @author The Royal Hampshire Regiment Museum
  *
@@ -50,138 +46,145 @@ import soldiers.utilities.XmlUtils;
 
 public class Normalize {
 
-	public static void main(String[] args) throws XPathExpressionException, IllegalArgumentException, FileNotFoundException, SAXException, ParseException, TransformerException {
+	public static void main(String[] args) throws XPathExpressionException, IllegalArgumentException,
+			FileNotFoundException, SAXException, ParseException, TransformerException {
 
-    	if ( args.length < 2 ) {
-    		
-    		System.err.println("Usage: Normalize <input filename> <output filename>");
-    		System.exit(1);
-    	}
-    	
-    	String inputfile  = args[0];
-    	String outputfile = args[1];
-    	
+		if (args.length < 2) {
+
+			System.err.println("Usage: Normalize <input filename> <output filename>");
+			System.exit(1);
+		}
+
+		String inputfile = args[0];
+		String outputfile = args[1];
+
 		XPathFactory factory = XPathFactory.newInstance();
-	    XPath xpath = factory.newXPath();
+		XPath xpath = factory.newXPath();
 
-	    XmlUtils xmlutils = new XmlUtils();
-		Document doc = xmlutils.parse(new File(inputfile));	
-		
+		XmlUtils xmlutils = new XmlUtils();
+		Document doc = xmlutils.parse(new File(inputfile));
+
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
-		
-        SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
-        TransformerHandler serializer;
 
-        xpath.setNamespaceContext(namespaceContext);
+		SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
+		TransformerHandler serializer;
+
+		xpath.setNamespaceContext(namespaceContext);
 		XPathExpression expr = xpath.compile(".//soldiers:person");
 		XPathExpression notesexpr = xpath.compile(".//soldiers:note");
 		XPathExpression befores = xpath.compile(".//soldiers:*[@before|@after]");
-		
+
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
-		
+
 		Normalize normalizer = new Normalize();
 
 		Map<String, String> ranks = normalizer.getRanks();
-		
+
 		Document collectedResults = xmlutils.newDocument();
-		Element collection = (Element) collectedResults.appendChild(collectedResults.createElementNS(namespaceContext.getNamespaceURI("soldiers"), "list"));
-		
-		for ( int i = 0; i < list.getLength(); i++ ) {
-			
+		Element collection = (Element) collectedResults
+				.appendChild(collectedResults.createElementNS(namespaceContext.getNamespaceURI("soldiers"), "list"));
+
+		for (int i = 0; i < list.getLength(); i++) {
+
 			Element e = (Element) list.item(i);
-			
+
 			// check dates
 			NodeList dlist = e.getElementsByTagName("death");
-			
-			if ( dlist.getLength() == 1 ) {
-				
+
+			if (dlist.getLength() == 1) {
+
 				Element delem = (Element) dlist.item(0);
 				checkDate(delem);
 			}
-			
+
 			dlist = e.getElementsByTagName("birth");
-			
-			if ( dlist.getLength() == 1 ) {
-				
+
+			if (dlist.getLength() == 1) {
+
 				Element delem = (Element) dlist.item(0);
 				checkDate(delem);
 			}
-			
-			// Normalize "before" and "after" dates - if just year or month, then these become the first/last day of the 
+
+			// Normalize "before" and "after" dates - if just year or month, then these
+			// become the first/last day of the
 			// year or month, as appropriate.
-			
+
 			NodeList beforelist = (NodeList) befores.evaluate(e, XPathConstants.NODESET);
-			
-			for ( int j = 0; j < beforelist.getLength(); j++) {
-							
+
+			for (int j = 0; j < beforelist.getLength(); j++) {
+
 				Element parent = (Element) beforelist.item(j);
 				String value = parent.getAttribute("before");
-				
-				if ( value.length() > 0 ) {
+
+				if (value.length() > 0) {
 
 					parent.setAttribute("before", before(normalizeDate(value)));
 				}
-				
+
 				value = parent.getAttribute("after");
-				
-				if ( value.length() > 0 ) {
-					
+
+				if (value.length() > 0) {
+
 					parent.setAttribute("after", after(normalizeDate(value)));
 				}
 			}
-			
-			// Parse the person XML. This will force names to upper case, and determine initials from forenames if only forenames
-			// are in the XML.
-	        Person p = Soldiers.parsePerson(e);
-	        
-	        // Normalize ranks: The database will accept any text value for rank, but we must be consistent if we want to search by rank.
-	        // This step converts any expression of rank to the relevant form given in the "RANK" table (see ranks.csv).
-	        normalizer.normalizeRank(p, ranks);
 
-	        // Validate
-	        validate(p);
-	        
-			// Collect output: Serialize each person into an XML DOM (picking up corrections made in parsing and normalization),
-	        // and add in the "notes" elements (which aren't parsed or normalized). Add each person to the collected results XML.
-	        Document results = xmlutils.newDocument();
-	        serializer = tf.newTransformerHandler();
-	        serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-	        serializer.setResult(new DOMResult(results));
-	        
-	        serializer.startDocument();
-	        p.serializePerson(serializer);
-	        serializer.endDocument();
-	        
-	        Element newp = (Element) results.getDocumentElement();
-	        
+			// Parse the person XML. This will force names to upper case, and determine
+			// initials from forenames if only forenames
+			// are in the XML.
+			Person p = Soldiers.parsePerson(e);
+
+			// Normalize ranks: The database will accept any text value for rank, but we
+			// must be consistent if we want to search by rank.
+			// This step converts any expression of rank to the relevant form given in the
+			// "RANK" table (see ranks.csv).
+			normalizer.normalizeRank(p, ranks);
+
+			// Validate
+			validate(p);
+
+			// Collect output: Serialize each person into an XML DOM (picking up corrections
+			// made in parsing and normalization),
+			// and add in the "notes" elements (which aren't parsed or normalized). Add each
+			// person to the collected results XML.
+			Document results = xmlutils.newDocument();
+			serializer = tf.newTransformerHandler();
+			serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			serializer.setResult(new DOMResult(results));
+
+			serializer.startDocument();
+			p.serializePerson(serializer);
+			serializer.endDocument();
+
+			Element newp = (Element) results.getDocumentElement();
+
 			NodeList notes = (NodeList) notesexpr.evaluate(e, XPathConstants.NODESET);
-			
-			for ( int j = 0; j < notes.getLength(); j++ ) {
-				
+
+			for (int j = 0; j < notes.getLength(); j++) {
+
 				Node newNode = results.importNode(notes.item(j), true);
-				newp.appendChild(newNode);				
+				newp.appendChild(newNode);
 			}
-			
+
 			Node importNode = collectedResults.importNode(results.getDocumentElement(), true);
 			collection.appendChild(importNode);
 		}
-		
-		// Output the results	
+
+		// Output the results
 		TransformerFactory treansformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = treansformerFactory.newTransformer();
 		StreamResult result = new StreamResult(new FileOutputStream(outputfile));
-		
+
 		DOMSource source = new DOMSource(collectedResults);
 		transformer.transform(source, result);
-		
+
 		System.out.println("finished");
 	}
-	
-	
+
 	public Map<String, String> getRanks() { // read this from a file instead?
-		
+
 		Map<String, String> ranks = new HashMap<String, String>();
-		
+
 		ranks.put("boy", "Boy");
 		ranks.put("hosapp", "Hos App");
 		ranks.put("hospitalapprentice", "Hos App");
@@ -342,40 +345,39 @@ public class Normalize {
 		ranks.put("unk", "UNK");
 		ranks.put("unknown", "UNK");
 		ranks.put("soldier", "UNK");
-		
+
 		return ranks;
 	}
-	
-	
+
 	public void normalizeRank(Service service, Map<String, String> ranks) {
-		
+
 		if (service.getRank() == null) {
-			
+
 			return;
-			
+
 		}
-		
+
 		String rankqualifier = null;
 		String raw = service.getRank().toLowerCase().trim();
-		
-		if ( raw.startsWith("a/")) {
-			
+
+		if (raw.startsWith("a/")) {
+
 			rankqualifier = "A";
 			raw = raw.substring(2);
 		}
 
-		if ( raw.startsWith("acting")) {
-			
+		if (raw.startsWith("acting")) {
+
 			rankqualifier = "A";
 			raw = raw.substring(6);
 		}
-		
-		if ( raw.startsWith("t/")) {
-			
+
+		if (raw.startsWith("t/")) {
+
 			rankqualifier = "T";
 			raw = raw.substring(2);
 		}
-		
+
 		raw = raw.replaceAll("\\p{javaSpaceChar}", " ").trim();
 		raw = raw.split("\\(")[0];
 		raw = raw.split("&")[0];
@@ -384,55 +386,54 @@ public class Normalize {
 		raw = raw.replaceAll("\\.", "");
 		raw = raw.replaceAll("\\s+", "");
 		String normal = ranks.get(raw);
-		
-		if ( normal != null ) {
-			
+
+		if (normal != null) {
+
 			service.setRank(normal);
 			service.setRankqualifier(rankqualifier);
-			
-		}
-		else {
-			
+
+		} else {
+
 			System.out.println(service + " has no rank for: " + raw);
 		}
-		
+
 	}
-	
 
 	public void normalizeRank(Person person, Map<String, String> ranks) {
-		
-		for ( Service service: person.getService() ) {
-			
-			normalizeRank(service, ranks);			
+
+		for (Service service : person.getService()) {
+
+			normalizeRank(service, ranks);
 		}
-		
+
 	}
-	
-	
+
 	public static void normalizeRank(List<Person> list) {
-		
+
 		Normalize normalizer = new Normalize();
 		Map<String, String> ranks = normalizer.getRanks();
-		
-		for ( Person person: list ) {
-			
+
+		for (Person person : list) {
+
 			normalizer.normalizeRank(person, ranks);
 		}
 	}
 
 	public static String normalizeDate(String inputDate) {
-		
-//		DateTimeFormatter df1 = DateTimeFormatter.ofPattern("M/y");
-		
-		String outputDate = "";
-		if ( inputDate == null ) return outputDate;
-		String txt = inputDate.trim();		
-		if ( txt.length() == 0 ) return outputDate;
 
-		txt = txt.replaceAll("\\.", "\\/");		
+//		DateTimeFormatter df1 = DateTimeFormatter.ofPattern("M/y");
+
+		String outputDate = "";
+		if (inputDate == null)
+			return outputDate;
+		String txt = inputDate.trim();
+		if (txt.length() == 0)
+			return outputDate;
+
+		txt = txt.replaceAll("\\.", "\\/");
 
 		SimpleDateFormat f1 = new SimpleDateFormat("d/M/y");
-		//SimpleDateFormat f2 = new SimpleDateFormat("d MMM y");
+		// SimpleDateFormat f2 = new SimpleDateFormat("d MMM y");
 		SimpleDateFormat f3 = new SimpleDateFormat("MMM-y");
 		SimpleDateFormat f4 = new SimpleDateFormat("y");
 		SimpleDateFormat f5 = new SimpleDateFormat("M/y");
@@ -440,139 +441,166 @@ public class Normalize {
 		SimpleDateFormat o1 = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat o2 = new SimpleDateFormat("yyyy-MM");
 		SimpleDateFormat o3 = new SimpleDateFormat("yyyy");
-		
+
 		try {
-			
-			if ( txt.matches("^\\d{4}\\-\\d{2}\\-\\d{2}$") ) { // normal form anyway
-				
+
+			if (txt.matches("^\\d{4}\\-\\d{2}\\-\\d{2}$")) { // normal form anyway
+
 				outputDate = o1.format(o1.parse(txt));
-			}			
-			else if ( txt.matches("^\\w{3}\\-\\d+$") ) {
-				
+			} else if (txt.matches("^\\w{3}\\-\\d+$")) {
+
 				outputDate = o2.format(f3.parse(txt));
-			}
-			else if ( txt.matches("^\\d+\\/\\d+\\/\\d{4}$") ) {
-				
+			} else if (txt.matches("^\\d+\\/\\d+\\/\\d{4}$")) {
+
 				outputDate = o1.format(f1.parse(txt));
-			}
-			else if ( txt.matches("^\\d+\\/\\d+\\/\\d{2}$") ) {
-				
+			} else if (txt.matches("^\\d+\\/\\d+\\/\\d{2}$")) {
+
 				outputDate = o1.format(f1.parse(txt));
-			}
-			else if ( txt.matches("^\\d+\\/\\d{4}$") ) {
-				
+			} else if (txt.matches("^\\d+\\/\\d{4}$")) {
+
 				outputDate = o2.format(f5.parse(txt));
-							}
-			else if ( txt.matches("^\\d{4}$") ) {
-				
+			} else if (txt.matches("^\\d{4}$")) {
+
 				outputDate = o3.format(f4.parse(txt));
-			}
-			else {
+			} else {
 				System.err.println("Can't parse: " + inputDate + "<" + txt + ">");
 			}
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
-		catch (ParseException e) {
-		 e.printStackTrace();
-		}
-		
+
 		return outputDate;
 	}
 
-	
 	public static void checkDate(Element elem) {
-		
+
 		// Try and normalize the @date attribute (on birth or death element)
-		
-		// If the attribute is a month or year, rather than a specific date, then replace the @date attribute with suitable
+
+		// If the attribute is a month or year, rather than a specific date, then
+		// replace the @date attribute with suitable
 		// @before and @after attributes
-		
+
 		String rawdate = elem.getAttribute("date");
-		String normal = normalizeDate(rawdate);				
-		
-		if ( normal.length() != 10 && normal.length() > 0 ) {
-			
+		String normal = normalizeDate(rawdate);
+
+		if (normal.length() != 10 && normal.length() > 0) {
+
 			elem.removeAttribute("date");
 			elem.setAttribute("after", after(normal));
 			elem.setAttribute("before", before(normal));
-		}
-		else {
-		
+		} else {
+
 			elem.setAttribute("date", normal);
 		}
 	}
-	
+
 	public static String after(String date) {
-		
-		if ( date.length() == 4 ) {
-			
+
+		if (date.length() == 4) {
+
 			return date + "-01-01";
-		}
-		else if ( date.length() == 7 ) {
-			
+		} else if (date.length() == 7) {
+
 			return date + "-01";
-		}
-		else if ( date.length() == 10 ) {
-			
+		} else if (date.length() == 10) {
+
 			return date;
-		}
-		else {
+		} else {
 			System.err.println("date is not normalized: " + date);
 			return null;
 		}
 	}
-	
-	
+
 	public static String before(String date) {
-		
-		if ( date.length() == 4 ) {
-			
+
+		if (date.length() == 4) {
+
 			return date + "-12-31";
-		}
-		else if ( date.length() == 7 ) {
-			
+		} else if (date.length() == 7) {
+
 			YearMonth ym = YearMonth.parse(date);
 			return String.format("%s-%2d", date, ym.lengthOfMonth());
-		}
-		else if ( date.length() == 10 ) {
-			
+		} else if (date.length() == 10) {
+
 			return date;
-		}
-		else {
+		} else {
 			System.err.println("date is not normalized: " + date);
 			return null;
 		}
 	}
-	
-	
-	public static void validate(Person p) {
-		
-		// There must be a surname
-		
-		if ( p.getSurname() == null || p.getSurname().trim().length() == 0 ) System.err.println("no surname: " + p.getContent()); 
-		
-		// check service records ...
-		
-		for (Service s : p.getService() ) {
-			
-			// The database requires that each service record must have a "before" attribute (as it forms part of the 
-			// primary key)
-			
-			if ( s.getBefore() == null ) System.err.println("service record without 'before' attribute: " + p.getContent());
-			
-			// the 'before' date must be later that the 'after' date (if specified)
-			
-			if ( s.getBefore() != null && s.getAfter() != null ) {
-				
-				Calendar before = Calendar.getInstance(); before.setTime(s.getBefore());
-				Calendar after  = Calendar.getInstance(); after.setTime(s.getAfter());
 
-				if ( before.compareTo(after) < 0 ) System.err.println("service record 'before' should be later than 'after': " + p.getContent() + "; " + s);		
-				
-				System.out.println( before.get(Calendar.YEAR) - after.get(Calendar.YEAR) );
-			}
+	public static void validate(Person p) {
+
+		// There must be a surname
+
+		if (p.getSurname() == null || p.getSurname().trim().length() == 0)
+			System.err.println("no surname: " + p.getContent());
+		
+		// Dates
+		
+		Calendar now = Calendar.getInstance();		
+		Calendar birth = null, death = null;
+		
+		if ( p.getBirth() != null ) {
+			
+			birth = Calendar.getInstance();
+			birth.setTime(p.getBirth());
 		}
 		
+		if ( p.getDeath() != null ) {
+			
+			death = Calendar.getInstance();
+			death.setTime(p.getDeath());
+		}
 		
-	}
+		if ( birth != null && birth.after(now ))  System.err.println("date of birth is in the future: " + p.getContent());
+		
+		if ( birth != null && death != null ) {
+			
+			if ( death.before(birth) ) System.err.println("date of death before date of birth: " + p.getContent());
+			
+			if ( death.get(Calendar.YEAR) - birth.get(Calendar.YEAR) > 100 )  System.err.println("lived more than 100 years? " + p.getContent());
+		}
 
+		// check service records ...
+
+		for (Service s : p.getService()) {
+			
+			Calendar before = null, after = null;
+
+			// The database requires that each service record must have a "before" attribute
+			// (as it forms part of the primary key)
+
+			if ( s.getBefore() != null ) {
+						
+				before = Calendar.getInstance();
+				before.setTime(s.getBefore());
+				
+				if ( before.after(now ))  System.err.println("service record 'before' is in the future: " + p.getContent() + "; " + s);				
+			}
+			else {
+				
+				System.err.println("service record without 'before' attribute: " + p.getContent());
+			}
+			
+			if ( s.getAfter() != null ) {
+				
+				after = Calendar.getInstance();
+				after.setTime(s.getAfter());
+
+				if ( after.after(now ))  System.err.println("service record 'after' is in the future: " + p.getContent() + "; " + s);
+			}
+			
+			// the 'before' date must be later that the 'after' date (if specified)
+
+			if (before != null && after != null) {
+
+				if (before.compareTo(after) < 0)  System.err.println("service record 'before' should be later than 'after': " + p.getContent() + "; " + s);
+
+				if ( death != null && before.compareTo(death) > 0 )  System.err.println("service record 'before' should be no later than date of death: " + p.getContent() + "; " + s);
+				if ( birth != null && before.compareTo(birth) < 0 )  System.err.println("service record 'before' should be later than date of birth: " + p.getContent() + "; " + s);
+			}		
+		}
+	}
+	
 }
