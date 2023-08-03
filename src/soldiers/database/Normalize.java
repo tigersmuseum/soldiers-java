@@ -433,10 +433,11 @@ public class Normalize {
 		txt = txt.replaceAll("\\.", "\\/");
 
 		SimpleDateFormat f1 = new SimpleDateFormat("d/M/y");
-		// SimpleDateFormat f2 = new SimpleDateFormat("d MMM y");
+		SimpleDateFormat f2 = new SimpleDateFormat("d MMM y");
 		SimpleDateFormat f3 = new SimpleDateFormat("MMM-y");
 		SimpleDateFormat f4 = new SimpleDateFormat("y");
 		SimpleDateFormat f5 = new SimpleDateFormat("M/y");
+		SimpleDateFormat f6 = new SimpleDateFormat("MMM y");
 
 		SimpleDateFormat o1 = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat o2 = new SimpleDateFormat("yyyy-MM");
@@ -447,22 +448,36 @@ public class Normalize {
 			if (txt.matches("^\\d{4}\\-\\d{2}\\-\\d{2}$")) { // normal form anyway
 
 				outputDate = o1.format(o1.parse(txt));
-			} else if (txt.matches("^\\w{3}\\-\\d+$")) {
+			}
+			else if (txt.matches("^\\w{3}\\-\\d+$")) {
 
 				outputDate = o2.format(f3.parse(txt));
-			} else if (txt.matches("^\\d+\\/\\d+\\/\\d{4}$")) {
+			}
+			else if (txt.matches("^\\w{3}\\s\\d+$")) {
+
+				outputDate = o2.format(f6.parse(txt));
+			}
+			else if (txt.matches("^\\d+\\/\\d+\\/\\d{4}$")) {
 
 				outputDate = o1.format(f1.parse(txt));
-			} else if (txt.matches("^\\d+\\/\\d+\\/\\d{2}$")) {
+			}
+			else if (txt.matches("^\\d+\\/\\d+\\/\\d{2}$")) {
 
 				outputDate = o1.format(f1.parse(txt));
-			} else if (txt.matches("^\\d+\\/\\d{4}$")) {
+			}
+			else if (txt.matches("^\\d+\\s\\w{3}\\s\\d{4}$")) {
+
+				outputDate = o1.format(f2.parse(txt));
+			}
+			else if (txt.matches("^\\d+\\/\\d{4}$")) {
 
 				outputDate = o2.format(f5.parse(txt));
-			} else if (txt.matches("^\\d{4}$")) {
+			}
+			else if (txt.matches("^\\d{4}$")) {
 
 				outputDate = o3.format(f4.parse(txt));
-			} else {
+			}
+			else {
 				System.err.println("Can't parse: " + inputDate + "<" + txt + ">");
 			}
 		} catch (ParseException e) {
