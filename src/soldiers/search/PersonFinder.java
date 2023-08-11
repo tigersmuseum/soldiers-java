@@ -41,14 +41,17 @@ public class PersonFinder {
 		//if ( results.size() == 0 ) results = SoldiersModel.getCandidatesForSurname(connection, p);
 		//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
 				
-		String number = p.getService().iterator().next().getNumber();
-		
-		if ( number.length() > 0 ) {
+		if ( ! p.getService().isEmpty() ) {
 			
-			//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
-			results.addAll(SoldiersModel.getCandidatesForNumber(connection, p));
+			String number = p.getService().iterator().next().getNumber();
+			
+			if ( number.length() > 0 ) {
+				
+				//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
+				results.addAll(SoldiersModel.getCandidatesForNumber(connection, p));
+			}
+			
 		}
-		
 		
 		List<String> names;
 		try {
@@ -92,23 +95,39 @@ public class PersonFinder {
 		
 		LevenshteinDistance distance = new LevenshteinDistance();
 		
-		// The query and candidate Person objects will have only one service record each ...
+		// The query and candidate Person objects will have only one service record each ...	
 		
-		Service qservice = query.getService().iterator().next();
-		Service cservice = candidate.getService().iterator().next();
+		int numberDist = 0, regimentDist = 0, rankDist = 0;
 		
-		// SERVICE NUMBER
-		
-		String qnumber = qservice.getNumber();
-		String cnumber = cservice.getNumber();
-		
-		if      ( qnumber.contains("/") && !cnumber.contains("/") ) qnumber = qnumber.substring(qnumber.indexOf("/") + 1);
-		else if ( cnumber.contains("/") && !qnumber.contains("/") ) cnumber = cnumber.substring(cnumber.indexOf("/") + 1);
-		
-		int numberDist = distance.apply(qnumber, cnumber);
-		
-		// add a penalty of 1 to the score if lengths of query and candidate service numbers don't match		
-		numberDist += qnumber.length() == cnumber.length() ? 0 : 1;
+		if ( ! query.getService().isEmpty() ) {
+			
+			Service qservice = query.getService().iterator().next();
+			Service cservice = candidate.getService().iterator().next();
+			
+			// SERVICE NUMBER
+			
+			String qnumber = qservice.getNumber();
+			String cnumber = cservice.getNumber();
+			
+			if      ( qnumber.contains("/") && !cnumber.contains("/") ) qnumber = qnumber.substring(qnumber.indexOf("/") + 1);
+			else if ( cnumber.contains("/") && !qnumber.contains("/") ) cnumber = cnumber.substring(cnumber.indexOf("/") + 1);
+			
+			numberDist = distance.apply(qnumber, cnumber);
+			
+			// add a penalty of 1 to the score if lengths of query and candidate service numbers don't match		
+			numberDist += qnumber.length() == cnumber.length() ? 0 : 1;
+			
+			// REGIMENT
+
+			String qregiment = qservice.getRegiment();
+			String cregiment = cservice.getRegiment();
+			
+			regimentDist = qregiment != null && qregiment.equals(cregiment) ? 0 : 1;
+			
+			// RANK
+
+			rankDist = qservice.getRank() != null && qregiment != null && qservice.getRank().equals(cservice.getRank()) ? 0 : 1;
+		}
 		
 		// SURNAME
 		
@@ -129,17 +148,6 @@ public class PersonFinder {
 		else if ( qinitials.length() > cinitials.length() )		qinitials = qinitials.substring(0, cinitials.length());
 		
 		int initialsDist = distance.apply(qinitials, cinitials);
-		
-		// REGIMENT
-
-		String qregiment = qservice.getRegiment();
-		String cregiment = cservice.getRegiment();
-		
-		int regimentDist = qregiment != null && qregiment.equals(cregiment) ? 0 : 1;
-		
-		// RANK
-
-		int rankDist = qservice.getRank() != null && qregiment != null && qservice.getRank().equals(cservice.getRank()) ? 0 : 1;
 		
 		CandidateScore score = new CandidateScore();
 		

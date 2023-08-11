@@ -22,8 +22,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -67,7 +69,7 @@ public class Soldiers {
     	String outputfile = args[1];
     	
 		Document doc = readDocument(new FileInputStream(inputfile));			 
-		doc.normalizeDocument();
+		doc.normalize();
 		
 		Connection connection = ConnectionManager.getConnection();
 		
@@ -81,13 +83,17 @@ public class Soldiers {
 		StreamResult result = new StreamResult(new FileOutputStream(outputfile));	
 		transformer.transform(source, result);	
 	}
-        
-	public static Document readDocument(InputStream input) throws ParserConfigurationException, SAXException, IOException {
+    
+	public static Document readDocument(InputStream input) throws ParserConfigurationException, SAXException, IOException, TransformerException {
 		
+		TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer(new StreamSource(Soldiers.class.getResourceAsStream("normal.xsl")));
+        StreamSource xml = new StreamSource(input);
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document doc = builder.parse(input);
+		Document doc = builder.newDocument();
+		transformer.transform(xml, new DOMResult(doc));
 		return doc;
 	}
 
@@ -98,7 +104,7 @@ public class Soldiers {
         //transformer.setOutputProperty(OutputKeys.METHOD, "xhtml");
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(output);	
-		transformer.setOutputProperty(OutputKeys.ENCODING, "windows-1252");
+		//transformer.setOutputProperty(OutputKeys.ENCODING, "windows-1252");
 		transformer.transform(source, result);	
 	}
 
