@@ -123,7 +123,7 @@ public class Filter {
 	        	ambigroot.appendChild(ambigdoc.importNode(e, true));
 	        	
 	        	System.out.println(clist.getLength() + " x== "  + p.getContent());
-	        	Set<String> names = new HashSet<>();
+	        	Set<String> names = new HashSet<String>();
 	        	
 	        	for ( int j = 0; j < clist.getLength(); j++ ) {
 	        		
