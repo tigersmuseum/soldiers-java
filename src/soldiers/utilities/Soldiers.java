@@ -122,7 +122,7 @@ public class Soldiers {
 		XPathExpression expr = xpath.compile(".//soldiers:person");
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 		
-		System.out.println("number of person elements: " + list.getLength());
+		System.out.println("Number of people to search for: " + list.getLength());
     	
 		for ( int i = 0; i < list.getLength(); i++ ) {
 			
