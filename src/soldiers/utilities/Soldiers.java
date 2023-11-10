@@ -68,6 +68,9 @@ public class Soldiers {
     	String inputfile  = args[0];
     	String outputfile = args[1];
     	
+		System.out.printf("input file:  %s\n", inputfile);
+		System.out.printf("output file: %s\n\n", outputfile);
+
 		Document doc = readDocument(new FileInputStream(inputfile));			 
 		doc.normalize();
 		
@@ -122,7 +125,7 @@ public class Soldiers {
 		XPathExpression expr = xpath.compile(".//soldiers:person");
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 		
-		System.out.println("Number of people to search for: " + list.getLength());
+		System.out.println("Number of people to search for: " + list.getLength() + "\n");
     	
 		for ( int i = 0; i < list.getLength(); i++ ) {
 			
@@ -139,7 +142,7 @@ public class Soldiers {
 				
 			}
 			
-			System.out.println(person.getContent());
+			System.out.printf("%d: %s\n", i+1, person.getContent());
 			List<Candidate> candidates = finder.findMatches(person, connection);
 			
 			int bestScore = Integer.MAX_VALUE;

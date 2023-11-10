@@ -6,10 +6,12 @@ import java.io.FileOutputStream;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import soldiers.database.Person;
@@ -41,4 +43,23 @@ public class Report {
 		serializer.endDocument();
 	}
 
+	public static Document getPersonDOM (long sid) throws TransformerConfigurationException, SAXException {
+		
+		SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
+		TransformerHandler serializer;
+
+		Person p = SoldiersModel.getPerson(ConnectionManager.getConnection(), sid);
+
+		XmlUtils xmlutils = new XmlUtils();
+		Document results = xmlutils.newDocument();
+		serializer = tf.newTransformerHandler();
+		serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		serializer.setResult(new DOMResult(results));
+
+		serializer.startDocument();
+		p.serializePerson(serializer);
+		serializer.endDocument();
+		
+		return results;
+	}
 }
