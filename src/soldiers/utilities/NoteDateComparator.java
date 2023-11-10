@@ -29,7 +29,6 @@ public class NoteDateComparator implements Comparator<Note> {
 	}
 
 
-	@Override
 	public int compare(Note noteA, Note noteB) {
 
 		Element elementA = noteA.getElement();

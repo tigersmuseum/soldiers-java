@@ -7,7 +7,6 @@ import javax.xml.namespace.NamespaceContext;
 
 public class SoldiersNamespaceContext implements NamespaceContext {
 
-	@Override
 	public String getNamespaceURI(String prefix) {
 
         if (prefix == null) throw new NullPointerException("Null prefix");
@@ -17,13 +16,11 @@ public class SoldiersNamespaceContext implements NamespaceContext {
         return XMLConstants.NULL_NS_URI;
 	}
 
-	@Override
 	public String getPrefix(String uri) {
 
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
 	public Iterator<String> getPrefixes(String uri) {
 
 		throw new UnsupportedOperationException();
