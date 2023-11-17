@@ -3,6 +3,7 @@ package soldiers.search;
 public class CandidateScore {
 	
 	private int surname = 0;
+	private int forenames = 0;
 	private int number = 0;
 	private int initials = 0;
 	private int regiment = 0;
@@ -45,7 +46,6 @@ public class CandidateScore {
 	public void setFunction(ScoreFunction function) {
 		this.function = function;
 	}
-
 	
 	public int getRank() {
 		return rank;
@@ -53,6 +53,13 @@ public class CandidateScore {
 
 	public void setRank(int rank) {
 		this.rank = rank;
+	}
+
+	public int getForenames() {
+		return forenames;
+	}
+	public void setForenames(int forenames) {
+		this.forenames = forenames;
 	}
 
 

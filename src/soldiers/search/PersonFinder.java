@@ -85,7 +85,11 @@ public class PersonFinder {
 		candidates.sort(comparator);
 		
 		System.out.println(candidates.size() + " matches");
-		if ( candidates.size() > 0 ) System.out.println("best - " + candidates.iterator().next().getPerson());
+		if ( candidates.size() > 0 ) {
+			
+			Candidate candidate = candidates.iterator().next();
+			System.out.println("best - " + candidate.getPerson() + "; score = " + candidate.getScore().getOverallScore());
+		}
 
 		return candidates;
 	}
@@ -97,7 +101,7 @@ public class PersonFinder {
 		
 		// The query and candidate Person objects will have only one service record each ...	
 		
-		int numberDist = 0, regimentDist = 0, rankDist = 0;
+		int numberDist = 0, regimentDist = 0, rankDist = 0, forenamesDist = 0;
 		
 		if ( ! query.getService().isEmpty() ) {
 			
@@ -109,13 +113,17 @@ public class PersonFinder {
 			String qnumber = qservice.getNumber();
 			String cnumber = cservice.getNumber();
 			
-			if      ( qnumber.contains("/") && !cnumber.contains("/") ) qnumber = qnumber.substring(qnumber.indexOf("/") + 1);
-			else if ( cnumber.contains("/") && !qnumber.contains("/") ) cnumber = cnumber.substring(cnumber.indexOf("/") + 1);
-			
-			numberDist = distance.apply(qnumber, cnumber);
-			
-			// add a penalty of 1 to the score if lengths of query and candidate service numbers don't match		
-			numberDist += qnumber.length() == cnumber.length() ? 0 : 1;
+			// Only add a penalty score if a service number was specified in the query
+			if ( qnumber.length() > 0 ) {
+				
+				if      ( qnumber.contains("/") && !cnumber.contains("/") ) qnumber = qnumber.substring(qnumber.indexOf("/") + 1);
+				else if ( cnumber.contains("/") && !qnumber.contains("/") ) cnumber = cnumber.substring(cnumber.indexOf("/") + 1);
+				
+				numberDist = distance.apply(qnumber, cnumber);
+				
+				// add a penalty of 1 to the score if lengths of query and candidate service numbers don't match		
+				numberDist += qnumber.length() == cnumber.length() ? 0 : 1;
+			}		
 			
 			// REGIMENT
 
@@ -149,6 +157,16 @@ public class PersonFinder {
 		
 		int initialsDist = distance.apply(qinitials, cinitials);
 		
+		// FORENAMES
+		
+		String qfname = query.getForenames();
+		String cfname = candidate.getForenames();
+		
+		if ( qfname != null  && cfname != null ) {
+			
+			if ( !qfname.toUpperCase().equals(cfname.toUpperCase()) )  forenamesDist = 1;
+		}		
+		
 		CandidateScore score = new CandidateScore();
 		
 		score.setSurname(surnameDist);
@@ -156,6 +174,7 @@ public class PersonFinder {
 		score.setInitials(initialsDist);
 		score.setRegiment(regimentDist);
 		score.setRank(rankDist);
+		score.setForenames(forenamesDist);
 		
 		return score;
 	}
