@@ -14,15 +14,18 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 import soldiers.database.Person;
 import soldiers.database.Service;
 import soldiers.database.SoldiersModel;
+import soldiers.utilities.ConnectionManager;
 
 public class PersonFinder {
 	
 	private StringEncoder encoder;
 	private Map<String, List<String>> similarNameMap;
 	Connection connection;
-
+	Map<String, Integer> rankMap;
+	
 	public PersonFinder() {
 		
+		rankMap = SoldiersModel.getRankOrdinals(ConnectionManager.getConnection());
 	}
 
 	public void enableSimilarNameMatching(StringEncoder encoder, Map<String, List<String>> similarNameMap) {
@@ -134,7 +137,15 @@ public class PersonFinder {
 			
 			// RANK
 
-			rankDist = qservice.getRank() != null && qregiment != null && qservice.getRank().equals(cservice.getRank()) ? 0 : 1;
+			rankDist = 0;
+			
+			if ( qservice.getRank() != null ) {
+				
+				// add one to the score if the candidate rank is lower than the rank in the query				
+				int qrnum = rankMap.get(qservice.getRank());
+				int crnum = rankMap.get(cservice.getRank());
+				if ( crnum < qrnum ) rankDist += 1;
+			}
 		}
 		
 		// SURNAME
