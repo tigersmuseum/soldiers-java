@@ -56,20 +56,23 @@ public class Soldiers {
 
 	static XPathFactory factory = XPathFactory.newInstance();
     static XPath xpath = factory.newXPath();
+    static int threshold;
 
     public static void main(String[] args) throws TransformerException, XPathExpressionException, SAXException, IOException, ParserConfigurationException, ParseException {
 
-    	if ( args.length < 2 ) {
+    	if ( args.length < 3 ) {
     		
-    		System.err.println("Usage: Soldiers <input-filename> <output-filename>");
+    		System.err.println("Usage: Soldiers <input-filename> <output-filename> <threshold>");
     		System.exit(1);
     	}
     	
     	String inputfile  = args[0];
     	String outputfile = args[1];
+    	threshold = Integer.parseInt(args[2]);
     	
 		System.out.printf("input file:  %s\n", inputfile);
 		System.out.printf("output file: %s\n\n", outputfile);
+		System.out.printf("Search threshold: %d\n\n", threshold);
 
 		Document doc = readDocument(new FileInputStream(inputfile));			 
 		doc.normalize();
@@ -147,9 +150,7 @@ public class Soldiers {
 			
 			int bestScore = Integer.MAX_VALUE;
 			Iterator<Candidate> iter = candidates.iterator();
-			
-			int threshold = 3;
-			
+						
 			while ( iter.hasNext() ) {
 				
 				Candidate c = iter.next();
