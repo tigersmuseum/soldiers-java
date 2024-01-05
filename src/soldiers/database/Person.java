@@ -93,7 +93,8 @@ public class Person {
 	}
 
 	public void setSoldierId(long soldierId) {
-		this.soldierId = soldierId;
+		this.soldierId = soldierId;		
+		for (Service s: service)  s.setSoldierId(soldierId);
 	}
 
 	public Date getBirth() {

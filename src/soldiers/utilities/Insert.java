@@ -1,6 +1,7 @@
 package soldiers.utilities;
 
 import java.io.File;
+import java.sql.Connection;
 import java.text.ParseException;
 
 import javax.xml.xpath.XPath;
@@ -28,6 +29,8 @@ public class Insert {
     	}
     	
     	String inputfile = args[0];
+    	Connection connection = ConnectionManager.getConnection();
+    	long nextId = SoldiersModel.getNextAvailableSoldierId(connection);
 
     	XmlUtils xmlutils = new XmlUtils();
 		Document doc = xmlutils.parse(new File(inputfile));
@@ -42,11 +45,17 @@ public class Insert {
 		for ( int i = 0; i < list.getLength(); i++ ) {
 			
 			Person person = Soldiers.parsePerson((Element) list.item(i));
+			if ( person.getSoldierId() < 0 )  person.setSoldierId(nextId++);
 			
 			System.out.println(person);
 			SoldiersModel.insertPerson(ConnectionManager.getConnection(), person);
 			System.out.println("-----------");
 		}
+		
+		// If you run this twice with the same input file then you'll end up with the same data added to the database twice.
+		// To help try and avoid this, we delete the input file once its been added to the database.
+		File file = new File(inputfile);
+		file.delete();
 	}
 
 }
