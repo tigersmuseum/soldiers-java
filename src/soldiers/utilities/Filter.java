@@ -23,7 +23,15 @@ public class Filter {
     		System.err.println("Usage: Report <input-file> <output-identified> <output-ambiguous> <output-unknown>");
     		System.exit(1);
     	}
-
+    	
+    	String repo = System.getProperty("soldiers.repository");
+    	
+    	if ( repo == null ) {
+    		
+    		System.err.println("Set system property 'soldiers.repository' to the location of the Soldiers GitHub repository in the filesystem.");
+    		System.exit(1);
+    	}
+    	
     	String inputfile        = args[0];
     	String outputIdentified = args[1];
     	String outputAmbig      = args[2];
@@ -36,25 +44,25 @@ public class Filter {
 		
 		System.out.println("Filtering " + inputfile + " ... ");
 		
-        Transformer transformer = tf.newTransformer(new StreamSource("C:\\Users\\Archive\\Documents\\GitHub\\soldiers\\format\\xsl\\filter-identified.xsl"));
+        Transformer transformer = tf.newTransformer(new StreamSource(repo + "/format/xsl/filter-identified.xsl"));
         transformer.setOutputProperty(OutputKeys.INDENT, "no");
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(new FileOutputStream(outputIdentified));	
 		transformer.transform(source, result);
 		
-        transformer = tf.newTransformer(new StreamSource("C:\\Users\\Archive\\Documents\\GitHub\\soldiers\\format\\xsl\\filter-ambiguous.xsl"));
+        transformer = tf.newTransformer(new StreamSource(repo + "/format/xsl/filter-ambiguous.xsl"));
         transformer.setOutputProperty(OutputKeys.INDENT, "no");
 		result = new StreamResult(new FileOutputStream(outputAmbig));	
 		transformer.transform(source, result);
 		
-        transformer = tf.newTransformer(new StreamSource("C:\\Users\\Archive\\Documents\\GitHub\\soldiers\\format\\xsl\\filter-unknown.xsl"));
+        transformer = tf.newTransformer(new StreamSource(repo + "/format/xsl/filter-unknown.xsl"));
         transformer.setOutputProperty(OutputKeys.INDENT, "no");
 		result = new StreamResult(new FileOutputStream(outputUnknown));	
 		transformer.transform(source, result);
 		
 		doc = xmlutils.parse(new File(outputIdentified));
 		source = new DOMSource(doc);
-		transformer = tf.newTransformer(new StreamSource("C:\\Users\\Archive\\Documents\\GitHub\\soldiers\\format\\xsl\\filter-report.xsl"));
+		transformer = tf.newTransformer(new StreamSource(repo + "/format/xsl/filter-report.xsl"));
 		transformer.setParameter("bucket", "IDENTIFIED");
         transformer.setOutputProperty(OutputKeys.INDENT, "no");
 		result = new StreamResult(System.out);	
