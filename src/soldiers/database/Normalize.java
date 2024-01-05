@@ -199,6 +199,7 @@ public class Normalize {
 		ranks.put("private", "Pte");
 		ranks.put("privatepioneer", "Pte");
 		ranks.put("dmr", "Dmr");
+		ranks.put("drm", "Dmr");
 		ranks.put("bandsman", "Bdsm");
 		ranks.put("bdmn", "Bdsm");
 		ranks.put("drumr", "Dmr");
