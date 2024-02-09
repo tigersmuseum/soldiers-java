@@ -24,10 +24,13 @@ import soldiers.database.SoldiersNamespaceContext;
 public class Update {
 
 	public static void main(String[] args) throws XPathExpressionException, ParseException {
+		
+		// parameterize?
+		// work off @sid attribute on "person" or "candidate? (compare with Insert)
 
 	    XmlUtils xmlutils = new XmlUtils();
 		//Document doc = xmlutils.parse(new File("/F:/Museum/results.xml"));
-		Document doc = xmlutils.parse(new File("output/results.xml"));
+		Document doc = xmlutils.parse(new File("H:\\Archive\\Admin\\Database\\eclipse-workspace\\Research\\output\\identified.xml"));
 		
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();

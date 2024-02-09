@@ -48,6 +48,9 @@ public class Insert {
 			if ( person.getSoldierId() < 0 )  person.setSoldierId(nextId++);
 			
 			System.out.println(person);
+			
+			// put some checks in here before inserting?
+			
 			SoldiersModel.insertPerson(ConnectionManager.getConnection(), person);
 			System.out.println("-----------");
 		}
