@@ -143,7 +143,7 @@ public class PersonFinder {
 
 			rankDist = 0;
 			
-			if ( qservice.getRank() != null ) {
+			if ( qservice.getRank() != null && rankMap.get(qservice.getRank()) != null ) {
 				
 				// add one to the score if the candidate rank is lower than the rank in the query
 				int qrnum = rankMap.get(qservice.getRank());
