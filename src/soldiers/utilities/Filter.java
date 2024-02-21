@@ -45,18 +45,18 @@ public class Filter {
 		System.out.println("Filtering " + inputfile + " ... ");
 		
         Transformer transformer = tf.newTransformer(new StreamSource(repo + "/format/xsl/filter-identified.xsl"));
-        transformer.setOutputProperty(OutputKeys.INDENT, "no");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		DOMSource source = new DOMSource(doc);
 		StreamResult result = new StreamResult(new FileOutputStream(outputIdentified));	
 		transformer.transform(source, result);
 		
         transformer = tf.newTransformer(new StreamSource(repo + "/format/xsl/filter-ambiguous.xsl"));
-        transformer.setOutputProperty(OutputKeys.INDENT, "no");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		result = new StreamResult(new FileOutputStream(outputAmbig));	
 		transformer.transform(source, result);
 		
         transformer = tf.newTransformer(new StreamSource(repo + "/format/xsl/filter-unknown.xsl"));
-        transformer.setOutputProperty(OutputKeys.INDENT, "no");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		result = new StreamResult(new FileOutputStream(outputUnknown));	
 		transformer.transform(source, result);
 		
