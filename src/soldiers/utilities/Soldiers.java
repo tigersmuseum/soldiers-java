@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.Date;
 import java.text.ParseException;
@@ -93,7 +94,11 @@ public class Soldiers {
 	public static Document readDocument(InputStream input) throws ParserConfigurationException, SAXException, IOException, TransformerException {
 		
 		TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer transformer = tf.newTransformer(new StreamSource(Soldiers.class.getResourceAsStream("normal.xsl")));
+
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		InputStream xsl = loader.getResourceAsStream("soldiers/utilities/normal.xsl");
+
+		Transformer transformer = tf.newTransformer(new StreamSource(xsl));
         StreamSource xml = new StreamSource(input);
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
