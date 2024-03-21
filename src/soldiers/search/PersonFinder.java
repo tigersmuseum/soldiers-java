@@ -39,40 +39,41 @@ public class PersonFinder {
 		List<Candidate> candidates = new ArrayList<Candidate>();
 		
 		Set<Person> results = new HashSet<Person>();
-		//List<Person> results = SoldiersModel.getCandidatesForNumberName(connection, p);
+		results.addAll(SoldiersModel.getCandidatesForNumberName(connection, p));
 		
-		//if ( results.size() == 0 ) results = SoldiersModel.getCandidatesForSurname(connection, p);
-		//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
-				
-		if ( ! p.getService().isEmpty() ) {
+		if ( results.size() == 0 ) {
 			
-			String number = p.getService().iterator().next().getNumber();
-			
-			if ( number.length() > 0 ) {
+			if ( ! p.getService().isEmpty() ) {
 				
-				//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
-				results.addAll(SoldiersModel.getCandidatesForNumber(connection, p));
+				String number = p.getService().iterator().next().getNumber();
+				
+				if ( number.length() > 0 ) {
+					
+					//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
+					results.addAll(SoldiersModel.getCandidatesForNumber(connection, p));
+				}
+				
 			}
 			
-		}
-		
-		List<String> names;
-		try {
-			names = similarNameMap.get(encoder.encode(p.getSurname()));
+			List<String> names;
+			try {
+				names = similarNameMap.get(encoder.encode(p.getSurname()));
 
-			if ( names!= null ) {
-				
-				for ( String name: names ) {
+				if ( names!= null ) {
 					
-					Person x = new Person();
-					x.setSurname(name);
-					results.addAll(SoldiersModel.getCandidatesForSurname(connection, x));						
+					for ( String name: names ) {
+						
+						Person x = new Person();
+						x.setSurname(name);
+						results.addAll(SoldiersModel.getCandidatesForSurname(connection, x));						
+					}
 				}
 			}
+			catch (EncoderException e) {
+				e.printStackTrace();
+			}			
 		}
-		catch (EncoderException e) {
-			e.printStackTrace();
-		}			
+		
 		
 		for ( Person r: results ) {
 			
