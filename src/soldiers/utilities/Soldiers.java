@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.Date;
 import java.text.ParseException;
@@ -133,7 +132,8 @@ public class Soldiers {
 		XPathExpression expr = xpath.compile(".//soldiers:person");
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 		
-		System.out.println("Number of people to search for: " + list.getLength() + "\n");
+		int total = list.getLength();
+		System.out.println("Number of people to search for: " + total + "\n");
     	
 		for ( int i = 0; i < list.getLength(); i++ ) {
 			
@@ -150,7 +150,7 @@ public class Soldiers {
 				
 			}
 			
-			System.out.printf("%d: %s\n", i+1, person.getContent());
+			System.out.printf("%d/%d: %s\n", i+1, total, person.getContent());
 			List<Candidate> candidates = finder.findMatches(person, connection);
 			
 			int bestScore = Integer.MAX_VALUE;
