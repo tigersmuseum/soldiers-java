@@ -10,14 +10,14 @@ import soldiers.database.Service;
 
 public class Parser {
 
-	static Pattern whitespace = Pattern.compile("^|\\s+"); // match the start of the text, or any sequence of whitespace
-	static Pattern rankPattern = Pattern.compile("(A/)?(Private|Pte|Drumr|Drummer|Dmr|Dvr|GNR|Gnr|Spr|Cpl|L/Cpl|L/C|LCPL|L Cpl|LCpl|LCorpl|Sgt Drummer|C/Sgt|CSjt|C/Sjt|C Sgt|CRSGT|CR SGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt|Sjt|QMSgt|QMS|Qr Mr Sjt|Sergeant|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|Band Sjt|CQMS|CSM|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt |2Lieut|2 Lieut|Lt & Adjt|Lt Col|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?\\.?");
-	static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
-	static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
+	private static Pattern whitespace = Pattern.compile("^|\\s+"); // match the start of the text, or any sequence of whitespace
+	private static Pattern rankPattern = Pattern.compile("(A/)?(Private|Pte|Drumr|Drummer|Dmr|Dvr|GNR|Gnr|Spr|Cpl|L/Cpl|L/C|LCPL|L Cpl|LCpl|LCorpl|Sgt Drummer|C/Sgt|CSjt|CSgt|C/Sjt|C Sgt|CRSGT|CR SGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt|Sjt|QMSgt|QMS|Qr Mr Sjt|Sergeant|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|Band Sjt|CQMS|CSM|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt |2Lieut|2 Lieut|Lt & Adjt|Lt Col|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?\\.?");
+	private static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
+	private static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
 
-	public static Pattern namePattern = Pattern.compile("(([A-Z](\\s?|\\.\\s?))+)?([A-Z][a-z]+(\\-|\\s{1,2}|,|\\.|$))+(\\s+([A-Z](\\s|\\.\\s?))+)?");
-	static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC))+$");
-	public static Pattern companyPattern = Pattern.compile("[A-Z]\\s+Coy");
+	private static Pattern namePattern = Pattern.compile("(([A-Z](\\s?|\\.\\s?))+)?([A-Z][a-z]+(\\-|\\s{1,2}|,|\\.|$))+(\\s+([A-Z](\\s|\\.\\s?))+)?");
+	private static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC))+$");
+	private static Pattern companyPattern = Pattern.compile("[A-Z]\\s+Coy");
 	
 	public static String suffix(String text, Person person) {
 		
@@ -46,7 +46,7 @@ public class Parser {
 			
 			String rank = rankMatcher.group(0).trim();
 			service.setRank(rank);
-			retval = text.substring(rankMatcher.start(), rankMatcher.end());
+			retval = text.replaceAll(rank, "").trim();
 		}
 		
 		return retval;
@@ -207,6 +207,27 @@ public class Parser {
 		}
 		
 		return list;
+	}
+	
+	public static Person parseCanonical(String text) {
+		
+		// Parse a string in the canonical format: (Number) Rank Surname (Suffix), Initials
+		
+		String[] parts = text.split(",");
+		
+		Person person = new Person();
+		if ( parts.length > 1 ) person.setInitials(parts[1].trim());
+		
+		Service service = new Service();		
+		String t1 = numberFind(parts[0].trim(), service);
+		String t2 = rank(t1, service);
+		person.getService().add(service);
+		
+		String t3 = suffix(t2, person);
+		person.setSurname(t3.trim());
+
+		return person;
+		
 	}
 		
 }
