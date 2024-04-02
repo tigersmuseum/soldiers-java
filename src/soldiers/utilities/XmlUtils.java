@@ -121,7 +121,6 @@ public class XmlUtils {
 		TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
 		DOMSource source = new DOMSource(doc);
-		System.out.println("DDD " + doc);
 		StreamResult result = new StreamResult(output);	
 		transformer.setOutputProperty(OutputKeys.ENCODING, "windows-1252");
 		transformer.transform(source, result);	
