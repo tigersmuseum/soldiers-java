@@ -33,6 +33,15 @@ public class Collect {
 
 	public static void main(String[] args) throws XPathExpressionException, SAXException, TransformerException, MalformedURLException, ParseException, FileNotFoundException {
 
+    	if ( args.length < 2 ) {
+    		
+    		System.err.println("Usage: Collect <sources-filename> <output-filename>");
+    		System.exit(1);
+    	}
+    	
+    	String sourcesfile = args[0];
+    	String outputfile  = args[1];
+    	
 	    XmlUtils xmlutils = new XmlUtils();
 	    Map<String, Element> sourceMap = new HashMap<String, Element>();
 		
@@ -41,7 +50,7 @@ public class Collect {
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
 		xpath.setNamespaceContext(namespaceContext);
 		
-		Document sources = xmlutils.parse(new File("/C:/workspaces/development/Research/data/sources.xml"));
+		Document sources = xmlutils.parse(new File(sourcesfile));
 		sources.normalize();
 		
 		XPathExpression sourceExpr = xpath.compile(".//source");
@@ -92,7 +101,7 @@ public class Collect {
 		}
 		
 		// output
-		output(wantedPersonMap, personMentionMap, xmlutils);
+		output(wantedPersonMap, personMentionMap, xmlutils, outputfile);
 		
 	}
 
@@ -126,7 +135,7 @@ public class Collect {
 	}
 	
 	
-	private static void output(Map<Long, Document> wantedPersonMap, Map<Long, Set<Document>> personMentionMap, XmlUtils xmlutils) throws FileNotFoundException, TransformerException {
+	private static void output(Map<Long, Document> wantedPersonMap, Map<Long, Set<Document>> personMentionMap, XmlUtils xmlutils, String outputfile) throws FileNotFoundException, TransformerException {
 		
 		Document output = xmlutils.newDocument();
 		Element list = output.createElement("list");
@@ -160,8 +169,7 @@ public class Collect {
 			
 			output.normalize();
 			
-			XmlUtils.writeDocument(output, new FileOutputStream("output/bio.xml"));
-			
+			XmlUtils.writeDocument(output, new FileOutputStream(outputfile));			
 		}		
 	}
 }
