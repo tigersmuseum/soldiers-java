@@ -264,6 +264,7 @@ public class Normalize {
 		ranks.put("staffserjeant", "SSgt");
 		ranks.put("fitterstaffserjeant", "SSgt");
 		ranks.put("wo2", "WO2");
+		ranks.put("woclii", "WO2");
 		ranks.put("warrantofficerclassii", "WO2");
 		ranks.put("warrantofficerclass2", "WO2");
 		ranks.put("woclass2", "WO2");
