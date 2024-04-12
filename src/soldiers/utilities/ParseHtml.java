@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.MalformedURLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.NamespaceContext;
@@ -47,7 +48,20 @@ public class ParseHtml {
 		XPathExpression personExpr = xpath.compile("//*[@class = 'person'][@content]");
 		NodeList list = (NodeList) personExpr.evaluate(input.getDocumentElement(), XPathConstants.NODESET);
 		
+		List<Person> personList = new ArrayList<Person>();
+		
 		System.out.println(list.getLength());
+		
+		for ( int i = 0; i < list.getLength(); i++ ) {
+
+			Element e = (Element) list.item(i);
+			System.out.println(e.getAttribute("content"));			
+			Person person = Parser.parseCanonical(e.getAttribute("content"));
+			if ( person.getSurname().length() == 0 )  System.err.println("Can't parse: " + e.getAttribute("content"));
+			personList.add(person);
+		}
+		
+		personList.sort(new PersonComparator());
 		
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler serializer;
@@ -58,13 +72,8 @@ public class ParseHtml {
 		serializer.startDocument();
 		serializer.startElement("", "data", "data", new AttributesImpl());
 
-		for ( int i = 0; i < list.getLength(); i++ ) {
+		for ( Person person: personList ) {
 
-			Element e = (Element) list.item(i);
-			System.out.println(e.getAttribute("content"));
-			
-			Person person = Parser.parseCanonical(e.getAttribute("content"));
-			System.out.println(person + " -- " + person.getService().iterator().next());
 			person.serializePerson(serializer);		
 		}		
 		
