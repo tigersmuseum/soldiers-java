@@ -2,10 +2,8 @@ package soldiers.search;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.StringEncoder;
@@ -38,7 +36,7 @@ public class PersonFinder {
 
 		List<Candidate> candidates = new ArrayList<Candidate>();
 		
-		Set<Person> results = new HashSet<Person>();
+		List<Person> results = new ArrayList<Person>();
 		results.addAll(SoldiersModel.getCandidatesForNumberName(connection, p));
 		
 		if ( results.size() == 0 ) {
@@ -106,6 +104,8 @@ public class PersonFinder {
 		// The query and candidate Person objects will have only one service record each ...	
 		
 		int numberDist = 0, regimentDist = 0, rankDist = 0, forenamesDist = 0;
+		
+		//scoreService(query, candidate, distance);
 		
 		if ( ! query.getService().isEmpty() ) {
 			
@@ -195,5 +195,4 @@ public class PersonFinder {
 		return score;
 	}
 
-	
 }

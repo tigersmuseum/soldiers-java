@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.Date;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +119,7 @@ public class Soldiers {
 		transformer.transform(source, result);	
 	}
 
-	public static void identifyPersonMentionsInPlaceXML(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException, ParseException {
+	public static void XidentifyPersonMentionsInPlaceXML(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException, ParseException {
 				
 		Metaphone encoder = new Metaphone();
 		Map<String, List<String>> similarNameMap = MakeEncoderMap.getEncoderMap(encoder, connection);
@@ -179,6 +180,79 @@ public class Soldiers {
 				}
 				else break;
 				
+			}
+			
+			System.out.println("----------------");
+		}
+		
+	}
+
+	public static void identifyPersonMentionsInPlaceXML(Document doc, Connection connection) throws XPathExpressionException, TransformerConfigurationException, FileNotFoundException, SAXException, ParseException {
+		
+		Metaphone encoder = new Metaphone();
+		Map<String, List<String>> similarNameMap = MakeEncoderMap.getEncoderMap(encoder, connection);
+
+		PersonFinder finder = new PersonFinder();
+		finder.enableSimilarNameMatching(encoder, similarNameMap);
+		
+		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
+		
+		xpath.setNamespaceContext(namespaceContext);
+		XPathExpression expr = xpath.compile(".//soldiers:person");
+		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+		
+		int total = list.getLength();
+		System.out.println("Number of people to search for: " + total + "\n");
+    	
+		for ( int i = 0; i < list.getLength(); i++ ) {
+			
+			Element e = (Element) list.item(i);
+			Person person = parsePerson(e);
+			
+			// remove any results from a previous run
+			XPathExpression prevcandidate = xpath.compile(".//soldiers:candidate");
+			NodeList prevlist = (NodeList) prevcandidate.evaluate(e, XPathConstants.NODESET);
+			
+			for ( int c = 0; c < prevlist.getLength(); c++ ) {
+				
+				e.removeChild(prevlist.item(c));				
+			}
+			
+			System.out.printf("%d/%d: %s\n", i+1, total, person.getContent());
+			List<Candidate> candidates = finder.findMatches(person, connection);
+			
+			int bestScore = Integer.MAX_VALUE;
+			Iterator<Candidate> iter = candidates.iterator();
+			
+			Map<Long, Candidate> uniqueCandidates = new HashMap<Long, Candidate>();
+
+			while ( iter.hasNext() ) {
+			
+				Candidate c = iter.next();
+				
+				if ( c.getScore().getOverallScore() <= bestScore && c.getScore().getOverallScore() <= threshold ) {
+
+					uniqueCandidates.put(c.getPerson().getSoldierId(), c);
+					bestScore = c.getScore().getOverallScore();
+				}
+				else break;
+			}
+
+			for ( Long sid: uniqueCandidates.keySet() ) {
+				
+				Candidate c = uniqueCandidates.get(sid);
+				Person p = c.getPerson();
+				Service svc = p.getService().iterator().next();
+
+				Element candidate = doc.createElement("candidate");
+				candidate.setAttribute("sid", String.format("%d", p.getSoldierId()));
+				candidate.setAttribute("content", p.getContent());
+				candidate.setAttribute("sort", p.getSort());
+				if ( svc.getNumber().length() > 0 ) candidate.setAttribute("number", svc.getNumber());
+				candidate.setAttribute("rank", svc.getRank());
+				candidate.setAttribute("regiment", svc.getRegiment());
+				candidate.setAttribute("score", String.valueOf(c.getScore().getOverallScore()));
+				e.appendChild(candidate);
 			}
 			
 			System.out.println("----------------");
