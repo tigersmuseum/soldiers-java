@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.MalformedURLException;
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.transform.OutputKeys;
@@ -41,7 +43,9 @@ public class ParseSpreadsheet {
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
 		xpath.setNamespaceContext(namespaceContext);
 		
-		Document input = xmlutils.parse(new File("/J:/Archive/Admin/Database/eclipse-workspace/Tigers/output/spreadsheet.xml"));
+		Set<String> differentNames = new HashSet<String>();
+		
+		Document input = xmlutils.parse(new File("/C:/workspaces/development/Tigers/output/spreadsheet.xml"));
 		input.normalize();
 		
 		XPathExpression personExpr = xpath.compile("//cell[@col = 'Awarded_to']");
@@ -49,7 +53,16 @@ public class ParseSpreadsheet {
 		
 		System.out.println(list.getLength());
 		
-        SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
+		for ( int i = 0; i < list.getLength(); i++ ) {
+
+			Element e = (Element) list.item(i);
+			System.out.println(e.getTextContent());
+			String txt = e.getTextContent().split("Hamp")[0].split("Hant")[0];
+			
+			differentNames.add(txt);
+		}		
+
+		SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler serializer;
         serializer = tf.newTransformerHandler();
         serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -58,11 +71,9 @@ public class ParseSpreadsheet {
 		serializer.startDocument();
 		serializer.startElement("", "data", "data", new AttributesImpl());
 
-		for ( int i = 0; i < list.getLength(); i++ ) {
+		for ( String txt: differentNames ) {
 
-			Element e = (Element) list.item(i);
-			System.out.println(e.getTextContent());
-			String txt = e.getTextContent().split("Hamp")[0].split("Hant")[0];
+			System.out.println(txt);
 			
 			List<Person> plist = Parser.findMention(txt);
 			
