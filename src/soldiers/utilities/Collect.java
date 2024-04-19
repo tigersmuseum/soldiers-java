@@ -1,9 +1,10 @@
 package soldiers.utilities;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.text.ParseException;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -31,16 +33,23 @@ import soldiers.database.SoldiersNamespaceContext;
 
 public class Collect {
 
-	public static void main(String[] args) throws XPathExpressionException, SAXException, TransformerException, MalformedURLException, ParseException, FileNotFoundException {
+	public static void main(String[] args) throws XPathExpressionException, SAXException, TransformerException, ParseException, ParserConfigurationException, IOException {
 
     	if ( args.length < 2 ) {
     		
-    		System.err.println("Usage: Collect <sources-filename> <output-filename>");
+    		System.err.println("Usage: Collect <sources-filename> <input-filename> <output-filename>");
     		System.exit(1);
     	}
     	
     	String sourcesfile = args[0];
-    	String outputfile  = args[1];
+    	String inputfile   = args[1];
+    	String outputfile  = args[2];
+    	
+		System.out.printf("sources file:  %s\n", sourcesfile);
+		System.out.printf("input file:  %s\n", inputfile);
+		System.out.printf("output file: %s\n\n", outputfile);
+		
+		Set<Long> wanted = getWanted(inputfile);
     	
 	    XmlUtils xmlutils = new XmlUtils();
 	    Map<String, Element> sourceMap = new HashMap<String, Element>();
@@ -61,10 +70,6 @@ public class Collect {
 			Element e = (Element) list.item(i);
 			sourceMap.put(e.getAttribute("name"), e);
 		}
-		
-		Set<Long> wanted = new HashSet<Long>();
-		wanted.add((long) 120793);
-		wanted.add((long) 170957);
 		
 		Connection connection = ConnectionManager.getConnection();
 		
@@ -171,5 +176,14 @@ public class Collect {
 			
 			XmlUtils.writeDocument(output, new FileOutputStream(outputfile));			
 		}		
+	}
+	
+	private static Set<Long> getWanted(String inputfile) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException {
+		
+		Document doc = Soldiers.readDocument(new FileInputStream(inputfile));			 
+		doc.normalize();
+		
+		return CandidateDetails.getSoldierSet(doc);
+
 	}
 }
