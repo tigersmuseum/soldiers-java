@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.ParserConfigurationException;
@@ -72,4 +74,31 @@ public class CandidateDetails {
 		Soldiers.writeDocument(doc, new FileOutputStream(outputfile));
 	}
 
+	
+	public static Set<Long> getSoldierSet(Document doc) throws XPathExpressionException {
+		
+		Set<Long> soldiers = new HashSet<Long>();
+		
+		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
+		
+		xpath.setNamespaceContext(namespaceContext);
+		XPathExpression expr1 = xpath.compile("//soldiers:person");
+		XPathExpression expr2 = xpath.compile(".//soldiers:candidate[1]");
+		NodeList list = (NodeList) expr1.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+		
+		for ( int i = 0; i < list.getLength(); i++ ) {
+
+			Element person = (Element) list.item(i);
+			
+			Element candidate = (Element) expr2.evaluate(person, XPathConstants.NODE);
+			
+			if ( candidate != null) {
+				
+				long sid = Long.parseLong(candidate.getAttribute("sid"));
+				soldiers.add(sid);
+			}
+		}
+		
+		return soldiers;
+	}
 }
