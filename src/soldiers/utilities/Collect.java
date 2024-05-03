@@ -52,7 +52,7 @@ public class Collect {
 		Set<Long> wanted = getWanted(inputfile);
     	
 	    XmlUtils xmlutils = new XmlUtils();
-	    Map<String, Element> sourceMap = new HashMap<String, Element>();
+	    Map<String, Set<Element>> sourceMap = new HashMap<String, Set<Element>>();
 		
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
@@ -68,7 +68,10 @@ public class Collect {
 		for ( int i = 0; i < list.getLength(); i++ ) {
 
 			Element e = (Element) list.item(i);
-			sourceMap.put(e.getAttribute("name"), e);
+			Set<Element> files = sourceMap.get(e.getAttribute("name"));
+			if ( files == null )  files = new HashSet<Element>();
+			files.add(e);
+			sourceMap.put(e.getAttribute("name"), files);
 		}
 		
 		Connection connection = ConnectionManager.getConnection();
@@ -99,10 +102,15 @@ public class Collect {
 
 		for ( String mentionedSource: mentions ) {
 			
-			URL url = new URL(sourceMap.get(mentionedSource).getAttribute("file"));
-			String srcName = sourceMap.get(mentionedSource).getAttribute("name");
-			File file = new File(url.getFile());
-			scanSourceFile(wanted, personMentionMap, file, srcName, xmlutils, xpath);
+			Set<Element> files = sourceMap.get(mentionedSource);
+			
+			for (Element e: files ) {
+				
+				URL url = new URL(e.getAttribute("file"));
+				String srcName = e.getAttribute("name");
+				File file = new File(url.getFile());
+				scanSourceFile(wanted, personMentionMap, file, srcName, xmlutils, xpath);
+			}
 		}
 		
 		// output
