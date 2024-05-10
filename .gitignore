@@ -1,6 +1,5 @@
 /bin/
 /target/
-output/results.xml
 /output/
 *.log
 /input/
