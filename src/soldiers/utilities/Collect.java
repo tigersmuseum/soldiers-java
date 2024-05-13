@@ -35,7 +35,7 @@ public class Collect {
 
 	public static void main(String[] args) throws XPathExpressionException, SAXException, TransformerException, ParseException, ParserConfigurationException, IOException {
 
-    	if ( args.length < 2 ) {
+    	if ( args.length < 3 ) {
     		
     		System.err.println("Usage: Collect <sources-filename> <input-filename> <output-filename>");
     		System.exit(1);
@@ -166,17 +166,25 @@ public class Collect {
 			
 			Element sources = output.createElement("sources");
 			
-			for ( Document mentionDoc: personMentionMap.get(soldier) ) {
+			Set<Document> sourcefiles = personMentionMap.get(soldier);
+			
+			if ( sourcefiles != null ) {
 				
-				Element source = output.createElement("source");
-				Element personMention = (Element) output.importNode(mentionDoc.getDocumentElement(), true);
-				Attr name = personMention.getAttributeNode("source");
-				source.setAttribute("name", name.getValue());
-				personMention.removeAttributeNode(name);
-				source.appendChild(personMention);
-				sources.appendChild(source);
+				for ( Document mentionDoc: sourcefiles ) {
+					
+					Element source = output.createElement("source");
+					Element personMention = (Element) output.importNode(mentionDoc.getDocumentElement(), true);
+					Attr name = personMention.getAttributeNode("source");
+					source.setAttribute("name", name.getValue());
+					personMention.removeAttributeNode(name);
+					source.appendChild(personMention);
+					sources.appendChild(source);
+				}
 			}
-
+			else {
+				System.err.println("No source data for SID: " + soldier);
+			}
+			
 			bio.appendChild(sources);
 			list.appendChild(bio);
 			
