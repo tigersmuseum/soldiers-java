@@ -83,8 +83,12 @@ public class Normalize {
 		Document collectedResults = xmlutils.newDocument();
 		Element collection = (Element) collectedResults
 				.appendChild(collectedResults.createElementNS(namespaceContext.getNamespaceURI("soldiers"), "list"));
+		
+		System.out.println("Number of persons: " + list.getLength());
 
 		for (int i = 0; i < list.getLength(); i++) {
+			
+			if (i % 100 == 0 ) System.out.println(i);
 
 			Element e = (Element) list.item(i);
 
