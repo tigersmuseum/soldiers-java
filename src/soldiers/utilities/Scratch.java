@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.transform.TransformerException;
@@ -23,10 +24,12 @@ import soldiers.database.SoldiersNamespaceContext;
 
 public class Scratch {
 
-	public static void main(String[] args) throws XPathExpressionException, FileNotFoundException, TransformerException {
+	public static void main(String[] args) throws XPathExpressionException, FileNotFoundException, TransformerException, ParseException {
 
 		SimpleDateFormat d1 = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat d2 = new SimpleDateFormat("y-D");
+		
+		Date start = d1.parse("1944-06-01");
 
 		XPathFactory factory = XPathFactory.newInstance();
 		XPath xpath = factory.newXPath();
@@ -49,6 +52,10 @@ public class Scratch {
 			try {
 				Date date = d1.parse(e.getAttribute("content"));
 				e.setAttributeNS("", "ordinal", d2.format(date));
+				//e.setAttributeNS("", "offset", TimeUnit.DAYS.convert(date.getTime() - start.getTime(), TimeUnit.MILLISECONDS));
+				long x = TimeUnit.DAYS.convert(date.getTime() - start.getTime(), TimeUnit.MILLISECONDS);
+				System.out.println(x);
+				e.setAttributeNS("", "offset", String.valueOf(x));
 			}
 			catch (ParseException e1) {
 				// do nothing
@@ -56,6 +63,21 @@ public class Scratch {
 		}
 		
 		XmlUtils.writeDocument(doc, new FileOutputStream("output/events.xhtml"));
+		
+		/*
+		 SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy");
+String inputString1 = "23 01 1997";
+String inputString2 = "27 04 1997";
+
+try {
+    Date date1 = myFormat.parse(inputString1);
+    Date date2 = myFormat.parse(inputString2);
+    long diff = date2.getTime() - date1.getTime();
+    System.out.println ("Days: " + TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+} catch (ParseException e) {
+    e.printStackTrace();
+}
+		 */
 	}
 
 }
