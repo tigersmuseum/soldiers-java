@@ -132,6 +132,16 @@ public class Normalize {
 					parent.setAttribute("after", after(normalizeDate(value)));
 				}
 			}
+			
+			// check that initials make sense
+
+			NodeList ilist = e.getElementsByTagName("initials");
+
+			if (ilist.getLength() == 1) {
+
+				Element ielem = (Element) ilist.item(0);
+				checkInitials(ielem.getTextContent());
+			}
 
 			// Parse the person XML. This will force names to upper case, and determine
 			// initials from forenames if only forenames
@@ -263,7 +273,7 @@ public class Normalize {
 		ranks.put("colsgt", "CSgt");
 		ranks.put("csjt", "CSgt");
 		ranks.put("bmstr", "CSgt");
-		ranks.put("b’mstr", "CSgt");
+		ranks.put("b'mstr", "CSgt");
 		ranks.put("bm", "CSgt");
 		ranks.put("coloursergeant", "CSgt");
 		ranks.put("colourserjeant", "CSgt");
@@ -540,6 +550,15 @@ public class Normalize {
 		} else {
 			System.err.println("date is not normalized: " + date);
 			return null;
+		}
+	}
+	
+	public static void checkInitials(String initials) {
+		
+		if ( initials.matches(".*[a-z].*") ) {
+			
+			// This might mean forenames in initials field ...
+			System.err.println("Lowercase in intials: " + initials);
 		}
 	}
 
