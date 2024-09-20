@@ -73,6 +73,9 @@ public class Normalize {
 		XPathExpression expr = xpath.compile(".//soldiers:person");
 		XPathExpression notesexpr = xpath.compile(".//soldiers:note");
 		XPathExpression befores = xpath.compile(".//soldiers:*[@before|@after]");
+		XPathExpression desc = xpath.compile(".//soldiers:description[1]");
+
+		Element description = (Element) desc.evaluate(doc.getDocumentElement(), XPathConstants.NODE);
 
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 
@@ -83,6 +86,10 @@ public class Normalize {
 		Document collectedResults = xmlutils.newDocument();
 		Element collection = (Element) collectedResults
 				.appendChild(collectedResults.createElementNS(namespaceContext.getNamespaceURI("soldiers"), "list"));
+		
+		if ( description != null ) {
+			collection.appendChild(collectedResults.importNode(description, true));
+		}
 		
 		System.out.println("Number of persons: " + list.getLength());
 
