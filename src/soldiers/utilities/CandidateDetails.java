@@ -4,7 +4,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.NamespaceContext;
@@ -77,22 +79,25 @@ public class CandidateDetails {
 	
 	public static Set<Long> getSoldierSet(Document doc) throws XPathExpressionException {
 		
+	/*
+	 * Returns the set of Soldier IDs from candidate elements in the input XML document.
+	 */
 		Set<Long> soldiers = new HashSet<Long>();
 		
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
 		
 		xpath.setNamespaceContext(namespaceContext);
-		XPathExpression expr1 = xpath.compile("//soldiers:person");
-		XPathExpression expr2 = xpath.compile(".//soldiers:candidate[1]");
-		NodeList list = (NodeList) expr1.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+		XPathExpression soldierExpr = xpath.compile("//soldiers:person");
+		XPathExpression candidateExpr = xpath.compile(".//soldiers:candidate[1]");
+		NodeList list = (NodeList) soldierExpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 		
 		for ( int i = 0; i < list.getLength(); i++ ) {
 
 			Element person = (Element) list.item(i);
 			
-			Element candidate = (Element) expr2.evaluate(person, XPathConstants.NODE);
+			Element candidate = (Element) candidateExpr.evaluate(person, XPathConstants.NODE);
 			
-			if ( candidate != null) {
+			if ( candidate != null ) {
 				
 				long sid = Long.parseLong(candidate.getAttribute("sid"));
 				soldiers.add(sid);
@@ -100,5 +105,39 @@ public class CandidateDetails {
 		}
 		
 		return soldiers;
+	}
+
+	
+	public static Map<Long, Set<Element>> getSoldierMap(Document doc) throws XPathExpressionException {
+		
+	/*
+	 * Returns a map of Soldier ID to person elements (with a candidate element pointing to that ID) in the input XML document.
+	 */
+		Map<Long, Set<Element>> lookup = new HashMap<Long, Set<Element>>();
+		
+		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
+		
+		xpath.setNamespaceContext(namespaceContext);
+		XPathExpression soldierExpr = xpath.compile("//soldiers:person");
+		XPathExpression candidateExpr = xpath.compile(".//soldiers:candidate[1]");
+		NodeList list = (NodeList) soldierExpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+		
+		for ( int i = 0; i < list.getLength(); i++ ) {
+
+			Element person = (Element) list.item(i);
+			
+			Element candidate = (Element) candidateExpr.evaluate(person, XPathConstants.NODE);
+			
+			if ( candidate != null ) {
+				
+				long sid = Long.parseLong(candidate.getAttribute("sid"));
+				Set<Element> candidates = lookup.get(sid);
+				if ( candidates == null )  candidates = new HashSet<Element>();
+				candidates.add(person);
+				lookup.put(sid, candidates);
+			}
+		}
+		
+		return lookup;
 	}
 }

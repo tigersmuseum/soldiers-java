@@ -45,6 +45,8 @@ public class Report {
 
 	public static Document getPersonDOM (long sid) throws TransformerConfigurationException, SAXException {
 		
+		// get a soldier from the database as an XML Document
+		
 		SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
 		TransformerHandler serializer;
 
