@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.Collection;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,6 +21,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -27,6 +30,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import soldiers.database.Person;
+import soldiers.database.SoldiersNamespaceContext;
 
 public class XmlUtils {
 
@@ -126,4 +130,12 @@ public class XmlUtils {
 		transformer.transform(source, result);	
 	}
 
+	public static XPath newXPath() {
+		
+		XPathFactory factory = XPathFactory.newInstance();
+		XPath xpath = factory.newXPath();
+		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
+		xpath.setNamespaceContext(namespaceContext);
+		return xpath;
+	}
 }
