@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.sql.Connection;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -13,14 +12,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -29,7 +26,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import soldiers.database.MentionsModel;
-import soldiers.database.SoldiersNamespaceContext;
 
 public class Collect {
 
@@ -49,32 +45,11 @@ public class Collect {
 		System.out.printf("input file:  %s\n", inputfile);
 		System.out.printf("output file: %s\n\n", outputfile);
 		
-		Set<Long> wanted = getWanted(inputfile);
-    	
-	    XmlUtils xmlutils = new XmlUtils();
-	    Map<String, Set<Element>> sourceMap = new HashMap<String, Set<Element>>();
-		
-		XPathFactory factory = XPathFactory.newInstance();
-	    XPath xpath = factory.newXPath();
-		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
-		xpath.setNamespaceContext(namespaceContext);
-		
-		Document sources = xmlutils.parse(new File(sourcesfile));
-		sources.normalize();
-		
-		XPathExpression sourceExpr = xpath.compile(".//source");
-		NodeList list = (NodeList) sourceExpr.evaluate(sources.getDocumentElement(), XPathConstants.NODESET);
-		
-		for ( int i = 0; i < list.getLength(); i++ ) {
-
-			Element e = (Element) list.item(i);
-			Set<Element> files = sourceMap.get(e.getAttribute("name"));
-			if ( files == null )  files = new HashSet<Element>();
-			files.add(e);
-			sourceMap.put(e.getAttribute("name"), files);
-		}
-		
+		Set<Long> wanted = getWanted(inputfile);		
+		Sources sources = new Sources(new File(sourcesfile));
+    			
 		Connection connection = ConnectionManager.getConnection();
+		XmlUtils xmlutils = new XmlUtils();
 		
 		Set<String> mentions = new HashSet<String>();
 		
@@ -99,17 +74,15 @@ public class Collect {
 		// get wanted mentions from sources
 		
 		Map<Long, Set<Document>> personMentionMap = new HashMap<Long, Set<Document>>();
+		Map<String, Set<File>> sourceMap = sources.getSourceMap();
 
 		for ( String mentionedSource: mentions ) {
 			
-			Set<Element> files = sourceMap.get(mentionedSource);
+			Set<File> files = sourceMap.get(mentionedSource);
 			
-			for (Element e: files ) {
+			for (File file: files ) {
 				
-				URL url = new URL(e.getAttribute("file"));
-				String srcName = e.getAttribute("name");
-				File file = new File(url.getFile());
-				scanSourceFile(wanted, personMentionMap, file, srcName, xmlutils, xpath);
+				scanSourceFile(wanted, personMentionMap, file, mentionedSource, xmlutils);
 			}
 		}
 		
@@ -119,9 +92,10 @@ public class Collect {
 	}
 
 	
-	private static void scanSourceFile(Set<Long> wanted, Map<Long, Set<Document>> personMentionMap, File file, String srcName, XmlUtils xmlutils, XPath xpath) throws XPathExpressionException {
+	private static void scanSourceFile(Set<Long> wanted, Map<Long, Set<Document>> personMentionMap, File file, String srcName, XmlUtils xmlutils) throws XPathExpressionException {
 
 		Document source = xmlutils.parse(file);
+		XPath xpath = XmlUtils.newXPath();
 		XPathExpression sourceExpr = xpath.compile(".//soldiers:candidate");
 		
 		NodeList list = (NodeList) sourceExpr.evaluate(source.getDocumentElement(), XPathConstants.NODESET);
@@ -200,6 +174,5 @@ public class Collect {
 		doc.normalize();
 		
 		return CandidateDetails.getSoldierSet(doc);
-
 	}
 }
