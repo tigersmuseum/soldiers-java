@@ -3,6 +3,7 @@ package soldiers.test;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +26,13 @@ public class Mentions {
 
 	public static void main(String[] args) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException, ParseException {
 
-		String inputfile  = "E:\\Soldiers\\database\\SAVINGS\\identified.xml";
+    	if ( args.length < 2 ) {
+    		
+    		System.err.println("Usage: Mentions <input-filename> <output-filename>");
+    		System.exit(1);
+    	}
+
+		String inputfile = args[0]; String outputfile = args[1];
 
 		Document doc = Soldiers.readDocument(new FileInputStream(inputfile));			 
 		doc.normalize();
@@ -42,7 +49,7 @@ public class Mentions {
 				
 				Person known = SoldiersModel.getPerson(ConnectionManager.getConnection(), sid);
 				System.out.println(known + " -- " + known.getService());
-				
+							
 				for (Element p: persons ) {
 					
 					Person person = Soldiers.parsePerson(p);
@@ -51,10 +58,14 @@ public class Mentions {
 			}
 		}
 		
+		PrintWriter output = new PrintWriter(outputfile);
+
 		for (Long sid: lookup.keySet() ) {
 			
-			System.out.println("SAVINGS," + sid + ",");
+			output.println("SAVINGS," + sid + ",");
 		}
+		
+		output.close();
 	}
 
 }
