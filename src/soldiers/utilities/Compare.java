@@ -1,8 +1,13 @@
 package soldiers.utilities;
 
 import java.sql.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import soldiers.database.Person;
+import soldiers.database.Service;
 import soldiers.search.CandidateScore;
 import soldiers.search.PersonFinder;
 
@@ -42,6 +47,16 @@ public class Compare {
 		//score.setNumber(0);
 		System.out.println(score.getOverallScore());
 		
+		System.out.println(score.getOverallScore());
+		System.out.println(score.getOverallScore() - score.getNumber());
+		
+		if ( score.getOverallScore() - score.getNumber() == 0 ) {
+			
+			System.out.println("different service numbers ...");
+		}
+		
+		System.out.println(score.getSurname());
+
 		if ( score.getSurname() == 0 ) {
 			
 			System.out.println("same surname: " + personA.getSurname());
@@ -67,15 +82,15 @@ public class Compare {
 		
 		if ( dateA == null && dateB != null ) {
 			
-			System.out.println("update A birth date from B - set before and after to null ");
+			System.out.println("update A birth date from B - set before and after to null");
 		}
 		else if ( dateA != null && dateB != null ) {
 			
-			System.out.println("date: " + dateA + " != " + dateB + " - which is correct?");
+			System.out.println("birth date: " + dateA + " != " + dateB + " - which is correct?");
 		}
 		else if ( dateA != dateB  ) {
 			
-			System.out.println("date: " + dateA + " != " + dateB + " - ...");
+			System.out.println("birth date: " + dateA + " != " + dateB + " - ...");
 		}
 		
 		if ( afterA == null && afterB != null ) {
@@ -84,7 +99,7 @@ public class Compare {
 		}
 		else if ( afterA != null && afterB != null ) {
 			
-			System.out.println("after: " + afterA + " != " + afterB + " - which is correct?");
+			System.out.println("birth after: " + afterA + " != " + afterB + " - which is correct?");
 		}
 		
 		if ( beforeA == null && beforeB != null ) {
@@ -93,7 +108,7 @@ public class Compare {
 		}
 		else if ( beforeA != null && beforeA != null ) {
 			
-			System.out.println("before: " + beforeA + " != " + beforeA + " - which is correct?");
+			System.out.println("birth before: " + beforeA + " != " + beforeA + " - which is correct?");
 		}
 	}
 	
@@ -103,4 +118,39 @@ public class Compare {
 		
 		if (a == null && b == null ) System.out.println("both null");
 	}
+	
+	private void compareService() {
+		
+		Map<String, Set<Service>> serviceMapA = makeServiceNumberMap(personA);
+		Map<String, Set<Service>> serviceMapB = makeServiceNumberMap(personB);
+		
+		if ( serviceMapA.keySet().containsAll(serviceMapB.keySet()) ) {
+			System.out.println("SAME");
+		}
+		else {
+			System.out.println("DIFFERENT");
+			System.out.println(serviceMapA.keySet() + " != " + serviceMapB.keySet());
+		}
+	}
+	
+	public void makeComparison2() {
+		
+		
+		compareService();
+	}
+	
+	private Map<String, Set<Service>> makeServiceNumberMap(Person person) {
+		
+		HashMap<String, Set<Service>> map = new HashMap<String,Set<Service>>();
+		
+		for (Service service: person.getService() ) {
+			System.out.println(service);
+			String number = service.getNumber();
+			Set<Service> serviceWithNumber = map.get(number);
+			if ( serviceWithNumber == null )  serviceWithNumber = new HashSet<Service>();
+			map.put(number, serviceWithNumber);
+		}
+		return map;
+	}
+
 }
