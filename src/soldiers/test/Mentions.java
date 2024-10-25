@@ -26,13 +26,16 @@ public class Mentions {
 
 	public static void main(String[] args) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException, ParseException {
 
-    	if ( args.length < 2 ) {
+		/*
+		 * Run this from source.xml?
+		 */
+    	if ( args.length < 3 ) {
     		
-    		System.err.println("Usage: Mentions <input-filename> <output-filename>");
+    		System.err.println("Usage: Mentions <input-filename> <output-filename> <tag>");
     		System.exit(1);
     	}
 
-		String inputfile = args[0]; String outputfile = args[1];
+		String inputfile = args[0]; String outputfile = args[1]; String tag = args[2];
 
 		Document doc = Soldiers.readDocument(new FileInputStream(inputfile));			 
 		doc.normalize();
@@ -62,7 +65,7 @@ public class Mentions {
 
 		for (Long sid: lookup.keySet() ) {
 			
-			output.println("SAVINGS," + sid + ",");
+			output.println(tag + "," + sid + ",");
 		}
 		
 		output.close();
