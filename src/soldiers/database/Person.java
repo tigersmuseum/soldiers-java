@@ -2,12 +2,17 @@ package soldiers.database;
 
 import java.text.SimpleDateFormat;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
+
+import soldiers.utilities.ServiceComparator;
 
 public class Person {
 
@@ -22,7 +27,8 @@ public class Person {
 	private Set<Service> service = new HashSet<Service>();
 	private boolean forceToUpper = true;
 
-	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); 
+	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+	private ServiceComparator serviceComparator = new ServiceComparator();
 	
 	private long soldierId = -1;
 
@@ -33,7 +39,7 @@ public class Person {
 	public void setSurname(String surname) {
 		
 		if ( surname == null ) return;
-		String normal = surname.replaceAll("’", "'");
+		String normal = surname.replaceAll("ï¿½", "'");
 		if ( forceToUpper )  this.surname = normal.toUpperCase();
 		else  this.surname = normal;
 	}
@@ -217,10 +223,12 @@ public class Person {
 			ch.endElement(SoldiersModel.XML_NAMESPACE, "text", "text");
 		}
 		
-		Set<Service> service = getService();
+		//Set<Service> service = getService();
+		List<Service> service = new ArrayList<Service>(getService());
 					
 		if ( service.size() > 0 ) {
 			
+			Collections.sort(service, serviceComparator);
 			ch.startElement(SoldiersModel.XML_NAMESPACE, "service", "service", new AttributesImpl());		
 			for ( Service svc: service)  svc.serializeService(ch);
 			ch.endElement(SoldiersModel.XML_NAMESPACE, "service", "service");
