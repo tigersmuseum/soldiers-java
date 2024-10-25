@@ -33,6 +33,28 @@ public class MentionsModel {
 		}
 				
 		return sources;
-	}
+	}	
 
+	
+	public static void insertMention(Connection connection, long sid, String source) {
+		
+		String serviceSql = "insert into MENTIONS (SID, SOURCE) values(?, ?)";
+		
+		try {
+			
+			PreparedStatement serviceStmt = connection.prepareStatement(serviceSql);
+
+			serviceStmt.setLong(1, sid);
+			serviceStmt.setString(2, source);
+			
+			serviceStmt.executeUpdate();
+			
+			serviceStmt.close();
+		}
+		catch (SQLException e) {
+			
+			System.err.println("message: " + e.getMessage());
+		}
+	}
+	
 }
