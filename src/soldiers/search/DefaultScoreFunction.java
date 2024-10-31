@@ -7,6 +7,7 @@ public class DefaultScoreFunction implements ScoreFunction {
 	public int calculate(CandidateScore score) {
 
 		int total = score.getNumber() + score.getSurname() + score.getInitials() + score.getForenames() + score.getRank();
+		if ( score.getNumber() != 0 ) total++;
 		return total;
 	}
 
