@@ -6,7 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerConfigurationException;
@@ -34,6 +38,7 @@ public class ParseList {
     	}
     	
     	String inputfile = args[0];
+    	Map<String, Person> individuals = new HashMap<String, Person>();
 
 		FileInputStream inputFile = new FileInputStream(inputfile);
 
@@ -47,17 +52,22 @@ public class ParseList {
 			String text = line.replaceAll("\\p{javaSpaceChar}", " ").trim();
 			List<Person> l = Parser.findMention(text);
 			list.addAll(l);
+
+			for (Person p: list) {
+				
+				individuals.put(p.getSurfaceText(), p);
+			}
 		}
 		
 		reader.close();
 		
 		Normalize.normalizeRank(list);
 		
-		for ( Person p: list ) {
+/*		for ( Person p: list ) {
 			
-			System.out.printf("(%d) %s = %s", p.getSoldierId(), p.getContent(), p.getSurfaceText());
+			System.out.printf("(%d) %s = %s\n", p.getSoldierId(), p.getContent(), p.getSurfaceText());
 		}
-		
+*/		
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
         TransformerHandler serializer;
         serializer = tf.newTransformerHandler();
@@ -67,9 +77,9 @@ public class ParseList {
 		serializer.startDocument();
 		serializer.startElement(SoldiersModel.XML_NAMESPACE, "list", "list", new AttributesImpl());
 
-
-		for ( Person p: list ) {
+		for ( String text: individuals.keySet() ) {
 			
+			Person p = individuals.get(text); 
 			p.serializePerson(serializer);
 		}
 		
