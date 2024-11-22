@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,43 +113,48 @@ public class SoldiersModel {
 		String sql = "select P.SID, P.SURNAME, P.INITIALS, P.FORENAMES, S.NUM, S.RANK_ABBREV, S.REGIMENT from PERSON P, SERVICE S where P.SURNAME = ? and P.SID = S.SID and S.NUM != '' and S.NUM like ?";
 
 		Set<Service> service = person.getService();
-		Service svc = service.iterator().next();
+		Iterator<Service> iter = service.iterator();
 		
-		if (  svc.getNumber().length() > 0 ) { // there must be a number ...
+		while ( iter.hasNext() ) {
 			
-			try {
-				
-				PreparedStatement stmt = connection.prepareStatement(sql);
-				stmt.setString(1, person.getSurname());
-				stmt.setString(2, "%" + svc.getNumber());
-				
-				ResultSet results = stmt.executeQuery();
-				
-				while ( results.next() ) {
-					
-					Person candidate = new Person();
-					Service ss = new Service();
+			Service svc = iter.next();
 
-					candidate.setSoldierId(results.getLong("SID"));
-					ss.setNumber(results.getString("NUM"));
-					ss.setRank(results.getString("RANK_ABBREV"));
-					ss.setRegiment(results.getString("REGIMENT"));
-					candidate.setSurname(results.getString("SURNAME"));
-					candidate.setInitials(results.getString("INITIALS"));
-					candidate.setForenames(results.getString("FORENAMES"));
+			if (  svc.getNumber().length() > 0 ) { // there must be a number ...
+				
+				try {
 					
-					candidate.addService(ss);
+					PreparedStatement stmt = connection.prepareStatement(sql);
+					stmt.setString(1, person.getSurname());
+					stmt.setString(2, "%" + svc.getNumber());
+					
+					ResultSet results = stmt.executeQuery();
+					
+					while ( results.next() ) {
+						
+						Person candidate = new Person();
+						Service ss = new Service();
 
-					candidates.add(candidate);
+						candidate.setSoldierId(results.getLong("SID"));
+						ss.setNumber(results.getString("NUM"));
+						ss.setRank(results.getString("RANK_ABBREV"));
+						ss.setRegiment(results.getString("REGIMENT"));
+						candidate.setSurname(results.getString("SURNAME"));
+						candidate.setInitials(results.getString("INITIALS"));
+						candidate.setForenames(results.getString("FORENAMES"));
+						
+						candidate.addService(ss);
+
+						candidates.add(candidate);
+					}
+					
+					stmt.close();
 				}
-				
-				stmt.close();
-			}
-			catch (SQLException e) {
-				e.printStackTrace();
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 		}
-						
+					
 		return candidates;
 	}
 

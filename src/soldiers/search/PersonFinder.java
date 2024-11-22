@@ -2,8 +2,10 @@ package soldiers.search;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.StringEncoder;
@@ -43,14 +45,18 @@ public class PersonFinder {
 			
 			if ( ! p.getService().isEmpty() ) {
 				
-				String number = p.getService().iterator().next().getNumber();
+				Set<Service> serviceSet = p.getService();
 				
-				if ( number.length() > 0 ) {
+				for ( Service service: serviceSet ) {
 					
-					//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
-					results.addAll(SoldiersModel.getCandidatesForNumber(connection, p));
-				}
-				
+					String number = service.getNumber();
+					
+					if ( number.length() > 0 ) {
+						
+						//results.addAll(SoldiersModel.getCandidatesForExactNumber(connection, p));
+						results.addAll(SoldiersModel.getCandidatesForNumber(connection, p));
+					}
+				}				
 			}
 			
 			List<String> names;
@@ -100,58 +106,11 @@ public class PersonFinder {
 	public CandidateScore scoreCandidate(Person query, Person candidate) {
 		
 		LevenshteinDistance distance = new LevenshteinDistance();
+		CandidateScore score = new CandidateScore();
 		
-		// The query and candidate Person objects will have only one service record each ...	
+		// SERVICE
 		
-		int numberDist = 0, regimentDist = 0, rankDist = 0, forenamesDist = 0;
-		
-		//scoreService(query, candidate, distance);
-		
-		if ( ! query.getService().isEmpty() ) {
-			
-			Service qservice = query.getService().iterator().next();
-			Service cservice = candidate.getService().iterator().next();
-			
-			// SERVICE NUMBER
-			
-			String qnumber = qservice.getNumber();
-			String cnumber = cservice.getNumber();
-			
-			// Add a penalty score if a service number was specified in the query
-			if ( qnumber.length() > 0 ) {
-				
-				if      ( qnumber.contains("/") && !cnumber.contains("/") ) qnumber = qnumber.substring(qnumber.indexOf("/") + 1);
-				else if ( cnumber.contains("/") && !qnumber.contains("/") ) cnumber = cnumber.substring(cnumber.indexOf("/") + 1);
-				
-				numberDist = distance.apply(qnumber, cnumber);
-				
-				// add a penalty of 1 to the score if lengths of query and candidate service numbers don't match		
-				numberDist += qnumber.length() == cnumber.length() ? 0 : 1;
-			}
-			else if ( qnumber.length() == 0 && cnumber.length() > 0 ) {
-			// Or add 1 if the query doesn't have a number but the candidate does
-				numberDist++;
-			}
-			
-			// REGIMENT
-
-			String qregiment = qservice.getRegiment();
-			String cregiment = cservice.getRegiment();
-			
-			regimentDist = qregiment != null && qregiment.equals(cregiment) ? 0 : 1;
-			
-			// RANK
-
-			rankDist = 0;
-			
-			if ( qservice.getRank() != null && rankMap.get(qservice.getRank()) != null ) {
-				
-				// add one to the score if the candidate rank is different from the rank in the query
-				int qrnum = rankMap.get(qservice.getRank());
-				int crnum = rankMap.get(cservice.getRank());
-				if ( crnum != qrnum ) rankDist += 1;
-			}
-		}
+		scoreService(query.getService(), candidate.getService(), distance, score);
 		
 		// SURNAME
 		
@@ -175,6 +134,7 @@ public class PersonFinder {
 		
 		// FORENAMES
 		
+		int forenamesDist = 0;
 		String qfname = query.getForenames();
 		String cfname = candidate.getForenames();
 		
@@ -182,17 +142,81 @@ public class PersonFinder {
 			
 			if ( !qfname.toUpperCase().equals(cfname.toUpperCase()) )  forenamesDist = 1;
 		}		
-		
-		CandidateScore score = new CandidateScore();
-		
+
 		score.setSurname(surnameDist);
-		score.setNumber(numberDist);
 		score.setInitials(initialsDist);
-		score.setRegiment(regimentDist);
-		score.setRank(rankDist);
 		score.setForenames(forenamesDist);
-		
+
 		return score;
 	}
 
+	private void scoreService(Set<Service> qset, Set<Service> cset, LevenshteinDistance distance, CandidateScore score) {
+				
+		int lowScore = Integer.MAX_VALUE;
+		
+		if ( ! qset.isEmpty() ) {
+
+			Iterator<Service> qIter = qset.iterator();
+			
+			while ( qIter.hasNext() ) {
+				
+				Service qservice = qIter.next();
+				Iterator<Service> cIter = cset.iterator();
+				
+				while ( cIter.hasNext() ) {
+					
+					int numberDist = 0, regimentDist = 0, rankDist = 0;
+
+					Service cservice = cIter.next();
+					String qnumber = qservice.getNumber();
+					String cnumber = cservice.getNumber();
+					
+					// Add a penalty score if a service number was specified in the query
+					if ( qnumber.length() > 0 ) {
+						
+						if      ( qnumber.contains("/") && !cnumber.contains("/") ) qnumber = qnumber.substring(qnumber.indexOf("/") + 1);
+						else if ( cnumber.contains("/") && !qnumber.contains("/") ) cnumber = cnumber.substring(cnumber.indexOf("/") + 1);
+						
+						numberDist = distance.apply(qnumber, cnumber);
+						
+						// add a penalty of 1 to the score if lengths of query and candidate service numbers don't match		
+						numberDist += qnumber.length() == cnumber.length() ? 0 : 1;
+					}
+					else if ( qnumber.length() == 0 && cnumber.length() > 0 ) {
+					// Or add 1 if the query doesn't have a number but the candidate does
+						numberDist++;
+					}
+					
+					// REGIMENT
+
+					String qregiment = qservice.getRegiment();
+					String cregiment = cservice.getRegiment();
+					
+					regimentDist = qregiment != null && qregiment.equals(cregiment) ? 0 : 1;
+					
+					// RANK
+
+					rankDist = 0;
+					
+					if ( qservice.getRank() != null && rankMap.get(qservice.getRank()) != null ) {
+						
+						// add one to the score if the candidate rank is different from the rank in the query
+						int qrnum = rankMap.get(qservice.getRank());
+						int crnum = rankMap.get(cservice.getRank());
+						if ( crnum != qrnum ) rankDist += 1;
+					}
+					
+					int total = numberDist + regimentDist + rankDist;
+
+					if ( total < lowScore )  {
+						
+						lowScore = total;
+						score.setNumber(numberDist);
+						score.setRank(rankDist);
+						score.setRegiment(regimentDist);
+					}
+				}
+			}
+		}
+	}
 }

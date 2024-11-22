@@ -62,6 +62,11 @@ public class CandidateScore {
 		this.forenames = forenames;
 	}
 
+	@Override
+	public String toString() {
+
+		return String.format("surname=%d, forenames=%d, initials=%d, rank=%d, number=%d, regiment=%d", surname, forenames, initials, rank, number, regiment);
+	}
 
 	public int getOverallScore() {
 		
