@@ -417,6 +417,7 @@ public class Normalize {
 		raw = raw.split("&")[0];
 		raw = raw.replaceAll("/", "");
 		raw = raw.replaceAll("-", "");
+		raw = raw.replaceAll("’", "");
 		raw = raw.replaceAll("\\.", "");
 		raw = raw.replaceAll("\\s+", "");
 		String normal = ranks.get(raw);
