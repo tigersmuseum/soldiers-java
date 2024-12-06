@@ -80,6 +80,12 @@ public class Collect {
 			
 			Set<File> files = sourceMap.get(mentionedSource);
 			
+			if ( files == null ) {
+				
+				System.err.println("No files for source: " + mentionedSource);
+				files = new HashSet<File>();
+			}
+			
 			for (File file: files ) {
 				
 				scanSourceFile(wanted, personMentionMap, file, mentionedSource, xmlutils);
