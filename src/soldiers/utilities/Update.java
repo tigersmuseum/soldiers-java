@@ -30,7 +30,7 @@ public class Update {
 
 	    XmlUtils xmlutils = new XmlUtils();
 		//Document doc = xmlutils.parse(new File("/F:/Museum/results.xml"));
-		Document doc = xmlutils.parse(new File("H:\\Archive\\Admin\\Database\\eclipse-workspace\\Research\\output\\identified.xml"));
+		Document doc = xmlutils.parse(new File("output/results.xml"));
 		
 		XPathFactory factory = XPathFactory.newInstance();
 	    XPath xpath = factory.newXPath();
