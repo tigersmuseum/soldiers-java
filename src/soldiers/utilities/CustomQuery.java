@@ -32,7 +32,10 @@ public class CustomQuery {
 
 	public static void main(String[] args) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException {
 
-		String sql = "select distinct P.SID from SERVICE S, PERSON P where S.NUM like '2466%' and P.SID = S.SID";
+		// parameterize this ...
+		
+		//String sql = "select distinct P.SID from SERVICE S, PERSON P where S.NUM like '2466%' and P.SID = S.SID";
+		String sql = "select * from PERSON where INITIALS is null and FORENAMES is not null";
 		
 		Connection connection = ConnectionManager.getConnection();
 		
