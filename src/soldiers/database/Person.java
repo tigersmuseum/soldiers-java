@@ -69,6 +69,12 @@ public class Person {
 		}
 	}
 
+	void setForenamesOnly(String forenames) {
+		
+		if ( forceToUpper )  this.forenames = forenames.toUpperCase();
+		else  this.forenames = forenames;
+	}
+
 	public String getInitials() {
 		return initials;
 	}
@@ -76,6 +82,11 @@ public class Person {
 	public void setInitials(String initials) {
 		
 		if ( initials != null ) this.initials = normalizeInitials(initials);
+	}
+
+	void setInitialsAsGiven(String initials) {
+		
+		this.initials = initials;
 	}
 
 	public String getSuffix() {

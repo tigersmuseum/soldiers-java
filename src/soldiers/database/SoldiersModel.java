@@ -347,8 +347,8 @@ public class SoldiersModel {
 				
 				person.setSoldierId(results.getLong("SID"));
 				person.setSurname(results.getString("SURNAME"));
-				person.setInitials(results.getString("INITIALS"));
-				person.setForenames(results.getString("FORENAMES"));
+				person.setInitialsAsGiven(results.getString("INITIALS"));
+				person.setForenamesOnly(results.getString("FORENAMES"));
 				person.setBirth(results.getDate("BIRTH"));
 				person.setDeath(results.getDate("DEATH"));
 				person.setBornafter(results.getDate("BORNAFTER"));
