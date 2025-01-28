@@ -71,7 +71,7 @@ public class Person {
 
 	void setForenamesOnly(String forenames) {
 		
-		if ( forceToUpper )  this.forenames = forenames.toUpperCase();
+		if ( forceToUpper && forenames != null )  this.forenames = forenames.toUpperCase();
 		else  this.forenames = forenames;
 	}
 
