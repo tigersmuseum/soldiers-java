@@ -13,6 +13,10 @@ import soldiers.search.PersonFinder;
 
 public class Compare {
 
+	// Are two soldiers the same or different?
+	// If they're the same, which is the most complete record?
+	// How should two entries for the same soldier be merged?
+	
 	private Person personA, personB;
 	private PersonFinder finder;
 	
@@ -45,17 +49,16 @@ public class Compare {
 		
 		CandidateScore score = finder.scoreCandidate(personA, personB);
 		//score.setNumber(0);
-		System.out.println(score.getOverallScore());
-		
-		System.out.println(score.getOverallScore());
-		System.out.println(score.getOverallScore() - score.getNumber());
+
+		System.out.println("overall score: " + score.getOverallScore());
+		System.out.println("overall - number: " + (score.getOverallScore() - score.getNumber()));
 		
 		if ( score.getOverallScore() - score.getNumber() == 0 ) {
 			
 			System.out.println("different service numbers ...");
 		}
 		
-		System.out.println(score.getSurname());
+		System.out.println("surname: " + score.getSurname());
 
 		if ( score.getSurname() == 0 ) {
 			
@@ -72,6 +75,8 @@ public class Compare {
 		
 		compareBirth();
 		compareDeath();
+		
+		compareService();
 	}
 	
 	private void compareBirth() {

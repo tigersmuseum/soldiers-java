@@ -117,7 +117,7 @@ public class PersonFinder {
 		String qsurname = query.getSurname();
 		String csurname = candidate.getSurname();
 		
-		int surnameDist = distance.apply(qsurname, csurname);
+		int surnameDist = ( qsurname != null && csurname != null ) ? distance.apply(qsurname, csurname) : 0;
 		
 		// INITIALS
 		
