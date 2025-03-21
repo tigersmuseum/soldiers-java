@@ -47,8 +47,8 @@ class CompareTest {
 	@Test
 	void test() {
 		
-		Person p1 = SoldiersModel.getPerson(connection, 182658);
-		Person p2 = SoldiersModel.getPerson(connection, 182649);
+		Person p1 = SoldiersModel.getPerson(connection, 151693);
+		Person p2 = SoldiersModel.getPerson(connection, 151694);
 		Set<String> mentions1 = MentionsModel.getSourcesMentioningSoldierId(connection, p1.getSoldierId());
 		Set<String> mentions2 = MentionsModel.getSourcesMentioningSoldierId(connection, p2.getSoldierId());
 

@@ -52,6 +52,7 @@ public class Compare {
 
 		System.out.println("overall score: " + score.getOverallScore());
 		System.out.println("overall - number: " + (score.getOverallScore() - score.getNumber()));
+		System.out.println(score);
 		
 		if ( score.getOverallScore() - score.getNumber() == 0 ) {
 			
@@ -85,6 +86,8 @@ public class Compare {
 		Date afterA  = personA.getBornafter();  Date afterB  = personB.getBornafter();
 		Date beforeA = personA.getBornbefore(); Date beforeB = personB.getBornbefore();
 		
+		System.out.println("compare birth ...");
+		
 		if ( dateA == null && dateB != null ) {
 			
 			System.out.println("update A birth date from B - set before and after to null");
@@ -97,6 +100,9 @@ public class Compare {
 			
 			System.out.println("birth date: " + dateA + " != " + dateB + " - ...");
 		}
+		else {
+			System.out.println("neither has birth date");
+		}
 		
 		if ( afterA == null && afterB != null ) {
 			
@@ -105,6 +111,9 @@ public class Compare {
 		else if ( afterA != null && afterB != null ) {
 			
 			System.out.println("birth after: " + afterA + " != " + afterB + " - which is correct?");
+		}
+		else {
+			System.out.println("neither has birth after date");
 		}
 		
 		if ( beforeA == null && beforeB != null ) {
@@ -115,10 +124,14 @@ public class Compare {
 			
 			System.out.println("birth before: " + beforeA + " != " + beforeA + " - which is correct?");
 		}
+		else {
+			System.out.println("neither has birth before date");
+		}
 	}
 	
 	private void compareDeath() {
 		
+		System.out.println("compare death ...");
 		Date a = personA.getDeath(); Date b = personB.getDeath();
 		
 		if (a == null && b == null ) System.out.println("both null");

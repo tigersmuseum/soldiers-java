@@ -8,7 +8,7 @@ public class DefaultScoreFunction implements ScoreFunction {
 	public int calculate(CandidateScore score) {
 
 		int total = score.getNumber() + score.getSurname() + score.getInitials() + score.getRank();
-		if ( score.getNumber() != 0 ) total++;
+		if ( score.getNumber() != 0 ) total++; // increase penalty score if numbers aren't the same - needed ?
 		return total;
 	}
 
