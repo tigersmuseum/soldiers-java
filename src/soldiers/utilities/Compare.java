@@ -132,9 +132,49 @@ public class Compare {
 	private void compareDeath() {
 		
 		System.out.println("compare death ...");
-		Date a = personA.getDeath(); Date b = personB.getDeath();
+		Date dateA = personA.getDeath(); Date dateB = personB.getDeath();
+		Date afterA  = personA.getDiedafter();  Date afterB  = personB.getDiedafter();
+		Date beforeA = personA.getDiedbefore(); Date beforeB = personB.getDiedbefore();
 		
-		if (a == null && b == null ) System.out.println("both null");
+		if ( dateA == null && dateB != null ) {
+			
+			System.out.println("update A death date from B - set before and after to null");
+		}
+		else if ( dateA != null && dateB != null ) {
+			
+			System.out.println("death date: " + dateA + " != " + dateB + " - which is correct?");
+		}
+		else if ( dateA != dateB  ) {
+			
+			System.out.println("death date: " + dateA + " != " + dateB + " - ...");
+		}
+		else {
+			System.out.println("neither has death date");
+		}
+		
+		if ( afterA == null && afterB != null ) {
+			
+			System.out.println("update A death after date from B");
+		}
+		else if ( afterA != null && afterB != null ) {
+			
+			System.out.println("death after: " + afterA + " != " + afterB + " - which is correct?");
+		}
+		else {
+			System.out.println("neither has death after date");
+		}
+		
+		if ( beforeA == null && beforeB != null ) {
+			
+			System.out.println("update A death before date from B");
+		}
+		else if ( beforeA != null && beforeA != null ) {
+			
+			System.out.println("death before: " + beforeA + " != " + beforeA + " - which is correct?");
+		}
+		else {
+			System.out.println("neither has death before date");
+		}
 	}
 	
 	private void compareService() {
