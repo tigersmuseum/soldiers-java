@@ -9,9 +9,9 @@ import java.util.Set;
 import soldiers.database.Person;
 import soldiers.database.Service;
 import soldiers.search.CandidateScore;
-import soldiers.search.Scorer;
+import soldiers.search.PersonFinder;
 
-public class Compare {
+public class CompareOld {
 
 	// Are two soldiers the same or different?
 	// If they're the same, which is the most complete record?
@@ -19,11 +19,13 @@ public class Compare {
 	// Assume personA is authoritative and compare personB with personA
 	
 	private Person personA, personB;
+	private PersonFinder finder;
 	
-	public Compare() {
+	public CompareOld() {
+		finder = new PersonFinder();
 	}
 
-	public Compare(Person personA, Person personB) {
+	public CompareOld(Person personA, Person personB) {
 		this();
 		setSoldiers(personA, personB);
 	}
@@ -45,17 +47,38 @@ public class Compare {
 	}
 	
 	public void makeComparison() {
+		
+		CandidateScore score = finder.scoreCandidate(personA, personB);
+		//score.setNumber(0);
 
-		Scorer scorer = new Scorer();
-		CandidateScore score = scorer.scoreCandidate(personA, personB);
+		System.out.println("overall score: " + score.getOverallScore());
+		System.out.println("overall - number: " + (score.getOverallScore() - score.getNumber()));
 		System.out.println(score);
+		
+		if ( score.getOverallScore() - score.getNumber() == 0 ) {
+			
+			System.out.println("different service numbers ...");
+		}
+		
+		System.out.println("surname: " + score.getSurname());
+
+		if ( score.getSurname() == 0 ) {
+			
+			System.out.println("same surname: " + personA.getSurname());
+		}
+		
+		if ( score.getInitials() == 0 ) {
+			
+			System.out.println("same initials: " + personA.getInitials());
+		}
+
+		System.out.println(personA.getService());
+		System.out.println(personB.getService());
 		
 		compareBirth();
 		compareDeath();
-	
-		compareService();
 		
-		System.out.println("--------------------- ");
+		compareService();
 	}
 	
 	private void compareBirth() {
@@ -69,33 +92,41 @@ public class Compare {
 		if ( dateA == null && dateB != null ) {
 			
 			System.out.println("update A birth date from B - set before and after to null");
-			personA.setBirth(personB.getBirth());
-			personA.setBornafter(null);
-			personB.setBornbefore(null);
 		}
-		else if ( dateA != null && dateB != null && dateA != dateB ) {
+		else if ( dateA != null && dateB != null ) {
 			
 			System.out.println("birth date: " + dateA + " != " + dateB + " - which is correct?");
+		}
+		else if ( dateA != dateB  ) {
+			
+			System.out.println("birth date: " + dateA + " != " + dateB + " - ...");
+		}
+		else {
+			System.out.println("neither has birth date");
 		}
 		
 		if ( afterA == null && afterB != null ) {
 			
 			System.out.println("update A born after date from B");
-			personA.setBornafter(personB.getBornafter());
 		}
-		else if ( afterA != null && afterB != null && afterA != afterB ) {
+		else if ( afterA != null && afterB != null ) {
 			
 			System.out.println("birth after: " + afterA + " != " + afterB + " - which is correct?");
+		}
+		else {
+			System.out.println("neither has birth after date");
 		}
 		
 		if ( beforeA == null && beforeB != null ) {
 			
 			System.out.println("update A born before date from B");
-			personA.setBornbefore(personB.getBornbefore());
 		}
-		else if ( beforeA != null && beforeB != null && beforeA != beforeB ) {
+		else if ( beforeA != null && beforeA != null ) {
 			
 			System.out.println("birth before: " + beforeA + " != " + beforeA + " - which is correct?");
+		}
+		else {
+			System.out.println("neither has birth before date");
 		}
 	}
 	

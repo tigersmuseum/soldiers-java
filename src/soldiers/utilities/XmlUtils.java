@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.Collection;
@@ -17,10 +18,12 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
@@ -34,18 +37,21 @@ import soldiers.database.SoldiersNamespaceContext;
 
 public class XmlUtils {
 
-	private DocumentBuilderFactory factory;
+	private DocumentBuilderFactory docFactory;
 	private DocumentBuilder builder;
+	private XPathFactory pathFactory = XPathFactory.newInstance();
 
 	public XmlUtils() {
 
-		factory = DocumentBuilderFactory.newInstance();
-		factory.setValidating(false);
-		factory.setNamespaceAware(true);
-		factory.setExpandEntityReferences(false);
+		docFactory = DocumentBuilderFactory.newInstance();
+		docFactory.setValidating(false);
+		docFactory.setNamespaceAware(true);
+		docFactory.setExpandEntityReferences(false);
+		
+		pathFactory = XPathFactory.newInstance();
 		
 		try {
-			builder = factory.newDocumentBuilder();
+			builder = docFactory.newDocumentBuilder();
 		} 
 		catch (ParserConfigurationException e) {
 			e.printStackTrace();
@@ -130,12 +136,29 @@ public class XmlUtils {
 		transformer.transform(source, result);	
 	}
 
-	public static XPath newXPath() {
+	public XPath newXPath() {
 		
-		XPathFactory factory = XPathFactory.newInstance();
-		XPath xpath = factory.newXPath();
+		XPath xpath = pathFactory.newXPath();
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
 		xpath.setNamespaceContext(namespaceContext);
 		return xpath;
 	}
+	
+	public Document readDocument(InputStream input) throws ParserConfigurationException, SAXException, IOException, TransformerException {
+		
+		TransformerFactory tf = TransformerFactory.newInstance();
+
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		InputStream xsl = loader.getResourceAsStream("soldiers/utilities/normal.xsl");
+
+		Transformer transformer = tf.newTransformer(new StreamSource(xsl));
+        StreamSource xml = new StreamSource(input);
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+		docFactory.setNamespaceAware(true);
+		DocumentBuilder builder = docFactory.newDocumentBuilder();
+		Document doc = builder.newDocument();
+		transformer.transform(xml, new DOMResult(doc));
+		return doc;
+	}
+
 }

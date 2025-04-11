@@ -30,7 +30,7 @@ public class Sources {
 	public Sources() {
 
 		xmlutils = new XmlUtils();
-	    xpath = XmlUtils.newXPath();
+	    xpath = xmlutils.newXPath();
 
 		try {
 			sourceExpr = xpath.compile(expr);

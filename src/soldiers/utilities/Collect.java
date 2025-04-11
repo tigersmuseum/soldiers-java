@@ -101,7 +101,7 @@ public class Collect {
 	private static void scanSourceFile(Set<Long> wanted, Map<Long, Set<Document>> personMentionMap, File file, String srcName, XmlUtils xmlutils) throws XPathExpressionException {
 
 		Document source = xmlutils.parse(file);
-		XPath xpath = XmlUtils.newXPath();
+		XPath xpath = xmlutils.newXPath();
 		XPathExpression sourceExpr = xpath.compile(".//soldiers:candidate");
 		
 		NodeList list = (NodeList) sourceExpr.evaluate(source.getDocumentElement(), XPathConstants.NODESET);
