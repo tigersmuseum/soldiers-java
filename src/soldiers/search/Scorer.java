@@ -102,8 +102,8 @@ public class Scorer {
 					
 					// REGIMENT
 
-					String qregiment = qservice.getRegiment();
-					String cregiment = cservice.getRegiment();
+					String qregiment = qservice.getRegiment().toLowerCase();
+					String cregiment = cservice.getRegiment().toLowerCase();
 					
 					regimentDist = qregiment != null && qregiment.equals(cregiment) ? 0 : 1;
 					
