@@ -1,7 +1,5 @@
 package soldiers.test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.sql.Connection;
 import java.util.Set;
 
