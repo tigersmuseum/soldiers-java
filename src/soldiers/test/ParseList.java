@@ -7,18 +7,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
 
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -26,6 +20,7 @@ import soldiers.database.Normalize;
 import soldiers.database.Person;
 import soldiers.database.SoldiersModel;
 import soldiers.text.Parser;
+import soldiers.utilities.XmlUtils;
 
 public class ParseList {
 	
@@ -63,17 +58,7 @@ public class ParseList {
 		
 		Normalize.normalizeRank(list);
 		
-/*		for ( Person p: list ) {
-			
-			System.out.printf("(%d) %s = %s\n", p.getSoldierId(), p.getContent(), p.getSurfaceText());
-		}
-*/		
-        SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
-        TransformerHandler serializer;
-        serializer = tf.newTransformerHandler();
-        serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        serializer.setResult(new StreamResult(new FileOutputStream("output/list.xml")));
-
+        ContentHandler serializer = XmlUtils.getSerializer(new FileOutputStream("output/list.xml"));
 		serializer.startDocument();
 		serializer.startElement(SoldiersModel.XML_NAMESPACE, "list", "list", new AttributesImpl());
 
