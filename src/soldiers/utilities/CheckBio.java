@@ -2,6 +2,7 @@ package soldiers.utilities;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -15,21 +16,25 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
 
 import soldiers.database.Person;
+import soldiers.database.SoldiersModel;
 
 public class CheckBio {
 
 	public static void main(String[] args) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException, ParseException {
 
-    	if ( args.length < 1 ) {
+    	if ( args.length < 2 ) {
     		
-    		System.err.println("Usage: CheckBio <input-filename>");
+    		System.err.println("Usage: CheckBio <input-filename> <output-filename>");
     		System.exit(1);
     	}
 
     	String inputfile  = args[0];
+       	String outputfile = args[1];
     	
     	XmlUtils xmlutils = new XmlUtils();
    	
@@ -41,34 +46,57 @@ public class CheckBio {
 		XPathExpression personExpr = xpath.compile("./soldiers:person[1]");
 		XPathExpression sourceExpr = xpath.compile(".//source");
 		
+		
+        ContentHandler serializer = XmlUtils.getSerializer(new FileOutputStream(outputfile));
+
+		serializer.startDocument();
+		serializer.startElement(SoldiersModel.XML_NAMESPACE, "list", "list", new AttributesImpl());
+
 		NodeList bioList = (NodeList) bioExpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 		
-		//for ( int i = 0; i < bioList.getLength(); i++ ) {
-		for ( int i = 0; i < 1; i++ ) {
-			
+		for ( int i = 0; i < bioList.getLength(); i++ ) {
+
 			Element bioElem = (Element) bioList.item(i);		
 			Element dbPersonElem = (Element) dbPersonExpr.evaluate(bioElem, XPathConstants.NODE);
 			Person master = Soldiers.parsePerson(dbPersonElem);
+			
+			serializer.startElement(SoldiersModel.XML_NAMESPACE, "delta", "delta", new AttributesImpl());
+			
+			serializer.startElement(SoldiersModel.XML_NAMESPACE, "database", "database", new AttributesImpl());
+			master.serializePerson(serializer);
+			serializer.endElement(SoldiersModel.XML_NAMESPACE, "database", "database");
 
 			NodeList sourceList = (NodeList) sourceExpr.evaluate(bioElem, XPathConstants.NODESET);
-			System.out.println("sources: " + sourceList.getLength());
 			
 			for ( int j = 0; j < sourceList.getLength(); j++ ) {
 				
 				Element sourceElem  = (Element) sourceList.item(j);
 				String source = sourceElem.getAttribute("name");
-				System.out.println(source);
+				
+				AttributesImpl srcAttr = new AttributesImpl();
+				srcAttr.addAttribute("", "name", "name", "String", source);
+				serializer.startElement(SoldiersModel.XML_NAMESPACE, "source", "source", srcAttr);
+
+				System.out.println(j + ": " + source);
 				Element personElem = (Element) personExpr.evaluate(sourceElem, XPathConstants.NODE);
 				
 				Person p = Soldiers.parsePerson(personElem);
-				System.out.println(p);
 				
 				Compare compare = new Compare(master, p);
-				System.out.println(compare);
-				compare.makeComparison();
+				Person diffs = compare.makeComparison();
+				
+				diffs.serializePerson(serializer);
 
+				System.out.println("--------------------- ");
+				serializer.endElement(SoldiersModel.XML_NAMESPACE, "source", "source");
 			}
+
+			serializer.endElement(SoldiersModel.XML_NAMESPACE, "delta", "delta");
+			serializer.endDocument();
 		}
+		
+		serializer.endElement(SoldiersModel.XML_NAMESPACE, "list", "list");
+		serializer.endDocument();
 		
 	}
 	
