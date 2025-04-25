@@ -28,6 +28,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -161,4 +162,20 @@ public class XmlUtils {
 		return doc;
 	}
 
+	public static ContentHandler getSerializer(FileOutputStream file) {
+
+        SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance();
+        TransformerHandler serializer;
+        try {
+			serializer = tf.newTransformerHandler();
+	        serializer.getTransformer().setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	        serializer.setResult(new StreamResult(file));
+			return serializer;
+		}
+        catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
 }
