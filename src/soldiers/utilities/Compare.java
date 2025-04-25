@@ -33,138 +33,55 @@ public class Compare {
 		this.personA = personA;
 		this.personB = personB;		
 	}
-
-	@Override
-	public String toString() {
-
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(personA.toString());
-		buffer.append("\n");
-		buffer.append(personB.toString());
-		return buffer.toString();
-	}
 	
-	public void makeComparison() {
+	public Person makeComparison() {
+
+		Person diffs = new Person();
 
 		Scorer scorer = new Scorer();
 		CandidateScore score = scorer.scoreCandidate(personA, personB);
-		System.out.println(score);
+		System.out.println("score: " + score);
 		
-		compareBirth();
-		compareDeath();
-	
-		compareService();
+		if ( score.getInitials() != 0 ) diffs.setInitials(personB.getInitials());
+		if ( score.getForenames() != 0 ) diffs.setForenames(personB.getForenames());
+		if ( score.getSurname() != 0 )   diffs.setSurname(personB.getSurname());
+			
+		compareDates(diffs);
+		compareService(diffs);
 		
-		System.out.println("--------------------- ");
+		return diffs;
 	}
 	
-	private void compareBirth() {
+	private void compareDates(Person diffs) {
 		
-		Date dateA   = personA.getBirth();      Date dateB   = personB.getBirth();
-		Date afterA  = personA.getBornafter();  Date afterB  = personB.getBornafter();
-		Date beforeA = personA.getBornbefore(); Date beforeB = personB.getBornbefore();
+		diffs.setBirth(compare(personA.getBirth(), personB.getBirth()));
+		diffs.setBornafter(compare(personA.getBornafter(), personB.getBornafter()));
+		diffs.setBornbefore(compare(personA.getBornbefore(), personB.getBornbefore()));
 		
-		System.out.println("compare birth ...");
-		
-		if ( dateA == null && dateB != null ) {
-			
-			System.out.println("update A birth date from B - set before and after to null");
-			personA.setBirth(personB.getBirth());
-			personA.setBornafter(null);
-			personB.setBornbefore(null);
-		}
-		else if ( dateA != null && dateB != null && dateA != dateB ) {
-			
-			System.out.println("birth date: " + dateA + " != " + dateB + " - which is correct?");
-		}
-		
-		if ( afterA == null && afterB != null ) {
-			
-			System.out.println("update A born after date from B");
-			personA.setBornafter(personB.getBornafter());
-		}
-		else if ( afterA != null && afterB != null && afterA != afterB ) {
-			
-			System.out.println("birth after: " + afterA + " != " + afterB + " - which is correct?");
-		}
-		
-		if ( beforeA == null && beforeB != null ) {
-			
-			System.out.println("update A born before date from B");
-			personA.setBornbefore(personB.getBornbefore());
-		}
-		else if ( beforeA != null && beforeB != null && beforeA != beforeB ) {
-			
-			System.out.println("birth before: " + beforeA + " != " + beforeA + " - which is correct?");
-		}
+		diffs.setDeath(compare(personA.getDeath(), personB.getDeath()));
+		diffs.setDiedafter(compare(personA.getDiedafter(), personB.getDiedafter()));
+		diffs.setDiedbefore(compare(personA.getDiedbefore(), personB.getDiedbefore()));
 	}
 	
-	private void compareDeath() {
-		
-		System.out.println("compare death ...");
-		Date dateA = personA.getDeath(); Date dateB = personB.getDeath();
-		Date afterA  = personA.getDiedafter();  Date afterB  = personB.getDiedafter();
-		Date beforeA = personA.getDiedbefore(); Date beforeB = personB.getDiedbefore();
-		
-		if ( dateA == null && dateB != null ) {
-			
-			System.out.println("update A death date from B - set before and after to null");
-		}
-		else if ( dateA != null && dateB != null ) {
-			
-			System.out.println("death date: " + dateA + " != " + dateB + " - which is correct?");
-		}
-		else if ( dateA != dateB  ) {
-			
-			System.out.println("death date: " + dateA + " != " + dateB + " - ...");
-		}
-		else {
-			System.out.println("neither has death date");
-		}
-		
-		if ( afterA == null && afterB != null ) {
-			
-			System.out.println("update A death after date from B");
-		}
-		else if ( afterA != null && afterB != null ) {
-			
-			System.out.println("death after: " + afterA + " != " + afterB + " - which is correct?");
-		}
-		else {
-			System.out.println("neither has death after date");
-		}
-		
-		if ( beforeA == null && beforeB != null ) {
-			
-			System.out.println("update A death before date from B");
-		}
-		else if ( beforeA != null && beforeA != null ) {
-			
-			System.out.println("death before: " + beforeA + " != " + beforeA + " - which is correct?");
-		}
-		else {
-			System.out.println("neither has death before date");
-		}
+	private Date compare(Date dateA, Date dateB ) {
+
+		return ( dateB != null && !dateB.equals(dateA) ) ? dateB : null;
 	}
 	
-	private void compareService() {
+	private void compareService(Person diffs) {
 		
 		Map<String, Set<Service>> serviceMapA = makeServiceNumberMap(personA);
 		Map<String, Set<Service>> serviceMapB = makeServiceNumberMap(personB);
+		
+		modifyServiceNumberMap(serviceMapA);
 		
 		if ( serviceMapA.keySet().containsAll(serviceMapB.keySet()) ) {
 			System.out.println("SAME");
 		}
 		else {
 			System.out.println("DIFFERENT");
-			System.out.println(serviceMapA.keySet() + " != " + serviceMapB.keySet());
+			diffs.setService(personB.getService());
 		}
-	}
-	
-	public void makeComparison2() {
-		
-		
-		compareService();
 	}
 	
 	private Map<String, Set<Service>> makeServiceNumberMap(Person person) {
@@ -172,13 +89,28 @@ public class Compare {
 		HashMap<String, Set<Service>> map = new HashMap<String,Set<Service>>();
 		
 		for (Service service: person.getService() ) {
-			System.out.println(service);
+			
 			String number = service.getNumber();
 			Set<Service> serviceWithNumber = map.get(number);
 			if ( serviceWithNumber == null )  serviceWithNumber = new HashSet<Service>();
+			serviceWithNumber.add(service);
 			map.put(number, serviceWithNumber);
 		}
+		
 		return map;
 	}
 
+	private void modifyServiceNumberMap(Map<String, Set<Service>> map) {
+		
+		// deal with entries where the number id of the form #/####
+		
+		for ( String number: map.keySet() ) {
+			
+			if ( number.contains("/")) {
+				
+				Set<Service> serviceWithNumber = map.get(number);
+				map.put(number.substring(number.indexOf('/')+1), serviceWithNumber);
+			}		
+		}
+	}
 }
