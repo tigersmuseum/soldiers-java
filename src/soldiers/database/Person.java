@@ -57,7 +57,7 @@ public class Person {
 		
 		if ( getInitials() == null && this.forenames != null ) {
 			
-			String[] tokens = this.forenames.split("\\s+");
+			String[] tokens = this.forenames.trim().split("\\s+");
 			StringBuffer initials = new StringBuffer();
 			
 			for ( String token: tokens ) {
