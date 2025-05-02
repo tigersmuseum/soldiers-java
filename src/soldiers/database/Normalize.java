@@ -484,7 +484,7 @@ public class Normalize {
 
 				outputDate = o1.format(o1.parse(txt));
 			}
-			else if (txt.matches("^\\w{3}\\-\\d+$")) {
+			else if (txt.matches("^\\w{3,4}\\-\\d+$")) {
 
 				outputDate = o2.format(f3.parse(txt));
 			}
