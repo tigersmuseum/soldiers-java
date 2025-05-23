@@ -465,7 +465,7 @@ public class Normalize {
 		if (txt.length() == 0)
 			return outputDate;
 
-		txt = txt.replaceAll("\\.", "\\/");
+		txt = txt.replaceAll("(\\.|,)\\s*", "\\/");
 
 		SimpleDateFormat f1 = new SimpleDateFormat("d/M/y");
 		SimpleDateFormat f2 = new SimpleDateFormat("d MMM y");
@@ -656,7 +656,9 @@ public class Normalize {
 
 				if (before.compareTo(after) < 0)  System.err.println("service record 'before' should be later than 'after': " + p.getContent() + "; " + s);
 
-				if ( death != null && before.compareTo(death) > 0 )  System.err.println("service record 'before' should be no later than date of death: " + p.getContent() + "; " + s);
+				if ( death != null && before.compareTo(death) > 0 )  {
+					s.setBefore(new java.sql.Date(death.getTimeInMillis()));
+				}
 				if ( birth != null && before.compareTo(birth) < 0 )  System.err.println("service record 'before' should be later than date of birth: " + p.getContent() + "; " + s);
 			}		
 		}
