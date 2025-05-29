@@ -334,6 +334,7 @@ public class Normalize {
 		ranks.put("ensign", "Ens");
 		ranks.put("2lt", "2Lt");
 		ranks.put("2lieut", "2Lt");
+		ranks.put("seclieut", "2Lt");
 		ranks.put("2ndlt", "2Lt");
 		ranks.put("secondlieutenant", "2Lt");
 		ranks.put("2ndlieutenant", "2Lt");
@@ -360,6 +361,9 @@ public class Normalize {
 		ranks.put("ltcol", "Lt Col");
 		ranks.put("ltcolonel", "Lt Col");
 		ranks.put("lieutenantcolonel", "Lt Col");
+		ranks.put("lieutcol", "Lt Col");
+		ranks.put("lieutcolonel", "Lt Col");
+		ranks.put("temporarylieutcolonel", "Lt Col");
 		ranks.put("brevetlieutcolonel", "Lt Col");
 		ranks.put("col", "Col");
 		ranks.put("btcol", "Col");
