@@ -182,10 +182,10 @@ public class PersonFinder {
 						// add a penalty of 1 to the score if lengths of query and candidate service numbers don't match		
 						//numberDist += qnumber.length() == cnumber.length() ? 0 : 1;
 					}
-					else if ( qnumber.length() == 0 && cnumber.length() > 0 ) {
+				/*	else if ( qnumber.length() == 0 && cnumber.length() > 0 ) {
 					// Or add 1 if the query doesn't have a number but the candidate does
 						numberDist++;
-					}
+					}*/
 					
 					// REGIMENT
 
