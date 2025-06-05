@@ -69,7 +69,7 @@ public class AmbigCsv {
 	}
 	
 	
-	private static void serializePartitions(Set<Set<String>> partitions) throws SAXException, TransformerConfigurationException, IllegalArgumentException, FileNotFoundException {
+	static void serializePartitions(Set<Set<String>> partitions) throws SAXException, TransformerConfigurationException, IllegalArgumentException, FileNotFoundException {
 		
 		Connection connection = ConnectionManager.getConnection();
 		
