@@ -211,15 +211,22 @@ public class Normalize {
 		ranks.put("hospitalapprentice", "Hos App");
 		ranks.put("pte", "Pte");
 		ranks.put("pt", "Pte");
+		ranks.put("priva", "Pte");
 		ranks.put("pnr", "Pnr");
 		ranks.put("pioneer", "Pnr");
 		ranks.put("sig", "Sig");
 		ranks.put("bgr", "Bgr");
 		ranks.put("bugler", "Bgr");
+		ranks.put("trumpeter", "Pte");
 		ranks.put("trooper", "Tpr");
 		ranks.put("tpr", "Tpr");
 		ranks.put("private", "Pte");
+		ranks.put("driver", "Pte");
+		ranks.put("cyclist", "Pte");
 		ranks.put("privatepioneer", "Pte");
+		ranks.put("privateactingcorporal", "Pte");
+		ranks.put("privatelancecorporal", "Pte");
+		ranks.put("privateserjeant", "Pte");
 		ranks.put("dmr", "Dmr");
 		ranks.put("drm", "Dmr");
 		ranks.put("bandsman", "Bdsm");
@@ -242,16 +249,32 @@ public class Normalize {
 		ranks.put("lcpl", "L/Cpl");
 		ranks.put("lc", "L/Cpl");
 		ranks.put("lcorpl", "L/Cpl");
+		ranks.put("lancecorp", "L/Cpl");
+		ranks.put("lancecorpl", "L/Cpl");
 		ranks.put("lancecorporal", "L/Cpl");
+		ranks.put("corporal2nd", "2Cpl");
+		ranks.put("2ndcorporal", "2Cpl");
 		ranks.put("cpl", "Cpl");
 		ranks.put("acpl", "Cpl");
+		ranks.put("actcpl", "Cpl");
+		ranks.put("actcorpl", "Cpl");
 		ranks.put("corporal", "Cpl");
 		ranks.put("corp", "Cpl");
+		ranks.put("corpl", "Cpl");
+		ranks.put("corporalactingstaffserjeantmajor", "Cpl");
+		ranks.put("corporalactinglanceserjeant", "Cpl");
+		ranks.put("corporalofhorse", "Cpl");
 		ranks.put("lsgt", "L/Sgt");
+		ranks.put("lsergt", "L/Sgt");
 		ranks.put("lsjt", "L/Sgt");
 		ranks.put("lancesergeant", "L/Sgt");
 		ranks.put("lanceserjeant", "L/Sgt");
+		ranks.put("corporallanceserjeant", "L/Sgt");
+		ranks.put("lancesgt", "L/Sgt");
+		ranks.put("lancesjt", "L/Sgt");
+		ranks.put("2ndsergeant", "L/Sgt");
 		ranks.put("sgt", "Sgt");
+		ranks.put("actsgt", "Sgt");
 		ranks.put("sjt", "Sgt");
 		ranks.put("sergt", "Sgt");
 		ranks.put("serjeant", "Sgt");
@@ -269,11 +292,22 @@ public class Normalize {
 		ranks.put("drmsgt", "Sgt");
 		ranks.put("orderlyroomsergeant", "Sgt");
 		ranks.put("armourersergeant", "Sgt");
+		ranks.put("armrserjeant", "Sgt");
+		ranks.put("nowcommissionedserjeant", "Sgt");
+		ranks.put("serjeanttrumpeter", "Sgt");
+		ranks.put("serjeantcook", "Sgt");
 		ranks.put("sgtdrummer", "Sgt");
 		ranks.put("bandsjt", "Sgt");
 		ranks.put("bandsgt", "Sgt");
+		ranks.put("actsergt", "Sgt");
+		ranks.put("bandmaster", "Sgt");
+		ranks.put("farriersgt", "Sgt");
+		ranks.put("farrierserjeant", "Sgt");
+		ranks.put("serjeantactingcompanyserjeantmajor", "Sgt");
 		ranks.put("qrmrsgt", "QMS");
 		ranks.put("quartmastersergeant", "QMS");
+		ranks.put("farrierquartermasterserjeant", "QMS");
+		ranks.put("squadronquartermasterserjeant", "QMS");
 		ranks.put("quartermastersergeant", "QMS");
 		ranks.put("qmsgt", "QMS");
 		ranks.put("csgt", "CSgt");
@@ -287,9 +321,12 @@ public class Normalize {
 		ranks.put("crsgt", "CSgt");
 		ranks.put("dm", "CSgt");
 		ranks.put("ssgt", "SSgt");
+		ranks.put("ssgt", "SSgt");
 		ranks.put("staffsergeant", "SSgt");
 		ranks.put("staffserjeant", "SSgt");
+		ranks.put("saddlerserjeant", "SSgt");
 		ranks.put("fitterstaffserjeant", "SSgt");
+		ranks.put("wheelerstaffserjeant", "SSgt");
 		ranks.put("sgtmt", "SSgt");
 		ranks.put("sasgt", "SSgt");
 		ranks.put("wo2", "WO2");
@@ -300,11 +337,16 @@ public class Normalize {
 		ranks.put("wocl2", "WO2");
 		ranks.put("wo1", "WO1");
 		ranks.put("woclass1", "WO1");
+		ranks.put("warrantofficerclass1", "WO1");
 		ranks.put("warrantofficer1stclass", "WO1");
 		ranks.put("sergeantmajor", "Sgt Maj");
+		ranks.put("sergtmajor", "Sgt Maj");
 		ranks.put("serjeantmajor", "Sgt Maj");
+		ranks.put("squadronserjeantmajor", "Sgt Maj");
+		ranks.put("staffserjeantmajor", "Sgt Maj");
 		ranks.put("sgtmaj", "Sgt Maj");
 		ranks.put("sergtmaj", "Sgt Maj");
+		ranks.put("sergtmajor", "Sgt Maj");
 		ranks.put("smjr", "Sgt Maj");
 		ranks.put("sm", "Sgt Maj");
 		ranks.put("rsm", "RSM");
@@ -315,8 +357,10 @@ public class Normalize {
 		ranks.put("cqms", "CQMS");
 		ranks.put("companyquartermasterserjeant", "CQMS");
 		ranks.put("companyquartermastersergeant", "CQMS");
+		ranks.put("companyquartermastersergt", "CQMS");
 		ranks.put("qms", "QMS");
 		ranks.put("quartermasterserjeant", "QMS");
+		ranks.put("staffquartermasterserjeant", "QMS");
 		ranks.put("qmrsgt", "QMS");
 		ranks.put("sqms", "QMS");
 		ranks.put("rqms", "RQMS");
@@ -327,6 +371,7 @@ public class Normalize {
 		ranks.put("csmjr", "CSM");
 		ranks.put("companysergeantmajor", "CSM");
 		ranks.put("companyserjeantmajor", "CSM");
+		ranks.put("cosergtmajor", "CSM");
 		ranks.put("companyquartermastersergeantmajor", "CSM");
 		ranks.put("cadet", "Cadet");
 		ranks.put("officercadet", "Cadet");
@@ -336,17 +381,24 @@ public class Normalize {
 		ranks.put("2lieut", "2Lt");
 		ranks.put("seclieut", "2Lt");
 		ranks.put("2ndlt", "2Lt");
+		ranks.put("2ndlieut", "2Lt");
 		ranks.put("secondlieutenant", "2Lt");
+		ranks.put("secondlieut", "2Lt");
+		ranks.put("secondlieutenanttemporarylieutenant", "2Lt");
 		ranks.put("2ndlieutenant", "2Lt");
 		ranks.put("lt", "Lt");
 		ranks.put("lieut", "Lt");
 		ranks.put("lieutenant", "Lt");
+		ranks.put("quartermasterandlieutenant", "Lt");
+		ranks.put("paylieutenant", "Lt");
 		ranks.put("asstsurg", "Asst Surg");
 		ranks.put("astsurg", "Asst Surg");
 		ranks.put("subaltern", "Sub");
 		ranks.put("sub", "Sub");
 		ranks.put("capt", "Capt");
 		ranks.put("captain", "Capt");
+		ranks.put("quartermasterandcaptain", "Capt");
+		ranks.put("captaintemporarylieutenantcolonel", "Capt");
 		ranks.put("adjt", "Adjt");
 		ranks.put("adjutant", "Adjt");
 		ranks.put("adj", "Adjt");
@@ -367,6 +419,8 @@ public class Normalize {
 		ranks.put("brevetlieutcolonel", "Lt Col");
 		ranks.put("col", "Col");
 		ranks.put("btcol", "Col");
+		ranks.put("brevetcolonel", "Col");
+		ranks.put("honorarycoloneltemporarybrigadiergeneral", "Col");
 		ranks.put("colonel", "Col");
 		ranks.put("brigadier", "Brig");
 		ranks.put("brig", "Brig");
@@ -382,7 +436,19 @@ public class Normalize {
 		ranks.put("unk", "UNK");
 		ranks.put("unknown", "UNK");
 		ranks.put("soldier", "UNK");
+		ranks.put("chaplain", "UNK");
+		ranks.put("superintendent", "UNK");
 		ranks.put("smstr", "UNK");
+		ranks.put("warranto", "UNK");
+		ranks.put("captainflightcommander", "UNK");
+		ranks.put("assistantpaymaster", "UNK");
+		ranks.put("secondflightlieutenant", "UNK");
+		ranks.put("flightlieutenant", "UNK");
+		ranks.put("flyingofficer", "UNK");
+		ranks.put("flyingsublieutenant", "UNK");
+		ranks.put("ableseamanrnvr", "UNK");
+		ranks.put("flightofficer", "UNK");
+		ranks.put("fightsubsecondlieutenant", "UNK");
 
 		return ranks;
 	}
@@ -414,6 +480,12 @@ public class Normalize {
 
 			rankqualifier = "T";
 			raw = raw.substring(2);
+		}
+
+		if (raw.startsWith("temporary")) {
+
+			rankqualifier = "T";
+			raw = raw.substring(9);
 		}
 
 		raw = raw.replaceAll("\\p{javaSpaceChar}", " ").trim();

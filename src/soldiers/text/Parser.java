@@ -11,9 +11,10 @@ import soldiers.database.Service;
 public class Parser {
 
 	private static Pattern whitespace = Pattern.compile("^|\\s+"); // match the start of the text, or any sequence of whitespace
-	private static Pattern rankPattern = Pattern.compile("(T/|temp(orary)?\\s+)?(A/|acting(-|\\s+))?(lance(\\s+|\\-))?(Private|Pte|rifleman|Drumr|Drummer|Dmr|Dvr|Pioneer|Pnr|Gunner|GNR|Gnr|Spr|Corp(oral)?|Cpl|L/Cpl|L/C|LCPL|L Cpl|LCpl|LCorpl|Sgt Drummer|C/Sgt|CSjt|CSgt|C/Sjt|C Sgt|CRSGT|CR SGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt|Sjt|QMSgt|QMS|Qr Mr Sjt|Serjeant|Sergeant|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|SSgt|Band Sjt|CQMS|Company Sergeant Major|CSM|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt |second.lieutenant|Sec-Lieut|2Lieut|2 Lieut|Lt & Adjt|Lt Col(onel)?|Lieut\\.Col(onel)?|Lieutenant Col(onel)?|Lieut-Col(onel)?|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?\\.?", Pattern.CASE_INSENSITIVE);
+	private static Pattern rankPattern = Pattern.compile("(T/|temp(orary)?\\s+)?(A/|acting(-|\\s+)|act-|honororary\\s+|brevet\\s+)?(lance(\\s+|\\-))?(Cadet|Bandsman|cyclist|Private|Pte|rifleman|Drumr|Drummer|Dmr|Dvr|Pioneer|Pnr|Gunner|GNR|Gnr|Spr|Corp(oral)?|Corpl|Cpl|L/Cpl|L/C|LCPL|L.?Cpl|L-(Corpl|Sgt)|LCorpl|Lance-Corpl|Sgt Drummer|C/Sgt|CSjt|CSgt|C/Sjt|C Sgt|CRSGT|CR SGT|L-SERGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt(-major)?|Sjt|(COMPANY )?QUARTERMASTER SERG(EAN)?T|QMSgt|QMS|Qr Mr Sjt|Serjeant|QUARTERMASTER-SERGEANT|(2nd.)?Sergeant(.major)?|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|SSgt|Band Sjt|S\\.Q\\.M\\.S\\.|CQMS|Company Sergeant Major|CSM|CO-SERGT-MAJOR|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt|2nd lieut(enant)?|second.lieut(enant)?\\.?|Sec-Lieut|2Lieut|2 Lieut|Lt & Adjt|Lt Col(onel)?|Lieut\\.Col(onel)?|Lieutenant.Col(onel)?|Lieut\\.?-Col(onel)?|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|LIEUT-GENERAL|General|Gen|Surgeon)\\b(\\(Temp\\)\\b)?\\.?", Pattern.CASE_INSENSITIVE);
 	private static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
 	private static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
+	private static Pattern titlePattern = Pattern.compile("mr\\.?s?|the hon\\.?(ourable)?|sir|lord|(the )?rev|", Pattern.CASE_INSENSITIVE);
 
 	private static Pattern namePattern = Pattern.compile("(([A-Z](\\s?|\\.\\s?))+)?([A-Z][a-z]+(\\-|\\s{1,2}|,|\\.|$))+(\\s+([A-Z](\\s|\\.\\s?))+)?");
 	private static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC|JP))+$");
@@ -52,6 +53,22 @@ public class Parser {
 		return retval;
 	}
 	
+	
+	public static String title(String text) {
+		
+		String retval = text;
+		
+		Matcher rankMatcher = titlePattern.matcher(text);
+		
+		if ( rankMatcher.lookingAt() ) {
+			
+			String title = rankMatcher.group(0).trim();
+			retval = text.replaceAll(title, "").trim();
+		}
+		
+		return retval;
+	}
+
 	
 	public static String numberFind(String text, Service service) {
 		
