@@ -207,6 +207,13 @@ public class Person {
 		if ( forenames != null ) ch.characters(forenames.toCharArray(), 0, forenames.length());	
 		ch.endElement(SoldiersModel.XML_NAMESPACE, "forenames", "forenames");
 		
+		if ( suffix != null ) {
+			
+			ch.startElement(SoldiersModel.XML_NAMESPACE, "suffix", "suffix", new AttributesImpl());
+			ch.characters(suffix.toCharArray(), 0, suffix.length());	
+			ch.endElement(SoldiersModel.XML_NAMESPACE, "suffix", "suffix");
+		}
+		
 		attr = new AttributesImpl();
 		if (birth != null)  attr.addAttribute("", "date",  "date", "String",  formatter.format(birth));
 		if (bornafter != null)  attr.addAttribute("", "after",  "after", "String",  formatter.format(bornafter));
