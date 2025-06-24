@@ -219,6 +219,7 @@ public class Normalize {
 		ranks.put("bugler", "Bgr");
 		ranks.put("trumpeter", "Pte");
 		ranks.put("trooper", "Tpr");
+		ranks.put("troopr", "Tpr");
 		ranks.put("tpr", "Tpr");
 		ranks.put("private", "Pte");
 		ranks.put("driver", "Pte");
@@ -303,6 +304,7 @@ public class Normalize {
 		ranks.put("bandmaster", "Sgt");
 		ranks.put("farriersgt", "Sgt");
 		ranks.put("farrierserjeant", "Sgt");
+		ranks.put("drillinstructor", "Sgt");
 		ranks.put("serjeantactingcompanyserjeantmajor", "Sgt");
 		ranks.put("qrmrsgt", "QMS");
 		ranks.put("quartmastersergeant", "QMS");
@@ -339,6 +341,7 @@ public class Normalize {
 		ranks.put("woclass1", "WO1");
 		ranks.put("warrantofficerclass1", "WO1");
 		ranks.put("warrantofficer1stclass", "WO1");
+		ranks.put("ssm", "WO1");
 		ranks.put("sergeantmajor", "Sgt Maj");
 		ranks.put("sergtmajor", "Sgt Maj");
 		ranks.put("serjeantmajor", "Sgt Maj");
@@ -389,6 +392,7 @@ public class Normalize {
 		ranks.put("lt", "Lt");
 		ranks.put("lieut", "Lt");
 		ranks.put("lieutenant", "Lt");
+		ranks.put("honorarylieutenant", "Lt");
 		ranks.put("quartermasterandlieutenant", "Lt");
 		ranks.put("paylieutenant", "Lt");
 		ranks.put("asstsurg", "Asst Surg");
