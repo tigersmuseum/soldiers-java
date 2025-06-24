@@ -174,8 +174,8 @@ public class PersonFinder {
 					// Add a penalty score if a service number was specified in the query
 					if ( qnumber.length() > 0 ) {
 						
-						if      ( qnumber.contains("/") && !cnumber.contains("/") ) qnumber = qnumber.substring(qnumber.indexOf("/") + 1);
-						else if ( cnumber.contains("/") && !qnumber.contains("/") ) cnumber = cnumber.substring(cnumber.indexOf("/") + 1);
+						if      ( qnumber.contains("/") && !cnumber.contains("/") ) qnumber = qnumber.substring(qnumber.lastIndexOf("/") + 1);
+						else if ( cnumber.contains("/") && !qnumber.contains("/") ) cnumber = cnumber.substring(cnumber.lastIndexOf("/") + 1);
 						
 						numberDist = distance.apply(qnumber, cnumber);
 						
