@@ -2,6 +2,7 @@ package soldiers.utilities;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,9 +17,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import soldiers.database.Person;
+
 public class AmbigXml {
 
-	public static void main(String[] args) throws IOException, TransformerConfigurationException, IllegalArgumentException, SAXException, XPathExpressionException {
+	public static void main(String[] args) throws IOException, TransformerConfigurationException, IllegalArgumentException, SAXException, XPathExpressionException, ParseException {
 
 
     	if ( args.length < 1 ) {
@@ -45,6 +48,7 @@ public class AmbigXml {
 		for ( int p = 0; p < people.getLength(); p++ ) {
 			
 			Element person = (Element) people.item(p);
+			Person query = Soldiers.parsePerson(person);
 
 			NodeList list = (NodeList) candidateExpr.evaluate(person, XPathConstants.NODESET);
 			
@@ -57,11 +61,23 @@ public class AmbigXml {
 				candidates.add(String.valueOf(sid));
 			}
 			
-			if ( candidates.size() > 1 )   partitions.add(candidates);
+			if ( candidates.size() > 1 ) {
+				
+				partitions.add(candidates);
+				
+				check(query, candidates);
+			}
 		}
 				
 		System.out.println(partitions);
 		AmbigCsv.serializePartitions(partitions);
 	}
 
+	
+	private static void check(Person query, Set<String> candidates) {
+		
+		System.out.println(query);
+		
+		System.out.println(candidates);
+	}
 }
