@@ -9,7 +9,7 @@ import org.xml.sax.helpers.AttributesImpl;
 
 public class Service {
 
-	private String rank = "UNK", number = "", regiment, unit, rankqualifier;
+	private String rank = "UNK", number = "", regiment = "", unit, rankqualifier;
 	private Date before, after;
 	private long soldierId;
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); 
