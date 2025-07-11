@@ -113,4 +113,11 @@ public class Compare {
 			}		
 		}
 	}
+
+	
+	public static String getServiceKey(Service service) {
+		
+		String key = String.format("%d: %s %s %s", service.getSoldierId(), service.getNumber(), service.getRank(), service.getRegiment());
+		return key;
+	}
 }

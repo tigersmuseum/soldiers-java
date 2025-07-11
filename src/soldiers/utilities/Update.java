@@ -134,14 +134,14 @@ public class Update {
 			for ( Service service: known.getService() ) {
 				
 				// "SID", "NUM", "RANK_ABBREV", "REGIMENT", "BEFORE"
-				String key = String.format("%d: %s %s %s", service.getSoldierId(), service.getNumber(), service.getRank(), service.getRegiment());
+				String key = Compare.getServiceKey(service);
 				System.out.println("KNOWN: " + key);
 				serviceMap.put(key, service);
 			}
 			
 			for ( Service service: person.getService() ) {
 				
-				String key = String.format("%d: %s %s %s", service.getSoldierId(), service.getNumber(), service.getRank(), service.getRegiment());
+				String key = Compare.getServiceKey(service);
 				System.out.println("TEST: " + key);
 				Service knownService = serviceMap.get(key);
 				
