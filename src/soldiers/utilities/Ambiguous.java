@@ -85,12 +85,12 @@ public class Ambiguous {
 				candidates.add(candidate);
 			}
 			
-			if ( candidates.size() > 1 ) {
+			if ( candidates.size() > 0 ) {
 				
 				checkDeath(query, candidates);
-				checkInitials(query, candidates);
-				checkRegiment(query, candidates);
-				if ( candidates.size() > 1 )  checkRanks(query, candidates, rankMap, 2);
+				if ( candidates.size() > 1 )  checkInitials(query, candidates);
+				if ( candidates.size() > 1 )  checkRegiment(query, candidates);
+				checkRanks(query, candidates, rankMap, 3);
 				if ( candidates.size() > 1 )  checkForenames(query, candidates);
 				
 				Set<Long> results = new HashSet<Long>();
