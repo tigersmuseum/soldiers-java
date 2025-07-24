@@ -90,7 +90,7 @@ public class Ambiguous {
 				checkDeath(query, candidates);
 				if ( candidates.size() > 1 )  checkInitials(query, candidates);
 				if ( candidates.size() > 1 )  checkRegiment(query, candidates);
-				checkRanks(query, candidates, rankMap, 3);
+				if ( candidates.size() > 1 )  checkRanks(query, candidates, rankMap, 3);
 				if ( candidates.size() > 1 )  checkForenames(query, candidates);
 				
 				Set<Long> results = new HashSet<Long>();
@@ -173,7 +173,7 @@ public class Ambiguous {
 	public static void checkInitials(Person query, Collection<Candidate> candidates) {
 		
  		String qinitials = query.getInitials();
- 		if ( qinitials.length() == 0 ) return;
+ 		if ( qinitials == null || qinitials.length() == 0 ) return;
  		
 		Set<Candidate> inconsistent = new HashSet<Candidate>();
  		Set<Candidate> consistent   = new HashSet<Candidate>();
