@@ -22,6 +22,7 @@ public class Person {
 	private String suffix;
 	private String title;
 	private String surfaceText;
+	private Set<String> allSurfaceTexts = new HashSet<String>();
 	private Date birth, death;
 	private Date bornafter, bornbefore, diedafter, diedbefore;
 	private Set<Service> service = new HashSet<Service>();
@@ -234,10 +235,10 @@ public class Person {
 			ch.endElement(SoldiersModel.XML_NAMESPACE, "death", "death");
 		}
 		
-		if ( surfaceText != null ) {
+		for ( String txt: allSurfaceTexts ) {
 			
 			ch.startElement(SoldiersModel.XML_NAMESPACE, "text", "text", new AttributesImpl());
-			ch.characters(surfaceText.toCharArray(), 0, surfaceText.length());
+			ch.characters(txt.toCharArray(), 0, txt.length());
 			ch.endElement(SoldiersModel.XML_NAMESPACE, "text", "text");
 		}
 		
@@ -312,8 +313,13 @@ public class Person {
 		return surfaceText;
 	}
 
+	public Set<String> getAllSurfaceTexts() {
+		return allSurfaceTexts;
+	}
+
 	public void setSurfaceText(String surfaceText) {
 		this.surfaceText = surfaceText.replaceAll("\\s+", " ").trim();
+		allSurfaceTexts.add(this.surfaceText);
 	}
 
 	public boolean hasNumber(String number) {
