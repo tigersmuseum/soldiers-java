@@ -28,8 +28,9 @@ public class Scratch {
 
 		SimpleDateFormat d1 = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat d2 = new SimpleDateFormat("y-D");
+		SimpleDateFormat d3 = new SimpleDateFormat("d MMM yyyy");
 		
-		Date start = d1.parse("1944-06-01");
+		//Date start = d1.parse("1944-06-01");
 
 		XPathFactory factory = XPathFactory.newInstance();
 		XPath xpath = factory.newXPath();
@@ -37,10 +38,12 @@ public class Scratch {
 		xpath.setNamespaceContext(namespaceContext);
 
 		XmlUtils utils = new XmlUtils();
-		File input = new File("/C:/Users/Archive/Documents/GitHub/history/events/rhants/eventdiary.xhtml");
+		//File input = new File("/C:/Users/Archive/Documents/GitHub/history/events/rhants/eventdiary.xhtml");
+		File input = new File("/D:/GitHub/history/units/hants.xhtml");
 		Document doc = utils.parse(input);
 		
-		XPathExpression expr = xpath.compile(".//xhtml:span[ancestor::xhtml:td[1][contains(@class, 'date')]]");
+		//XPathExpression expr = xpath.compile(".//xhtml:span[ancestor::xhtml:td[1][contains(@class, 'date')]]");
+		XPathExpression expr = xpath.compile(".//xhtml:datetime");
 
 		NodeList list = (NodeList) expr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
 		
@@ -50,12 +53,15 @@ public class Scratch {
 
 			Element e = (Element) list.item(i);
 			try {
-				Date date = d1.parse(e.getAttribute("content"));
-				e.setAttributeNS("", "ordinal", d2.format(date));
+				//Date date = d1.parse(e.getAttribute("content"));
+				Date date = d1.parse(e.getTextContent());
+				//e.setAttributeNS("", "ordinal", d2.format(date));
+				e.setAttributeNS("", "content", e.getTextContent());
+				e.setTextContent(d3.format(date));
 				//e.setAttributeNS("", "offset", TimeUnit.DAYS.convert(date.getTime() - start.getTime(), TimeUnit.MILLISECONDS));
-				long x = TimeUnit.DAYS.convert(date.getTime() - start.getTime(), TimeUnit.MILLISECONDS);
-				System.out.println(x);
-				e.setAttributeNS("", "offset", String.valueOf(x));
+				//long x = TimeUnit.DAYS.convert(date.getTime() - start.getTime(), TimeUnit.MILLISECONDS);
+				//System.out.println(x);
+				//e.setAttributeNS("", "offset", String.valueOf(x));
 			}
 			catch (ParseException e1) {
 				// do nothing

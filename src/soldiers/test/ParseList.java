@@ -149,7 +149,7 @@ public class ParseList {
 	
 	public static void dittoRank(List<Person> soldiers) {
 		
-		String rank = soldiers.getFirst().getService().iterator().next().getRank();
+		String rank = soldiers.get(0).getService().iterator().next().getRank();
 		Iterator<Person> iterator = soldiers.iterator();
 		
 		while ( iterator.hasNext() ) {

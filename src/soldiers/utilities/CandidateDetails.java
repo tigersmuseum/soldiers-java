@@ -34,7 +34,7 @@ public class CandidateDetails {
 
     	if ( args.length < 2 ) {
     		
-    		System.err.println("Usage: Soldiers <input-filename> <output-filename>");
+    		System.err.println("Usage: CandidateDetails <input-filename> <output-filename>");
     		System.exit(1);
     	}
     	

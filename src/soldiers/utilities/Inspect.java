@@ -63,6 +63,8 @@ public class Inspect {
 			people.add(person);
 		}
 		
+		System.out.println("set size: " + people.size());
+		
 		Map<String, Person> contentMap = new HashMap<String, Person>();
 		Map<String, Set<String>> numberMap = new HashMap<String, Set<String>>();
 		
@@ -99,6 +101,7 @@ public class Inspect {
 			}
 		}
 
+		System.out.println("Number of name strings: " + contentMap.keySet().size() + "\n");
 		
 		// report
 		
