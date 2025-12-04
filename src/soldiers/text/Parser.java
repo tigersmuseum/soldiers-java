@@ -1,5 +1,6 @@
 package soldiers.text;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -14,11 +15,14 @@ public class Parser {
 	private static Pattern rankPattern = Pattern.compile("(T/|temp(orary)?\\s+)?(A/|acting(-|\\s+)|act-|honorary\\s+|brevet\\s+)?(lance(\\s+|\\-))?(Cadet|Bandsman|bdsm|cyclist|troope?r|Private|Pte|s\\.s\\.m\\.?|rifleman|Drumr|Drummer|Dmr|Dvr|Pioneer|Pnr|Gunner|GNR|Gnr|Spr|Corp(oral)?|Corpl|Cpl|L/Cpl|L/C|LCPL|L.?Cpl|L-(Corpl|Sgt)|LCorpl|Lance-Corpl|Sgt Drummer|C/Sgt|CSjt|CSgt|C/Sjt|C Sgt|CRSGT|CR SGT|L-SERGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt(-major)?|Sjt|(COMPANY )?QUARTERMASTER SERG(EAN)?T|drill instructor|QMSgt|QMS|Qr Mr Sjt|Serjeant|QUARTERMASTER-SERGEANT|(2nd.)?Sergeant(.major)?|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|SSgt|Band Sjt|S\\.Q\\.M\\.S\\.|CQMS|Company Sergeant Major|CSM|CO-SERGT-MAJOR|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt|2nd lieut(enant)?|second.lieut(enant)?\\.?|Sec-Lieut|2Lieut|2 Lieut|Lt & Adjt|Lt Col(onel)?|Lieut\\.Col(onel)?|Lieutenant.Col(onel)?|Lieut\\.?-Col(onel)?|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|LIEUT-GENERAL|General|Gen|Surgeon|unk)\\b(\\(Temp\\)\\b)?\\.?", Pattern.CASE_INSENSITIVE);
 	private static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
 	private static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
+	private static Pattern initialsSpacedPattern = Pattern.compile("^([A-Z]\\s)+");
 	private static Pattern titlePattern = Pattern.compile("mr\\.?s?|the hon\\.?(ourable)?|sir|lord|(the )?rev|", Pattern.CASE_INSENSITIVE);
 
 	private static Pattern namePattern = Pattern.compile("(([A-Z](\\s?|\\.\\s?))+)?([A-Z][a-z]+(\\-|\\s{1,2}|,|\\.|$))+(\\s+([A-Z](\\s|\\.\\s?))+)?");
 	private static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC|JP))+$");
 	private static Pattern companyPattern = Pattern.compile("[A-Z]\\s+Coy");
+	
+	private static Pattern contentPattern = Pattern.compile("^(\\d+/?\\d+)\\s+(.+?)\\s+(([A-Z]\\s)+)(.+)$");
 	
 	public static String suffix(String text, Person person) {
 		
@@ -99,6 +103,23 @@ public class Parser {
 		}
 		
 		return initials;
+	}
+
+	
+	public static String initials(String text, Person person) {
+		
+		String retval = text;
+
+		Matcher initialsMatcher = initialsSpacedPattern.matcher(text);
+		
+		if ( initialsMatcher.find() ) {
+			
+			String initials = initialsMatcher.group(0).trim();
+			person.setInitials(initials);
+			retval = text.substring(initials.length()).trim();
+		}
+		
+		return retval;
 	}
 	
 	
@@ -258,6 +279,70 @@ public class Parser {
 		String t3 = suffix(t2, person);
 		person.setSurname(t3.trim());
 
+		return person;
+		
+	}
+	
+	public static Person parseContent(String content) {
+		
+		// Parse a string in the 'content' format: (Number) Rank Initials Surname
+		// may have multiple instances separated by a comma
+		
+		Person person = new Person();
+
+		String[] alternatives = content.split(",\\s*");
+		
+		for ( String text: alternatives ) {
+			
+			Service service = new Service();
+
+			String t1 = numberFind(text, service);
+			String t2 = rank(t1, service);
+			String t3 = initials(t2, person);
+			person.setSurname(t3);
+			person.getService().add(service);
+		}
+
+		
+		return person;
+		
+	}
+	
+	public static Person parseContentX(String content) {
+		
+		// Parse a string in the 'content' format: (Number) Rank Initials Surname
+		// may have multiple instances separated by a comma
+		
+		Person person = new Person();
+
+		String[] alternatives = content.split(",\\s*");
+		
+		for ( String text: alternatives ) {
+			
+			Service service = new Service();
+
+			Matcher contentMatcher = contentPattern.matcher(text);
+			
+			if ( contentMatcher.find() ) {
+				
+				String number = contentMatcher.group(1).trim();
+				String rank = contentMatcher.group(2).trim();
+				String initials = contentMatcher.group(3).trim();
+				String surname = contentMatcher.group(5).trim();
+				
+				System.out.println(number + "*" + rank + "*" + initials + "*" + surname);
+				person.setInitials(initials);
+				person.setSurname(surname);
+				service.setRank(rank);
+				service.setNumber(number);
+				
+			}
+			
+			//service.setBefore(Date.valueOf("1907-06-30"));
+			person.getService().add(service);
+		}
+
+		
 		return person;
 		
 	}
