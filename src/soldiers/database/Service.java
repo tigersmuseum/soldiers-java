@@ -101,7 +101,7 @@ public class Service {
 		AttributesImpl attr = new AttributesImpl();
 		if ( number.length() >  0 )  attr.addAttribute("", "number",  "number", "String", number);
 		if ( rank != null )  attr.addAttribute("", "rank",  "rank", "String", rank);
-		if ( regiment != null )  attr.addAttribute("", "regiment",  "regiment", "String", regiment);
+		if ( regiment != null && regiment.length() >  0 )  attr.addAttribute("", "regiment",  "regiment", "String", regiment);
 		if ( unit != null )  attr.addAttribute("", "unit",  "unit", "String", unit);
 		if ( after != null )  attr.addAttribute("", "after",  "after", "String", formatter.format(after));
 		if ( before != null )  attr.addAttribute("", "before",  "before", "String", formatter.format(before));
