@@ -1,4 +1,4 @@
-package soldiers.test;
+package soldiers.mentions;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,23 +21,26 @@ import soldiers.database.SoldiersModel;
 import soldiers.utilities.CandidateDetails;
 import soldiers.utilities.ConnectionManager;
 import soldiers.utilities.Soldiers;
+import soldiers.utilities.XmlUtils;
 
-public class Mentions {
+public class MakeMentionsCsv {
 
 	public static void main(String[] args) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException, ParseException {
 
 		/*
-		 * Run this from source.xml?
+		 * Run this from source.xml? Fix the output name to be "mentions.csv" in the same directory as input?
 		 */
     	if ( args.length < 3 ) {
     		
-    		System.err.println("Usage: Mentions <input-filename> <output-filename> <tag>");
+    		System.err.println("Usage: MakeMentionsCsv <input-filename> <output-filename> <tag>");
     		System.exit(1);
     	}
 
+		XmlUtils xmlutils = new XmlUtils();
+
 		String inputfile = args[0]; String outputfile = args[1]; String tag = args[2];
 
-		Document doc = Soldiers.readDocument(new FileInputStream(inputfile));			 
+		Document doc = xmlutils.readDocument(new FileInputStream(inputfile));			 
 		doc.normalize();
 
 		Map<Long, Set<Element>> lookup = CandidateDetails.getSoldierMap(doc);
