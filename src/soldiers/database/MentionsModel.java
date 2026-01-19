@@ -9,6 +9,31 @@ import java.util.Set;
 
 public class MentionsModel {
 
+	public static Set<String> getSources(Connection connection) {
+		
+		String sql = "select distinct SOURCE from MENTIONS";
+		
+		Set<String> sources = new HashSet<String>();
+
+		try {
+				
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			ResultSet results = stmt.executeQuery();
+			
+			while ( results.next() ) {
+				
+				sources.add(results.getString("SOURCE"));
+			}
+			
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return sources;
+	}	
+
 	public static Set<String> getSourcesMentioningSoldierId(Connection connection, long sid) {
 		
 		String sql = "select * from MENTIONS where SID = ?";
