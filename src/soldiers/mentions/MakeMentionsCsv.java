@@ -16,11 +16,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import soldiers.database.Person;
-import soldiers.database.SoldiersModel;
 import soldiers.utilities.CandidateDetails;
-import soldiers.utilities.ConnectionManager;
-import soldiers.utilities.Soldiers;
 import soldiers.utilities.XmlUtils;
 
 public class MakeMentionsCsv {
@@ -45,25 +41,9 @@ public class MakeMentionsCsv {
 
 		Map<Long, Set<Element>> lookup = CandidateDetails.getSoldierMap(doc);
 		
-		for ( long sid: lookup.keySet()) {
-			
-			Set<Element> persons = lookup.get(sid);
-			
-			if ( persons.size() > 1 ) {
-				
-				System.out.println(sid + " = " + persons.size());
-				
-				Person known = SoldiersModel.getPerson(ConnectionManager.getConnection(), sid);
-				System.out.println(known + " -- " + known.getService());
-							
-				for (Element p: persons ) {
-					
-					Person person = Soldiers.parsePerson(p);
-					System.out.println(person + " -- " + person.getService());
-				}
-			}
-		}
+		System.out.println("\nSource: " + tag);
 		
+		Report.reportMentions(lookup);		
 		PrintWriter output = new PrintWriter(outputfile);
 
 		for (Long sid: lookup.keySet() ) {
@@ -73,5 +53,4 @@ public class MakeMentionsCsv {
 		
 		output.close();
 	}
-
 }
