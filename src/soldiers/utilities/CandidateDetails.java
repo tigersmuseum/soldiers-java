@@ -77,37 +77,6 @@ public class CandidateDetails {
 	}
 
 	
-	public static Set<Long> getSoldierSet(Document doc) throws XPathExpressionException {
-		
-	/*
-	 * Returns the set of Soldier IDs from candidate elements in the input XML document.
-	 */
-		Set<Long> soldiers = new HashSet<Long>();
-		
-		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
-		
-		xpath.setNamespaceContext(namespaceContext);
-		XPathExpression soldierExpr = xpath.compile("//soldiers:person");
-		XPathExpression candidateExpr = xpath.compile(".//soldiers:candidate[1]");
-		NodeList list = (NodeList) soldierExpr.evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
-		
-		for ( int i = 0; i < list.getLength(); i++ ) {
-
-			Element person = (Element) list.item(i);
-			
-			Element candidate = (Element) candidateExpr.evaluate(person, XPathConstants.NODE);
-			
-			if ( candidate != null ) {
-				
-				long sid = Long.parseLong(candidate.getAttribute("sid"));
-				soldiers.add(sid);
-			}
-		}
-		
-		return soldiers;
-	}
-
-	
 	public static Map<Long, Set<Element>> getSoldierMap(Document doc) throws XPathExpressionException {
 		
 	/*

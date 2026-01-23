@@ -179,6 +179,6 @@ public class Collect {
 		Document doc = Soldiers.readDocument(new FileInputStream(inputfile));			 
 		doc.normalize();
 		
-		return CandidateDetails.getSoldierSet(doc);
+		return CandidateDetails.getSoldierMap(doc).keySet();
 	}
 }
