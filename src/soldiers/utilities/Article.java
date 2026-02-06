@@ -31,7 +31,7 @@ import soldiers.database.Person;
 import soldiers.database.SoldiersNamespaceContext;
 import soldiers.text.Parser;
 
-public class ParseHtml {
+public class Article {
 
 	public static void main(String[] args) throws XPathExpressionException, SAXException, TransformerException, MalformedURLException, ParseException, FileNotFoundException {
 
@@ -42,10 +42,10 @@ public class ParseHtml {
 		NamespaceContext namespaceContext = new SoldiersNamespaceContext();
 		xpath.setNamespaceContext(namespaceContext);
 		
-		Document input = xmlutils.parse(new File("/E:/Soldiers/database/biography/A.html"));
+		Document input = xmlutils.parse(new File("/E:/Soldiers/database/biography/F.html"));
 		input.normalize();
 		
-		XPathExpression personExpr = xpath.compile("//*[@class = 'person'][@content]");
+		XPathExpression personExpr = xpath.compile("//xhtml:article[@id]");
 		NodeList list = (NodeList) personExpr.evaluate(input.getDocumentElement(), XPathConstants.NODESET);
 		
 		List<Person> personList = new ArrayList<Person>();
@@ -58,6 +58,8 @@ public class ParseHtml {
 			System.out.println(e.getAttribute("content"));			
 			Person person = Parser.parseContent(e.getAttribute("content"));
 			if ( person.getSurname().length() == 0 )  System.err.println("Can't parse: " + e.getAttribute("content"));
+			long sid = Long.valueOf(e.getAttribute("id"));
+			person.setSoldierId(sid);
 			personList.add(person);
 		}
 		
