@@ -38,16 +38,21 @@ import soldiers.search.CandidateScore;
 
 public class Ambiguous {
 
+	/*
+	 *  Go through search results that have more than one match in the database (i.e. ambiguous) and filter out candidate matches that are not consistent
+	 *  with other information in the database (that wasn't used in the search).
+	 */
+		
 	public static void main(String[] args) throws IOException, IllegalArgumentException, SAXException, XPathExpressionException, ParseException, SQLException, TransformerException {
 
-
-    	if ( args.length < 1 ) {
+		if ( args.length < 2 ) {
     		
-    		System.err.println("Usage: Ambiguous <input-filename>");
+    		System.err.println("Usage: Ambiguous <input-filename> <output-filename>");
     		System.exit(1);
     	}
 		
-     	String inputfile   = args[0];
+     	String inputfile  = args[0];
+     	String outputfile = args[1];
 
 		XmlUtils xmlutils = new XmlUtils();
 				
@@ -57,6 +62,7 @@ public class Ambiguous {
 		XPathExpression candidateExpr = xpath.compile(".//soldiers:candidate");
 		
 		NodeList people = (NodeList) personExpr.evaluate(source.getDocumentElement(), XPathConstants.NODESET);
+		System.out.println("Number of person elements: " + people.getLength());
 		
 		Connection connection = ConnectionManager.getConnection();
 
@@ -66,6 +72,8 @@ public class Ambiguous {
 			
 			Element person = (Element) people.item(p);
 			Person query = Soldiers.parsePerson(person);
+			
+			// for each person in the input, get all the potential candidate matches from the database
 
 			NodeList list = (NodeList) candidateExpr.evaluate(person, XPathConstants.NODESET);
 			
@@ -85,13 +93,27 @@ public class Ambiguous {
 				candidates.add(candidate);
 			}
 			
+			// check person details in the query against the set of candidates. Remove any candidate that is
+			// inconsistent with the query.
+			
 			if ( candidates.size() > 0 ) {
 				
-				checkDeath(query, candidates);
+				int before = candidates.size();
+				
+				// must be consistent ...
+				checkDeath(query, candidates); 
+				
+				// should be consistent - but stop if we're down to one match ...
 				if ( candidates.size() > 1 )  checkInitials(query, candidates);
 				if ( candidates.size() > 1 )  checkRegiment(query, candidates);
-				if ( candidates.size() > 1 )  checkRanks(query, candidates, rankMap, 3);
+				if ( candidates.size() > 1 )  checkRanks(query, candidates, rankMap, 3, 5);
 				if ( candidates.size() > 1 )  checkForenames(query, candidates);
+				
+				int after = candidates.size();
+				
+				System.out.println(query.getContent() + ": " + before + " -> " + after);
+				
+				// edit the XML "in place" to remove "candidate" elements for the candidates removed from the set.
 				
 				Set<Long> results = new HashSet<Long>();
 				for ( Candidate candidate: candidates )  results.add(candidate.getPerson().getSoldierId());
@@ -109,14 +131,12 @@ public class Ambiguous {
 		}
 				
 		connection.close();
-		
-		
+				
 		TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        //transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		DOMSource domsource = new DOMSource(source);
-		StreamResult result = new StreamResult(new FileOutputStream("output/filtered.xml"));	
+		StreamResult result = new StreamResult(new FileOutputStream(outputfile));	
 		transformer.transform(domsource, result);	
 
 	}
@@ -138,8 +158,6 @@ public class Ambiguous {
 			if ( qdeath != null ) {
 				
 				if ( possible.getDeath() != null ) {
-					
-					System.out.println("** " + possible.getDeath());
 					
 					if ( possible.getDeath().equals(qdeath) )  consistent.add(candidate);
 					if ( possible.getDiedbefore() != null && qdeath.after(possible.getDiedbefore()))  inconsistent.add(candidate);
@@ -164,9 +182,11 @@ public class Ambiguous {
 			}
 		}
 				
-		if ( consistent.size() > 0 )  candidates.retainAll(consistent);	
-		else candidates.removeAll(inconsistent);
+		// if there are any consistent candidates, keep just those. Otherwise, filter out inconsistent candidates.
+		// if none of the death fields are in the query, this leaves the set of candidates unchanged.
 		
+		if ( consistent.size() > 0 )  candidates.retainAll(consistent);	
+		else candidates.removeAll(inconsistent);		
 	}
 
 	
@@ -177,6 +197,12 @@ public class Ambiguous {
  		
 		Set<Candidate> inconsistent = new HashSet<Candidate>();
  		Set<Candidate> consistent   = new HashSet<Candidate>();
+ 		
+ 		// Candidates are consistent if the query initials are the same as the database initials
+ 		// OR the query initials are a subset of the database initials (ignoring order).
+ 		// Candidates are inconsistent if there is an initial in the database that is not in the query
+ 		// AND there is an initial in the query that is not in the database.
+ 		// Candidates with initials that are a subset of the query initials are neither consistent nor inconsistent.
  		
  		for ( Candidate candidate: candidates ) {
  			
@@ -208,6 +234,9 @@ public class Ambiguous {
 			}
  		}
  		
+		// if there are any consistent candidates, keep just those. Otherwise, filter out inconsistent candidates.
+		// if there are no initials in the query, this leaves the set of candidates unchanged.
+
  		if ( consistent.size() > 0 ) candidates.retainAll(consistent);
  		else candidates.removeAll(inconsistent);
  		
@@ -221,6 +250,8 @@ public class Ambiguous {
  		
 		Set<Candidate> inconsistent = new HashSet<Candidate>();
  		Set<Candidate> consistent   = new HashSet<Candidate>();
+ 		
+ 		// the logic for forenames is the same as for initials above
  		
  		for ( Candidate candidate: candidates ) {
  			
@@ -252,6 +283,9 @@ public class Ambiguous {
 			}
  		}
  		
+		// if there are any consistent candidates, keep just those. Otherwise, filter out inconsistent candidates.
+		// if there are no forenames in the query, this leaves the set of candidates unchanged.
+
  		if ( consistent.size() > 0 ) candidates.retainAll(consistent);
  		else candidates.removeAll(inconsistent);
  		
@@ -265,6 +299,9 @@ public class Ambiguous {
  		
  		Set<Candidate> consistent = new HashSet<Candidate>();
  		
+ 		// There may be multiple service records for a candidate. If the regiment on any of these matches
+ 		// the regiment in the query, then the candidate is consistent. Nothing is marked inconsistent by this test.
+ 		
  		for ( Candidate candidate: candidates ) {
  			
  			Set<String> cset = getRegiments(candidate.getPerson());
@@ -272,17 +309,26 @@ public class Ambiguous {
  			if ( cset.size() > 0 )  consistent.add(candidate);
  		}
 		
+		// if there are any consistent candidates, keep just those. Otherwise, leave the set of candidates unchanged.
+
 		if ( consistent.size() > 0 ) candidates.retainAll(consistent);
 	}
 
 	
-	public static void checkRanks(Person query, Collection<Candidate> candidates, Map<String, Integer> rankMap, int delta) {
+	public static void checkRanks(Person query, Collection<Candidate> candidates, Map<String, Integer> rankMap, int accept, int reject) {
 		
 		Set<Integer> qset = getRanks(query, rankMap);
 		if ( qset.size() == 0 )  return;
 		 		
  		Set<Candidate> consistent   = new HashSet<Candidate>();
  		Set<Candidate> inconsistent = new HashSet<Candidate>();
+ 		
+ 		// This test uses the numerical NATO_CODE field in the database associated with each rank.
+ 		// If any rank in the query matches any rank held by the candidate, then the candidate is marked consistent.
+ 		// Otherwise a check is made to find the smallest gap in seniority, in terms of NATO_CODE levels, between any query rank
+ 		// and any specific candidate rank. if this is less that or equal to the threshold in the "accept" parameter, then the
+ 		// candidate is marked consistent". If it greater than or equal to to the threshold in the "reject" parameter, then the 
+ 		// candidate is marked inconsistent.
  		
  		for ( Candidate candidate: candidates ) {
  			
@@ -305,13 +351,14 @@ public class Ambiguous {
  					}
  				}
  				
-				if ( minRankDistance <= delta ) consistent.add(candidate);
-				else if ( minRankDistance > delta + 1 ) inconsistent.add(candidate);
-
+				if ( minRankDistance <= accept ) consistent.add(candidate);
+				else if ( minRankDistance > reject ) inconsistent.add(candidate);
  			}
  		}
 		
-		if ( consistent.size() > 0 ) candidates.retainAll(consistent);
+		// if there are any consistent candidates, keep just those. Otherwise, filter out inconsistent candidates.
+
+ 		if ( consistent.size() > 0 ) candidates.retainAll(consistent);
 		else candidates.removeAll(inconsistent);
 	}
 
@@ -326,8 +373,7 @@ public class Ambiguous {
 			
 			if ( record.getRegiment() != null ) results.add(record.getRegiment().replaceAll("\\s+", " ").trim().toLowerCase());
 		}
-		
-		
+				
 		return results;
 	}
 
