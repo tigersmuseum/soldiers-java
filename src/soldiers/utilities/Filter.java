@@ -20,7 +20,7 @@ public class Filter {
 
     	if ( args.length < 4 ) {
     		
-    		System.err.println("Usage: Report <input-file> <output-identified> <output-ambiguous> <output-unknown>");
+    		System.err.println("Usage: Filter <input-file> <output-identified> <output-ambiguous> <output-unknown>");
     		System.exit(1);
     	}
     	
