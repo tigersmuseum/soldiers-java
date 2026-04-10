@@ -4,7 +4,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +29,7 @@ import soldiers.utilities.XmlUtils;
 
 public class Report {
 
-	public static void main(String[] args) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException {
+	public static void main(String[] args) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException, TransformerException, XPathExpressionException, SQLException {
 
 		XmlUtils xmlutils = new XmlUtils();	
 		Connection connection = ConnectionManager.getConnection();
@@ -40,7 +44,12 @@ public class Report {
 		System.out.println("Sources in master list: " + sources);	
 		
 		sources.removeAll(sourcesDB);
-		System.out.println("Sources not in database: " + sources);	
+		System.out.println("Sources not in database: " + sources);
+		
+		Map<String, Integer> counts = getCountsBySource(connection);
+		System.out.println(counts);
+		
+		connection.close();
 	}
 	
 	
@@ -65,6 +74,35 @@ public class Report {
 				}
 			}
 		}
+	}
+
+	
+	public static Map<String, Integer> getCountsBySource(Connection connection) {
+		
+		Map<String, Integer> counts = new HashMap<>();
+		
+		String sql = "select source, count(*) as \"MENTIONS\" from MENTIONS group by source";
+
+		try {
+				
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			
+			ResultSet results = stmt.executeQuery();
+			
+			while ( results.next() ) {
+				
+				String source = results.getString("SOURCE");
+				int mentions = results.getInt("MENTIONS");
+				counts.put(source, mentions);
+			}
+			
+			stmt.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+				
+		return counts;
 	}
 
 }
