@@ -79,7 +79,7 @@ public class Report {
 	
 	public static Map<String, Integer> getCountsBySource(Connection connection) {
 		
-		Map<String, Integer> counts = new HashMap<>();
+		Map<String, Integer> counts = new HashMap<String, Integer>();
 		
 		String sql = "select source, count(*) as \"MENTIONS\" from MENTIONS group by source";
 
