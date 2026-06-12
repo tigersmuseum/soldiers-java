@@ -543,7 +543,7 @@ public class Normalize {
 			raw = raw.substring(6);
 		}
 
-		if (raw.startsWith("t/")) {
+		if ( raw.startsWith("t/") || raw.startsWith("t./") ) {
 
 			rankqualifier = "T";
 			raw = raw.substring(2);

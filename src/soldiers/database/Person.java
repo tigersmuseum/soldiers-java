@@ -258,7 +258,7 @@ public class Person {
 
     private String normalizeInitials(String initials) {
     	
-		String addspaces = initials.toUpperCase().replaceAll("([A-Z])", "$1 ");
+		String addspaces = initials.toUpperCase().replaceAll("\\.", "").replaceAll("([A-Z])", "$1 ");
 		String normalizespaces = addspaces.replaceAll("\\s+", " ").trim();
 		return normalizespaces;
     }

@@ -1,6 +1,5 @@
 package soldiers.text;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,13 +11,15 @@ import soldiers.database.Service;
 public class Parser {
 
 	private static Pattern whitespace = Pattern.compile("^|\\s+"); // match the start of the text, or any sequence of whitespace
-	private static Pattern rankPattern = Pattern.compile("(T/|temp(orary)?\\s+)?(A/|acting(-|\\s+)|act-|honorary\\s+|brevet\\s+)?(lance(\\s+|\\-))?(Cadet|Bandsman|bdsm|cyclist|troope?r|Private|Pte|s\\.s\\.m\\.?|rifleman|Drumr|Drummer|Dmr|Dvr|Pioneer|Pnr|Gunner|GNR|Gnr|Spr|Corp(oral)?|Corpl|Cpl|L/Cpl|L/C|LCPL|L.?Cpl|L-(Corpl|Sgt)|LCorpl|Lance-Corpl|Sgt Drummer|C/Sgt|CSjt|CSgt|C/Sjt|C Sgt|CRSGT|CR SGT|L-SERGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt(-major)?|Sjt|(COMPANY )?QUARTERMASTER SERG(EAN)?T|drill instructor|QMSgt|QMS|Qr Mr Sjt|Serjeant|QUARTERMASTER-SERGEANT|(2nd.)?Sergeant(.major)?|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|SSgt|Band Sjt|S\\.Q\\.M\\.S\\.|CQMS|Company Sergeant Major|CSM|CO-SERGT-MAJOR|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt|2nd lieut(enant)?|second.lieut(enant)?\\.?|Sec-Lieut|2Lieut|2 Lieut|Lt & Adjt|Lt Col(onel)?|Lieut\\.Col(onel)?|Lieutenant.Col(onel)?|Lieut\\.?-Col(onel)?|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|LIEUT-GENERAL|General|Gen|Surgeon|unk)\\b(\\(Temp\\)\\b)?\\.?", Pattern.CASE_INSENSITIVE);
-	private static Pattern numberPattern = Pattern.compile("(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
-	private static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
+	private static Pattern rankPattern = Pattern.compile("\\b(T\\.?/|temp(orary)?\\s+)?(A/|acting(-|\\s+)|act-|honorary\\s+|brevet\\s+)?(lance(\\s+|\\-))?(Cadet|Bandsman|bdsm|cyclist|troope?r|Private|Pte|s\\.s\\.m\\.?|rifleman|Drumr|Drummer|Dmr|Dvr|Pioneer|Pnr|Gunner|GNR|Gnr|Spr|Corp(oral)?|Corpl|Cpl|L/Cpl|L/C|LCPL|L.?Cpl|L-(Corpl|Sgt)|LCorpl|Lance-Corpl|Sgt Drummer|C/Sgt|CSjt|CSgt|C/Sjt|C Sgt|CRSGT|CR SGT|L-SERGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt(-major)?|Sjt|(COMPANY )?QUARTERMASTER SERG(EAN)?T|drill instructor|QMSgt|QMS|Qr Mr Sjt|Serjeant|QUARTERMASTER-SERGEANT|(2nd.)?Sergeant(.major)?|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|SSgt|Band Sjt|S\\.Q\\.M\\.S\\.|CQMS|Company Sergeant Major|CSM|CO-SERGT-MAJOR|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt|2nd lieut(enant)?|second.lieut(enant)?\\.?|Sec-Lieut|2Lieut|2 Lieut|Lt & Adjt|Lt Col(onel)?|Lieut\\.Col(onel)?|Lieutenant.Col(onel)?|Lieut\\.?-Col(onel)?|Lt.\\-Col|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|LIEUT-GENERAL|General|Gen|Surgeon|unk)\\b(\\(Temp\\)\\b)?\\.?", Pattern.CASE_INSENSITIVE);
+	private static Pattern numberPattern = Pattern.compile("\\b(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
+//	private static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
+	private static Pattern initialsPattern = Pattern.compile("\\b(([A-Z](\\s|\\.\\s?))+)");
 	private static Pattern initialsSpacedPattern = Pattern.compile("^([A-Z]\\s)+");
 	private static Pattern titlePattern = Pattern.compile("mr\\.?s?|the hon\\.?(ourable)?|sir|lord|(the )?rev|", Pattern.CASE_INSENSITIVE);
 
 	private static Pattern namePattern = Pattern.compile("(([A-Z](\\s?|\\.\\s?))+)?([A-Z][a-z]+(\\-|\\s{1,2}|,|\\.|$))+(\\s+([A-Z](\\s|\\.\\s?))+)?");
+	private static Pattern surnamePattern = Pattern.compile("\\b([A-Z][a-z]+(\\-|\\s{1,2}|\\.)?)+");
 	private static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC|JP))+$");
 	private static Pattern companyPattern = Pattern.compile("[A-Z]\\s+Coy");
 	
@@ -74,7 +75,7 @@ public class Parser {
 	}
 
 	
-	public static String numberFind(String text, Service service) {
+	public static String addNumberToService(String text, Service service) {
 		
 		String retval = text;
 		
@@ -91,20 +92,43 @@ public class Parser {
 	}
 
 	
-	public static String initialsFind(String text) {
+	public static List<String> initialsFind(String text) {
 		
-		String initials = "";
+		return findAll(text, initialsPattern);
+	}
+
+	
+	public static List<String> numberFind(String text) {
+
+		return findAll(text, numberPattern);
+	}
+
+	
+	public static List<String> surnameFind(String text) {
+
+		return findAll(text, surnamePattern);
+	}
+
+	
+	public static List<String> rankFind(String text) {
+				
+		return findAll(text, rankPattern);
+	}
+
+	private static List<String> findAll(String text, Pattern pattern) {
 		
-		Matcher initialsMatcher = initialsPattern.matcher(text);
+		List<String> retval = new ArrayList<String>();
+		
+		Matcher initialsMatcher = pattern.matcher(text);
 		
 		if ( initialsMatcher.find() ) {
 			
-			initials = initialsMatcher.group(0).trim();
+			String initials = initialsMatcher.group(0).trim();
+			retval.add(initials);
 		}
 		
-		return initials;
+		return retval;
 	}
-
 	
 	public static String initials(String text, Person person) {
 		
@@ -272,7 +296,7 @@ public class Parser {
 		if ( parts.length > 1 ) person.setInitials(parts[1].trim());
 		
 		Service service = new Service();		
-		String t1 = numberFind(parts[0].trim(), service);
+		String t1 = addNumberToService(parts[0].trim(), service);
 		String t2 = rank(t1, service);
 		person.getService().add(service);
 		
@@ -296,7 +320,7 @@ public class Parser {
 			
 			Service service = new Service();
 
-			String t1 = numberFind(text, service);
+			String t1 = addNumberToService(text, service);
 			String t2 = rank(t1, service);
 			String t3 = initials(t2, person);
 			person.setSurname(t3);

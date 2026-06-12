@@ -18,7 +18,6 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-import soldiers.database.Normalize;
 import soldiers.database.Person;
 import soldiers.database.Service;
 import soldiers.database.SoldiersModel;
@@ -39,7 +38,7 @@ public class ParseList {
 
 		File inputFile = new File(inputfile);
 		//canonicalList(inputFile);
-		testInitials(inputFile);
+		testX(inputFile);
 		//Normalize.normalizeRank(list);
 	}
 	
@@ -58,14 +57,56 @@ public class ParseList {
 		output1(individuals);
 	}
 	
+	public static void testX(File inputFile) throws IOException, SAXException {
+		
+		List<String> lines = FileUtils.readLines(inputFile);
+		List<Person> list = new ArrayList<Person>();	
+		
+		for ( String line: lines ) {
+			
+			List<String> ranks   = Parser.rankFind(line);
+			List<String> numbers = Parser.numberFind(line);
+			
+			if ( ranks.size() == 1 && numbers.size() > 0 ) {
+				
+				System.out.println("rank: " + line + " = " + ranks);
+				String temp = line.replaceAll(ranks.getFirst(), "");
+				List<String> initials = Parser.initialsFind(temp);
+				List<String> surnames = Parser.surnameFind(temp);
+				System.out.println(temp + " -- " + numbers + " - " + initials + " ** " + surnames);
+				
+				Person person = new Person();
+				person.setSurfaceText(line);
+				person.setInitials(initials.getFirst());
+				person.setSurname(surnames.getFirst());
+				
+				Service service = new Service();
+				service.setNumber(numbers.getFirst());
+				service.setRank(ranks.getFirst());
+				service.setRegiment("Hampshire Regiment");
+				service.setUnit("2 Bn");
+				service.setBefore(Date.valueOf("1954-05-08"));
+				person.addService(service);
+				list.add(person);
+			}
+			else {
+				
+				System.out.println("NO RANK: " + line);
+				
+			}
+		}
+		
+		serializeList(list);
+	}
+	
 	public static void testInitials(File inputFile) throws IOException {
 		
 		List<String> lines = FileUtils.readLines(inputFile);
 		
 		for ( String line: lines ) {
 			
-			String initials = Parser.initialsFind(line);
-			System.out.println(line + " = " + initials);
+			List<String> initials = Parser.numberFind(line);
+			System.out.println("initials: " + line + " = " + initials);
 		}
 	}
 	
@@ -135,7 +176,8 @@ public class ParseList {
         ContentHandler serializer = XmlUtils.getSerializer(new FileOutputStream("output/list.xml"));
 		serializer.startDocument();
 		AttributesImpl attr = new AttributesImpl();
-		attr.addAttribute("", "src",  "src", "String",  "The Hampshire Regimental Journal, January 1919, Killed in Action");
+		//attr.addAttribute("", "src",  "src", "String",  "The Hampshire Regimental Journal, January 1919, Killed in Action");
+		attr.addAttribute("", "src",  "src", "String",  "The Hampshire Regimental Journal, May 1946, Nominal Roll of Officers serving with the 2nd Battalion on VE-Day");
 		serializer.startElement(SoldiersModel.XML_NAMESPACE, "list", "list", attr);
 
 		for ( Person p: list ) {
