@@ -70,19 +70,19 @@ public class ParseList {
 			if ( ranks.size() == 1 && numbers.size() > 0 ) {
 				
 				System.out.println("rank: " + line + " = " + ranks);
-				String temp = line.replaceAll(ranks.getFirst(), "");
+				String temp = line.replaceAll(ranks.get(0), "");
 				List<String> initials = Parser.initialsFind(temp);
 				List<String> surnames = Parser.surnameFind(temp);
 				System.out.println(temp + " -- " + numbers + " - " + initials + " ** " + surnames);
 				
 				Person person = new Person();
 				person.setSurfaceText(line);
-				person.setInitials(initials.getFirst());
-				person.setSurname(surnames.getFirst());
+				person.setInitials(initials.get(0));
+				person.setSurname(surnames.get(0));
 				
 				Service service = new Service();
-				service.setNumber(numbers.getFirst());
-				service.setRank(ranks.getFirst());
+				service.setNumber(numbers.get(0));
+				service.setRank(ranks.get(0));
 				service.setRegiment("Hampshire Regiment");
 				service.setUnit("2 Bn");
 				service.setBefore(Date.valueOf("1954-05-08"));
