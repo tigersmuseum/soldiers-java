@@ -155,6 +155,15 @@ public class Normalize {
 			// are in the XML.
 			Person p = Soldiers.parsePerson(e);
 
+			// Set the surface text, if specified in the input XML
+			NodeList tlist = e.getElementsByTagName("text");
+
+			if (tlist.getLength() == 1) {
+
+				Element telem = (Element) tlist.item(0);
+				p.setSurfaceText(telem.getTextContent());
+			}
+
 			// Normalize ranks: The database will accept any text value for rank, but we
 			// must be consistent if we want to search by rank.
 			// This step converts any expression of rank to the relevant form given in the
@@ -278,6 +287,7 @@ public class Normalize {
 		ranks.put("lsgt", "L/Sgt");
 		ranks.put("alsgt", "L/Sgt");
 		ranks.put("lsergt", "L/Sgt");
+		ranks.put("alsergt", "L/Sgt");
 		ranks.put("lcesgt", "L/Sgt");
 		ranks.put("lsjt", "L/Sgt");
 		ranks.put("lancesergeant", "L/Sgt");
@@ -290,6 +300,8 @@ public class Normalize {
 		ranks.put("actsgt", "Sgt");
 		ranks.put("sjt", "Sgt");
 		ranks.put("sergt", "Sgt");
+		ranks.put("asergt", "Sgt");
+		ranks.put("acsergt", "Sgt");
 		ranks.put("serjeant", "Sgt");
 		ranks.put("sergeant", "Sgt");
 		ranks.put("sergent", "Sgt");
