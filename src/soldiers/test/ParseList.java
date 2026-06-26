@@ -67,7 +67,7 @@ public class ParseList {
 			List<String> ranks   = Parser.rankFind(line);
 			List<String> numbers = Parser.numberFind(line);
 			
-			if ( ranks.size() == 1 && numbers.size() > 0 ) {
+			if ( ranks.size() == 1 ) {
 				
 				String temp = line.replaceAll(ranks.get(0), "");
 				List<String> initials = Parser.initialsFind(temp);
@@ -79,11 +79,11 @@ public class ParseList {
 				person.setSurname(surnames.get(0));
 				
 				Service service = new Service();
-				service.setNumber(numbers.get(0));
+				if ( numbers.size() == 1 ) service.setNumber(numbers.get(0));
 				service.setRank(ranks.get(0));
 				service.setRegiment("Hampshire Regiment");
 				//service.setUnit("2 Bn");
-				service.setBefore(Date.valueOf("1916-12-31"));
+				service.setBefore(Date.valueOf("1914-12-01"));
 				person.addService(service);
 				list.add(person);
 			}
@@ -174,9 +174,13 @@ public class ParseList {
         ContentHandler serializer = XmlUtils.getSerializer(new FileOutputStream("output/list.xml"));
 		serializer.startDocument();
 		AttributesImpl attr = new AttributesImpl();
-		attr.addAttribute("", "src",  "src", "String",  "The Hampshire Regimental Journal, December 1916, Killed in Action");
+		String description = "The Hampshire Regimental Journal, December 1914, Casualties to December 1st, 1914";
+		attr.addAttribute("", "src",  "src", "String",  description);
 		//attr.addAttribute("", "src",  "src", "String",  "The Hampshire Regimental Journal, May 1946, Nominal Roll of Officers serving with the 2nd Battalion on VE-Day");
-		serializer.startElement(SoldiersModel.XML_NAMESPACE, "list", "list", attr);
+		serializer.startElement(SoldiersModel.XML_NAMESPACE, "list", "list", new AttributesImpl());
+		serializer.startElement(SoldiersModel.XML_NAMESPACE, "description", "description", new AttributesImpl());
+		serializer.characters(description.toCharArray(), 0, description.length());
+		serializer.endElement(SoldiersModel.XML_NAMESPACE, "description", "description");
 
 		for ( Person p: list ) {
 			
