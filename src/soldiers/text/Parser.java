@@ -11,16 +11,16 @@ import soldiers.database.Service;
 public class Parser {
 
 	private static Pattern whitespace = Pattern.compile("^|\\s+"); // match the start of the text, or any sequence of whitespace
-	private static Pattern rankPattern = Pattern.compile("\\b(T\\.?/|temp(orary)?\\s+)?(A/|acting(-|\\s+)|act-|Ac\\.\\-|A\\.\\-|honorary\\s+|brevet\\s+)?(lance(\\s+|\\-))?(Boy|Cadet|Bandsman|bdsm|cyclist|troope?r|Private|Pte|s\\.s\\.m\\.?|rifleman|Drumr|Drummer|Dmr|Bdsmn|Dvr|Pioneer|Pnr|Gunner|GNR|Gnr|Spr|Corp(oral)?|Corpl|Cpl|L/Cpl|L/C|LCPL|L.{1,2}?Cpl|L-(Corpl|Sgt)|LCorpl|Lance-Corpl|Sgt Drummer|C/Sgt|CSjt|CSgt|C/Sjt|C Sgt|CRSGT|CR SGT|L\\.?-SERGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt(-major)?|Sjt|(COMPANY )?QUARTERMASTER SERG(EAN)?T|drill instructor|QMSgt|Q\\.?\\-?M\\.?\\-?S|Qr Mr Sjt|Serjeant|QUARTERMASTER-SERGEANT|(2nd.)?Sergeant(.major)?|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|SSgt|Band Sjt|S\\.Q\\.M\\.S\\.|CQMS|Company Sergeant Major|CSM|C\\.?\\-?S\\.?\\-?M\\.?|CO-SERGT-MAJOR|CSMjr|RSM|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt|2nd lieut(enant)?|second.lieut(enant)?\\.?|Sec-Lieut|2Lieut|2 Lieut|Lt & Adjt|Lt Col(onel)?|Lieut\\.Col(onel)?|Lieutenant.Col(onel)?|Lieut\\.?-Col(onel)?|Lt.\\-Col|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|LIEUT-GENERAL|General|Gen|Surgeon|unk)\\b(\\(Temp\\)\\b)?\\.?", Pattern.CASE_INSENSITIVE);
+	private static Pattern rankPattern = Pattern.compile("\\b(T\\.?/|temp(orary)?\\s+)?(A/|acting(-|\\s+)|act-|Ac\\.\\-|A\\.\\-|honorary\\s+|brevet\\s+)?(lance(\\s+|\\-))?(Boy|Cadet|Bandmaster|Bandsman|bdsm|bds|cyclist|troope?r|Private|Pte|Pt\\.|s\\.s\\.m\\.?|rifleman|Drumr|Drummer|Dmr|Bdsmn|Dvr|Pioneer|Pnr|Gunner|GNR|Gnr|Spr|Corp(oral)?|Corpl|Cpl|L/Cpl|L/C|LCPL|L.{1,2}?Cpl|L-(Corpl|Sgt)|LCorpl|Lance-Corpl|Sgt Drummer|C/Sgt|CSjt|CSgt|C/Sjt|C Sgt|CRSGT|CR SGT|L\\.?-SERGT|L/Sgt|Lance Sergeant|L/Sjt|Sergt(-major)?|Sjt|(COMPANY )?QUARTERMASTER SERG(EAN)?T|drill instructor|QMSgt|Q\\.?\\-?M\\.?\\-?S|Qr Mr Sjt|Serjeant|QUARTERMASTER-SERGEANT|(2nd.)?Sergeant(.major)?|Sgt Major|S/ Mjr|Sgt Maj|S Mjr|SMjr|Sgt|SSgt|Band Sjt|S\\.Q\\.M\\.S\\.|CQMS|Company Sergeant Major|CSM|C\\.?\\-?S\\.?\\-?M\\.?|CO-SERGT-MAJOR|CSMjr|R\\.?S\\.?M\\.?|RQMS|WO2|W O Cl2|WO Cl II|WO Cl2|WO1|2Lt|2/Lt|2nd lieut(enant)?|second.lieut(enant)?\\.?|Sec-Lieut|2Lieut|2/Lieut|2 Lieut|Lt & Adjt|Lt Col(onel)?|Lieut\\.Col(onel)?|Lieutenant.Col(onel)?|Lieut\\.?\\s?-?\\s?Col(onel)?|Lt.\\-Col|Lieutenant|Lt|Lieut|Captain|Capt|T/Capt|Major|Maj|Colonel|Col|Brigadier|Brig|Brig Gen|Brigadier General|Brigadier-General|LIEUT-GENERAL|General|Gen|Surgeon|unk)\\b(\\(Temp\\)\\b)?\\.?", Pattern.CASE_INSENSITIVE);
 	private static Pattern numberPattern = Pattern.compile("\\b(No\\.?\\s+)?([A-Z]{1,2}/)?\\d[\\d-/]+(\\s)");
 //	private static Pattern initialsPattern = Pattern.compile("^(([A-Z](\\s|\\.\\s?))+).+");
 	private static Pattern initialsPattern = Pattern.compile("\\b(([A-Z](\\s|\\.\\s?))+)");
 	private static Pattern initialsSpacedPattern = Pattern.compile("^([A-Z]\\s)+");
-	private static Pattern titlePattern = Pattern.compile("mr\\.?s?|the hon\\.?(ourable)?|sir|lord|(the )?rev|", Pattern.CASE_INSENSITIVE);
+	private static Pattern titlePattern = Pattern.compile("mr\\.?s?|the hon\\.?(ourable)?|sir|lord|(the )?rev\\.?", Pattern.CASE_INSENSITIVE);
 
 	private static Pattern namePattern = Pattern.compile("(([A-Z](\\s?|\\.\\s?))+)?([A-Z][a-z]+(\\-|\\s{1,2}|,|\\.|$))+(\\s+([A-Z](\\s|\\.\\s?))+)?");
-	private static Pattern surnamePattern = Pattern.compile("\\b([A-Z][a-z]+(\\-|\\s{1,2}|\\.)?)+");
-	private static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|KCB|DSO|MC|VC|RAMC|DCM|OBE|CBE|RE|MM|CB|CME|TD|ASC|JP))+$");
+	private static Pattern surnamePattern = Pattern.compile("\\b([A-Z][a-z]+(\\-|\\s{1,2}|\\.)?)+$|\\b[A-Z|\\-]+$");
+	private static Pattern suffixPattern = Pattern.compile("(\\s+(GCMG|KSCG|K\\.?C\\.?B\\.?|D\\.?S\\.?O\\.?|M\\.?C\\.?|V\\.?C\\.?|RAMC|D\\.?C\\.?M\\.?|O\\.?B\\.?E\\.?|C\\.?B\\.?E\\.?|RE|M\\.?M\\.?|CB|CME|TD|ASC|JP|C\\.?S\\.?I\\.?|G\\.?C\\.?B\\.?|A\\.?D\\.?C\\.?),?)+$");
 	private static Pattern companyPattern = Pattern.compile("[A-Z]\\s+Coy");
 	
 	private static Pattern contentPattern = Pattern.compile("^(\\d+/?\\d+)\\s+(.+?)\\s+(([A-Z]\\s)+)(.+)$");
@@ -92,39 +92,66 @@ public class Parser {
 	}
 
 	
-	public static List<String> initialsFind(String text) {
+	public static String initialsFind(String text) {
 		
-		return findAll(text, initialsPattern);
+		return find(text, initialsPattern);
 	}
 
 	
-	public static List<String> numberFind(String text) {
-
-		return findAll(text, numberPattern);
+	public static String suffixFind(String text) {
+		
+		return find(text, suffixPattern);
 	}
 
 	
-	public static List<String> surnameFind(String text) {
-
-		return findAll(text, surnamePattern);
+	public static String titleFind(String text) {
+		
+		return find(text, titlePattern);
 	}
 
 	
-	public static List<String> rankFind(String text) {
+	public static String numberFind(String text) {
+
+		return find(text, numberPattern);
+	}
+
+	
+	public static String surnameFind(String text) {
+
+		return find(text, surnamePattern);
+	}
+
+	
+	public static String rankFind(String text) {
 				
-		return findAll(text, rankPattern);
+		return find(text, rankPattern);
 	}
 
+/*
 	private static List<String> findAll(String text, Pattern pattern) {
 		
 		List<String> retval = new ArrayList<String>();
 		
-		Matcher initialsMatcher = pattern.matcher(text);
+		Matcher matcher = pattern.matcher(text);
 		
-		if ( initialsMatcher.find() ) {
+		while ( matcher.find() ) {
 			
-			String initials = initialsMatcher.group(0).trim();
-			retval.add(initials);
+			String txt = matcher.group(0).trim();
+			retval.add(txt);
+		}
+		
+		return retval;
+	}
+*/
+	private static String find(String text, Pattern pattern) {
+		
+		String retval = null;
+		
+		Matcher matcher = pattern.matcher(text);
+		
+		if ( matcher.find() ) {
+			
+			retval = matcher.group(0).trim();
 		}
 		
 		return retval;

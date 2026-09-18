@@ -7,13 +7,16 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -59,42 +62,113 @@ public class ParseList {
 	
 	public static void testX(File inputFile) throws IOException, SAXException {
 		
-		List<String> lines = FileUtils.readLines(inputFile);
-		List<Person> list = new ArrayList<Person>();	
+		Set<String> names = getNames(inputFile);
+		List<Person> list = new ArrayList<Person>();
 		
-		for ( String line: lines ) {
+		// Create a Person object for each name in the input list 
+		// We want to store and retrieve names, initials etc. as they are in the raw text (for the time being) - so set normalize flag accordingly
+		
+		for ( String name: names ) {
 			
-			List<String> ranks   = Parser.rankFind(line);
-			List<String> numbers = Parser.numberFind(line);
+			Person p = new Person();
+			p.setNormalize(false);
+			Service service = new Service();
+			p.addService(service);
+			p.setSurfaceText(StringUtils.normalizeSpace(name));
+			list.add(p);
+		}
+		
+		// Process the list to parse the surface text. We can make multiple attempts.
+		
+		// First, find rank and/or number
+		
+		for ( Person person: list ) {
 			
-			if ( ranks.size() == 1 ) {
-				
-				String temp = line.replaceAll(ranks.get(0), "");
-				List<String> initials = Parser.initialsFind(temp);
-				List<String> surnames = Parser.surnameFind(temp);
-				
-				Person person = new Person();
-				person.setSurfaceText(line);
-				if ( initials.size() > 0 ) person.setInitials(initials.get(0));
-				person.setSurname(surnames.get(0));
-				
-				Service service = new Service();
-				if ( numbers.size() == 1 ) service.setNumber(numbers.get(0));
-				service.setRank(ranks.get(0));
-				service.setRegiment("Hampshire Regiment");
-				//service.setUnit("2 Bn");
-				service.setBefore(Date.valueOf("1914-12-01"));
-				person.addService(service);
-				list.add(person);
+			String text = person.getSurfaceText();
+			String rank = Parser.rankFind(text);
+			String number = Parser.numberFind(text);
+
+			// Should be one, and only one, Service record
+			Service service = person.getService().iterator().next();
+			
+			if ( number != null )  service.setNumber(number);
+			
+			if ( rank != null ) {
+			
+				service.setRank(rank);
 			}
 			else {
 				
-				System.out.println("NO RANK: " + line);
-				
+				System.out.println("NO RANK: " + text);				
 			}
+		}	
+		
+		// Next, find title
+		
+		for ( Person person: list ) {
+			
+			String text = person.getSurfaceText();
+			String title = Parser.titleFind(text);
+			
+			if ( title != null )  person.setTitle(title);
 		}
 		
+		// Next, find suffix
+		
+		for ( Person person: list ) {
+			
+			String text = person.getSurfaceText();
+			String suffix = Parser.suffixFind(text);
+			
+			if ( suffix != null )  person.setSuffix(suffix);
+		}
+		
+		// Next, find initials
+		
+		for ( Person person: list ) {
+			
+			String text = person.getSurfaceText();
+			Service service = person.getService().iterator().next();
+			text = removeFromText(text, service.getRank());
+			text = removeFromText(text, service.getNumber());
+			text = removeFromText(text, person.getSuffix());
+			text = removeFromText(text, person.getTitle());
+
+			String initials = Parser.initialsFind(text);
+			if ( initials != null ) person.setInitials(initials);
+		}
+		
+		// Next, find surname
+		
+		for ( Person person: list ) {
+			
+			String text = person.getSurfaceText();
+			Service service = person.getService().iterator().next();
+			text = removeFromText(text, service.getRank());
+			text = removeFromText(text, service.getNumber());
+			text = removeFromText(text, person.getSuffix());
+			text = removeFromText(text, person.getInitials());
+			text = removeFromText(text, person.getTitle());
+
+			String surname = Parser.surnameFind(text);
+			if ( surname != null ) person.setSurname(surname);
+		}
+
 		serializeList(list);
+	}
+	
+	public static String removeFromText(String text, String fragment) {
+		
+		String result = text;
+		if ( fragment != null )  result = text.replaceAll(fragment, "").trim();
+		return result;
+	}
+	
+	public static Set<String> getNames(File inputFile) throws IOException {
+		
+		Set<String> names = new HashSet<>();
+		names.addAll(FileUtils.readLines(inputFile));
+		return names;
 	}
 	
 	public static void testInitials(File inputFile) throws IOException {
@@ -103,7 +177,7 @@ public class ParseList {
 		
 		for ( String line: lines ) {
 			
-			List<String> initials = Parser.numberFind(line);
+			String initials = Parser.numberFind(line);
 			System.out.println("initials: " + line + " = " + initials);
 		}
 	}
