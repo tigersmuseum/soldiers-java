@@ -27,22 +27,26 @@ public class Person {
 	private Date bornafter, bornbefore, diedafter, diedbefore;
 	private Set<Service> service = new HashSet<Service>();
 	private boolean forceToUpper = true;
+	private boolean normalize = true;
 
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 	private ServiceComparator serviceComparator = new ServiceComparator();
 	
 	private long soldierId = -1;
-
+	
 	public String getSurname() {
 		return surname;
 	}
 
 	public void setSurname(String surname) {
 		
-		if ( surname == null ) return;
-		String normal = surname.replaceAll("�", "'");
-		if ( forceToUpper )  this.surname = normal.toUpperCase();
-		else  this.surname = normal;
+		if ( surname != null && normalize ) {
+
+			String normal = surname.replaceAll("�", "'");
+			if ( forceToUpper )  this.surname = normal.toUpperCase();
+			else  this.surname = normal;			
+		}
+		else this.surname = surname;
 	}
 
 	public String getForenames() {
@@ -51,23 +55,27 @@ public class Person {
 
 	public void setForenames(String forenames) {
 		
-		if ( forenames == null || forenames.replaceAll("\\s+", "").length() == 0 ) return;
-		
-		if ( forceToUpper )  this.forenames = forenames.toUpperCase();
-		else  this.forenames = forenames;
-		
-		if ( getInitials() == null && this.forenames != null ) {
+		if ( normalize ) {
 			
-			String[] tokens = this.forenames.trim().split("\\s+");
-			StringBuffer initials = new StringBuffer();
+			if ( forenames == null || forenames.replaceAll("\\s+", "").length() == 0 ) return;
 			
-			for ( String token: tokens ) {
+			if ( forceToUpper )  this.forenames = forenames.toUpperCase();
+			else  this.forenames = forenames;
+			
+			if ( getInitials() == null && this.forenames != null ) {
 				
-				initials.append(token.substring(0, 1));
+				String[] tokens = this.forenames.trim().split("\\s+");
+				StringBuffer initials = new StringBuffer();
+				
+				for ( String token: tokens ) {
+					
+					initials.append(token.substring(0, 1));
+				}
+				
+				this.setInitials(normalizeInitials(initials.toString()));
 			}
-			
-			this.setInitials(normalizeInitials(initials.toString()));
 		}
+		else  this.forenames = forenames;
 	}
 
 	void setForenamesOnly(String forenames) {
@@ -82,7 +90,11 @@ public class Person {
 
 	public void setInitials(String initials) {
 		
-		if ( initials != null ) this.initials = normalizeInitials(initials);
+		if ( initials != null && normalize ) {
+			
+			this.initials = normalizeInitials(initials);
+		}
+		else this.initials = initials;
 	}
 
 	void setInitialsAsGiven(String initials) {
@@ -173,6 +185,10 @@ public class Person {
 	
 	public void setForceToUpper(boolean value) {		
 		this.forceToUpper = value;
+	}
+	
+	public void setNormalize(boolean value) {		
+		this.normalize = value;
 	}
 	
 	public void addService(Service svc) {
