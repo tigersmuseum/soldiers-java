@@ -65,6 +65,8 @@ public class ParseList {
 		Set<String> names = getNames(inputFile);
 		List<Person> list = new ArrayList<Person>();
 		
+		System.out.println(names.size() + " names");
+		
 		// Create a Person object for each name in the input list 
 		// We want to store and retrieve names, initials etc. as they are in the raw text (for the time being) - so set normalize flag accordingly
 		
